@@ -1,8 +1,8 @@
 <script>
-import Header from './Header.svelte';
-import Footer from './Footer.svelte';
-import Nav from './Nav.svelte';
-import Aside from './Aside.svelte';
+import Header from '$lib/Header.svelte';
+import Footer from '$lib/Footer.svelte';
+import Nav from '$lib/Nav.svelte';
+import Aside from '$lib/Aside.svelte';
 </script>
 <body>
   <div class="sitecontainer">
