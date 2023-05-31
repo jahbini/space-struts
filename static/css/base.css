@@ -96,7 +96,7 @@ abbr[title] {
   border-bottom: none; /* 1 */
   text-decoration: underline; /* 2 */
   -webkit-text-decoration: underline dotted;
-          text-decoration: underline dotted; /* 2 */
+  text-decoration: underline dotted; /* 2 */
 }
 
 /**
@@ -185,7 +185,8 @@ textarea {
  */
 
 button,
-input { /* 1 */
+input {
+  /* 1 */
   overflow: visible;
 }
 
@@ -195,7 +196,8 @@ input { /* 1 */
  */
 
 button,
-select { /* 1 */
+select {
+  /* 1 */
   text-transform: none;
 }
 
@@ -370,7 +372,7 @@ template {
  */
 
 html {
-    font-family: sans-serif;
+  font-family: sans-serif;
 }
 
 /**
@@ -379,7 +381,7 @@ html {
 
 .hidden,
 [hidden] {
-    display: none !important;
+  display: none !important;
 }
 
 /**
@@ -387,7 +389,7 @@ html {
  * aspect ratio.
  */
 .pure-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
+  max-width: 100%;
+  height: auto;
+  display: block;
 }

@@ -7,14 +7,14 @@ https://github.com/pure-css/pure/blob/master/LICENSE
 /*csslint regex-selectors:false, known-properties:false, duplicate-properties:false*/
 
 .pure-g {
-    display: flex;
-    flex-flow: row wrap;
+  display: flex;
+  flex-flow: row wrap;
 
-    /* Prevents distributing space between rows */
-    align-content: flex-start;
+  /* Prevents distributing space between rows */
+  align-content: flex-start;
 }
 
 .pure-u {
-    display: inline-block;
-    vertical-align: top;
+  display: inline-block;
+  vertical-align: top;
 }

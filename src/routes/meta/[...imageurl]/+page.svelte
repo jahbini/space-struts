@@ -1,15 +1,48 @@
 <script>
-    /** @type {import('./$types').PageData} */
- import  { page }  from '$app/stores'
- export let data;
+  /** @type {import('./$types').PageData} */
+  import { page } from "$app/stores";
 </script>
 
-
 <div>
+  <container class="grid">
+    <p>{console.log($page.data)}</p>
+    <img src={$page.params.imageurl} alt="image" />
+    <pre>
+  {@debug $page}
+  {JSON.stringify($page.data.image)}
+</pre>
+    <form method="POST" action="/meta?/create">
+      <!-- Markup example 1: input is inside label -->
+      <label for="keywords">
+        keywords
+        <input type="text" id="keywords" name="keywords" value={$page.data.image.tags} required />
+      </label>
 
-<h1>{data.image.title}</h1>
-<div>{@html data.image.content}</div>
-<img style="max-width:25%" src="{$page.params.imageurl}" alt="image" />
+      <label for="headline">
+        Head Line
+        <input
+          type="text"
+          id="headline"
+          name="headline"
+          value={$page.data.image.headline}
+          required
+        />
+      </label>
+
+      <!-- Markup example 2: input is after label -->
+      <label for="photoDescription">tell us more...</label>
+      <textarea
+        columns="40"
+        rows="5"
+        id="photoDecription"
+        name="photoDecription"
+        value={$page.data.image.photoDecryption}
+      />
+      <input type="hidden" id="photoID" name="photoID" value={$page.data.image.photoURL} />
+
+      <button type="submit">Submit</button>
+    </form>
+  </container>
 </div>
 
 <style>

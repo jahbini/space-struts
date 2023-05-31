@@ -1,15 +1,17 @@
 <script>
-export const identifier="nav"
+  export const identifier = "nav";
 </script>
 
-<div class=nav>
-Wow a NAV gull
+<div class="nav">
+  <a role="button" href="/">Home</a>
+  <a role="button" href="/register">Sign up</a>
+  <a role="button" href="/login">Sign in</a>
 </div>
 
 <style>
-.nav {
-  background: #eee;
-  padding: 1rem;
-  grid-area: Nav;
-}
+  .nav {
+    background: #531;
+    padding: 1rem;
+    grid-area: Nav;
+  }
 </style>

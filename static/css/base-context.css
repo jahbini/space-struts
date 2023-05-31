@@ -19,10 +19,10 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure {
-    line-height: 1.15;
-    /* 1 */
-    -webkit-text-size-adjust: 100%;
-    /* 2 */
+  line-height: 1.15;
+  /* 1 */
+  -webkit-text-size-adjust: 100%;
+  /* 2 */
 }
 
 /* Sections
@@ -33,7 +33,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure {
-    margin: 0;
+  margin: 0;
 }
 
 /**
@@ -41,7 +41,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure main {
-    display: block;
+  display: block;
 }
 
 /**
@@ -50,8 +50,8 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure h1 {
-    font-size: 2em;
-    margin: 0.67em 0;
+  font-size: 2em;
+  margin: 0.67em 0;
 }
 
 /* Grouping content
@@ -63,12 +63,12 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure hr {
-    box-sizing: content-box;
-    /* 1 */
-    height: 0;
-    /* 1 */
-    overflow: visible;
-    /* 2 */
+  box-sizing: content-box;
+  /* 1 */
+  height: 0;
+  /* 1 */
+  overflow: visible;
+  /* 2 */
 }
 
 /**
@@ -77,10 +77,10 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure pre {
-    font-family: monospace, monospace;
-    /* 1 */
-    font-size: 1em;
-    /* 2 */
+  font-family: monospace, monospace;
+  /* 1 */
+  font-size: 1em;
+  /* 2 */
 }
 
 /* Text-level semantics
@@ -91,7 +91,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure a {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 /**
@@ -100,13 +100,13 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure abbr[title] {
-    border-bottom: none;
-    /* 1 */
-    text-decoration: underline;
-    /* 2 */
-    -webkit-text-decoration: underline dotted;
-            text-decoration: underline dotted;
-    /* 2 */
+  border-bottom: none;
+  /* 1 */
+  text-decoration: underline;
+  /* 2 */
+  -webkit-text-decoration: underline dotted;
+  text-decoration: underline dotted;
+  /* 2 */
 }
 
 /**
@@ -115,7 +115,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 
 .pure b,
 .pure strong {
-    font-weight: bolder;
+  font-weight: bolder;
 }
 
 /**
@@ -126,10 +126,10 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 .pure code,
 .pure kbd,
 .pure samp {
-    font-family: monospace, monospace;
-    /* 1 */
-    font-size: 1em;
-    /* 2 */
+  font-family: monospace, monospace;
+  /* 1 */
+  font-size: 1em;
+  /* 2 */
 }
 
 /**
@@ -137,7 +137,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure small {
-    font-size: 80%;
+  font-size: 80%;
 }
 
 /**
@@ -147,18 +147,18 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 
 .pure sub,
 .pure sup {
-    font-size: 75%;
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline;
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
 }
 
 .pure sub {
-    bottom: -0.25em;
+  bottom: -0.25em;
 }
 
 .pure sup {
-    top: -0.5em;
+  top: -0.5em;
 }
 
 /* Embedded content
@@ -169,7 +169,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure img {
-    border-style: none;
+  border-style: none;
 }
 
 /* Forms
@@ -185,14 +185,14 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 .pure optgroup,
 .pure select,
 .pure textarea {
-    font-family: inherit;
-    /* 1 */
-    font-size: 100%;
-    /* 1 */
-    line-height: 1.15;
-    /* 1 */
-    margin: 0;
-    /* 2 */
+  font-family: inherit;
+  /* 1 */
+  font-size: 100%;
+  /* 1 */
+  line-height: 1.15;
+  /* 1 */
+  margin: 0;
+  /* 2 */
 }
 
 /**
@@ -202,8 +202,8 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 
 .pure button,
 .pure input {
-    /* 1 */
-    overflow: visible;
+  /* 1 */
+  overflow: visible;
 }
 
 /**
@@ -213,8 +213,8 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 
 .pure button,
 .pure select {
-    /* 1 */
-    text-transform: none;
+  /* 1 */
+  text-transform: none;
 }
 
 /**
@@ -225,7 +225,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 .pure [type="button"],
 .pure [type="reset"],
 .pure [type="submit"] {
-    -webkit-appearance: button;
+  -webkit-appearance: button;
 }
 
 /**
@@ -236,8 +236,8 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 .pure [type="button"]::-moz-focus-inner,
 .pure [type="reset"]::-moz-focus-inner,
 .pure [type="submit"]::-moz-focus-inner {
-    border-style: none;
-    padding: 0;
+  border-style: none;
+  padding: 0;
 }
 
 /**
@@ -248,7 +248,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 .pure [type="button"]:-moz-focusring,
 .pure [type="reset"]:-moz-focusring,
 .pure [type="submit"]:-moz-focusring {
-    outline: 1px dotted ButtonText;
+  outline: 1px dotted ButtonText;
 }
 
 /**
@@ -256,7 +256,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure fieldset {
-    padding: 0.35em 0.75em 0.625em;
+  padding: 0.35em 0.75em 0.625em;
 }
 
 /**
@@ -267,18 +267,18 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure legend {
-    box-sizing: border-box;
-    /* 1 */
-    color: inherit;
-    /* 2 */
-    display: table;
-    /* 1 */
-    max-width: 100%;
-    /* 1 */
-    padding: 0;
-    /* 3 */
-    white-space: normal;
-    /* 1 */
+  box-sizing: border-box;
+  /* 1 */
+  color: inherit;
+  /* 2 */
+  display: table;
+  /* 1 */
+  max-width: 100%;
+  /* 1 */
+  padding: 0;
+  /* 3 */
+  white-space: normal;
+  /* 1 */
 }
 
 /**
@@ -286,7 +286,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure progress {
-    vertical-align: baseline;
+  vertical-align: baseline;
 }
 
 /**
@@ -294,7 +294,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure textarea {
-    overflow: auto;
+  overflow: auto;
 }
 
 /**
@@ -304,10 +304,10 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 
 .pure [type="checkbox"],
 .pure [type="radio"] {
-    box-sizing: border-box;
-    /* 1 */
-    padding: 0;
-    /* 2 */
+  box-sizing: border-box;
+  /* 1 */
+  padding: 0;
+  /* 2 */
 }
 
 /**
@@ -316,7 +316,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 
 .pure [type="number"]::-webkit-inner-spin-button,
 .pure [type="number"]::-webkit-outer-spin-button {
-    height: auto;
+  height: auto;
 }
 
 /**
@@ -325,10 +325,10 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure [type="search"] {
-    -webkit-appearance: textfield;
-    /* 1 */
-    outline-offset: -2px;
-    /* 2 */
+  -webkit-appearance: textfield;
+  /* 1 */
+  outline-offset: -2px;
+  /* 2 */
 }
 
 /**
@@ -336,7 +336,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure [type="search"]::-webkit-search-decoration {
-    -webkit-appearance: none;
+  -webkit-appearance: none;
 }
 
 /**
@@ -345,10 +345,10 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure ::-webkit-file-upload-button {
-    -webkit-appearance: button;
-    /* 1 */
-    font: inherit;
-    /* 2 */
+  -webkit-appearance: button;
+  /* 1 */
+  font: inherit;
+  /* 2 */
 }
 
 /* Interactive
@@ -359,7 +359,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure details {
-    display: block;
+  display: block;
 }
 
 /*
@@ -367,7 +367,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure summary {
-    display: list-item;
+  display: list-item;
 }
 
 /* Misc
@@ -378,7 +378,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure template {
-    display: none;
+  display: none;
 }
 
 /**
@@ -386,7 +386,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure [hidden] {
-    display: none;
+  display: none;
 }
 
 /*csslint important:false*/
@@ -400,7 +400,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure {
-    font-family: sans-serif;
+  font-family: sans-serif;
 }
 
 /**
@@ -409,7 +409,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 
 .pure .hidden,
 .pure [hidden] {
-    display: none !important;
+  display: none !important;
 }
 
 /**
@@ -418,7 +418,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
  */
 
 .pure .pure-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
+  max-width: 100%;
+  height: auto;
+  display: block;
 }

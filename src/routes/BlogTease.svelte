@@ -3,4 +3,4 @@
   import Dummy from "$lib/Dummy.svelte";
 </script>
 
-<Carousel/>
+<Carousel />
