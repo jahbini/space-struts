@@ -34,9 +34,9 @@
       <textarea
         columns="40"
         rows="5"
-        id="photoDecription"
-        name="photoDecription"
-        value={$page.data.image.photoDecryption}
+        id="photoDescription"
+        name="photoDescription"
+        value={$page.data.image.photoDescription}
       />
       <input type="hidden" id="photoID" name="photoID" value={$page.data.image.photoURL} />
 

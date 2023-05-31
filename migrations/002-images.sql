@@ -5,7 +5,7 @@ CREATE TABLE images (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   headline VARCHAR(255),
   tags VARCHAR(255),
-  photoDecription VARCHAR(255),
+  photoDescription VARCHAR(255),
   photoURL VARCHAR(255) NOT NULL
 );
 
