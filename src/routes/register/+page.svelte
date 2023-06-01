@@ -1,8 +1,12 @@
 <script>
   export let form;
+  /** @type {import('./$types').PageData} */
+  import { page } from "$app/stores";
 </script>
 
 <div class="register flex flex-col justify-center items-center h-screen">
+<p>{$page.data.image}</p>
+{@debug form,page}
   <h1 class="text-3xl font-bold">Register</h1>
   <form
     class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"

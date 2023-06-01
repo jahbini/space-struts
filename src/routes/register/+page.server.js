@@ -1,6 +1,16 @@
 import { fail, redirect } from "@sveltejs/kit";
 import { createUser } from "$lib/server/database.js";
 
+
+/** @type {import('./$types').PageServerLoad} */
+export async function load({ params }) {
+	  console.log("in PageServerLoad Params", params);
+	  return {
+		  image: "WOW, something",
+		      moreData: "JAH2"
+		    };
+}
+console.log("dot server js has entered the building");
 export const actions = {
   async create({ request, cookies }) {
     const data = await request.formData();
