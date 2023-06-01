@@ -33,7 +33,10 @@ export async function createUser({ username, password, email }) {
 export async function loginUser({ email, password }) {
   const db = await getDatabase();
   const result = await db.get(`SELECT * FROM users WHERE email = ?`, email);
-  //console.log("result=",result);
+  console.log("result=",result);
+  if (!result) {
+		return null
+	};
   let match = await bcrypt.compare(password, result.password);
   //console.log("LOGIN",email,password," Match=",match);
   delete result.password;
