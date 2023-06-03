@@ -8,10 +8,10 @@
   {@html dodecahedron}
   <p>
     {#if !$page.status.error && $page.data.user}
-  {@debug page}
+      {@debug page}
       Hi, {$page.data.user.username}, welcome back!
     {:else}
-  {@debug page}
+      {@debug page}
       Greetings Stranger, come and begin to understand 3D geometry like a star ship captain
     {/if}
   </p>

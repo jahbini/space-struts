@@ -8,22 +8,21 @@ import { getImageByURL } from "$lib/server/database.js";
 //import {actions } from "./+server.js"
 
 try {
-console.log("And what is actions anyhoo?",actions);
-}
-catch {
-	console.log("AINT no actions nowhow");
+  console.log("And what is actions anyhoo?", actions);
+} catch {
+  console.log("AINT no actions nowhow");
 }
 /** @type {import('./$types').Actions} */
 export const actions = {
-	POST: async (event) => {
-	console.log("IS this the POST event???",event);
-	},
-	default: async (event) => {
-	console.log("IS this the DEFAULT event???",event);
-	},
-	create: async (event) => {
-	console.log("IS this the CREATE event???",event);
-	}
+  POST: async (event) => {
+    console.log("IS this the POST event???", event);
+  },
+  default: async (event) => {
+    console.log("IS this the DEFAULT event???", event);
+  },
+  create: async (event) => {
+    console.log("IS this the CREATE event???", event);
+  }
 };
 
 /** @type {import('./$types').PageServerLoad} */

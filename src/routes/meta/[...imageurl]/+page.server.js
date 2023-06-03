@@ -15,32 +15,22 @@ export async function load({ params }) {
   };
 }
 import { fail, redirect } from "@sveltejs/kit";
-import { createUser } from "$lib/server/database.js";
+import { setImage } from "$lib/server/database.js";
 
 export const actions = {
   async create({ request, cookies }) {
     const data = await request.formData();
-    const username = data.get("username");
-    const password1 = data.get("password");
-    const password2 = data.get("confirmPassword");
-    const email = data.get("email");
-    // form validation
-    if (password1 !== password2) {
+    const photoURL = data.get("photoURL");
+    const tags = data.get("tags");
+    const headline = data.get("headline");
+    const photoDescription = data.get("photoDescription");
+    const update = await setImage({ tags, photoURL, headline, photoDescription });
+    if (!update) {
       return fail(422, {
-        error: "Passwords do not match"
+        error: "sorry, some error occurred"
       });
     }
 
-    // create user
-    const userId = await createUser({
-      username,
-      password: password1,
-      email
-    });
-
-    // set cookie
-    cookies.set("userId", userId);
-    // redirect to home page
     throw redirect(302, "/");
   }
 };

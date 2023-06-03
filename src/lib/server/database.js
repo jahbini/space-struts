@@ -32,13 +32,13 @@ export async function createUser({ username, password, email }) {
 
 export async function loginUser({ email, password }) {
   const db = await getDatabase();
-  console.log("ready to select from email:",email);
+  console.log("ready to select from email:", email);
   var result = await db.get(`SELECT * FROM users WHERE email = ?`, email);
-  console.log("result=",result);
+  console.log("result=", result);
   if (undefined === result || !result.password) {
-      return null
-	};
-  console.log("again! result=",result);
+    return null;
+  }
+  console.log("again! result=", result);
   let match = await bcrypt.compare(password, result.password);
   //console.log("LOGIN",email,password," Match=",match);
   delete result.password;
@@ -69,14 +69,27 @@ export async function getImageByURL(params) {
   return result2;
 }
 
-export async function setImage({ id, photoURL, headline, tags, photoDescription }) {
+//export async function setImage({ stuff}) {
+export async function setImage({ photoURL, headline, tags, photoDescription }) {
   const db = await getDatabase();
+  sqlite3.verbose();
+  console.log("image from form", photoURL, headline, tags, photoDescription);
+
+  db.on("trace", (data) => {
+    console.log("SQL PROB", JSON.stringify(data));
+  });
+
   const result = await db.run(
-    `INSERT INTO images WHERE photoURL=? VALUES (?, ?, ?)`,
-    photoUrl,
-    headline,
-    tags,
-    photoDescription
+    'UPDATE images SET headline = "' +
+      headline +
+      '", tags = "' +
+      tags +
+      '", photoDescription = "' +
+      photoDescription +
+      '" WHERE photoURL = "' +
+      photoURL +
+      '"'
   );
+  console.log("SQL result", result);
   return result;
 }

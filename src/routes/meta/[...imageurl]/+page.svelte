@@ -11,11 +11,11 @@
   {@debug $page}
   {JSON.stringify($page.data.image)}
 </pre>
-    <form method="POST" action="/meta?/create">
+    <form method="POST" action="/meta/[...imageurl]?/create">
       <!-- Markup example 1: input is inside label -->
-      <label for="keywords">
+      <label for="tags">
         keywords
-        <input type="text" id="keywords" name="keywords" value={$page.data.image.tags} required />
+        <input type="text" id="tags" name="tags" value={$page.data.image.tags} required />
       </label>
 
       <label for="headline">
@@ -38,7 +38,7 @@
         name="photoDescription"
         value={$page.data.image.photoDescription}
       />
-      <input type="hidden" id="photoID" name="photoID" value={$page.data.image.photoURL} />
+      <input type="text" id="photoURL" name="photoURL" value={$page.data.image.photoURL} />
 
       <button type="submit">Submit</button>
     </form>

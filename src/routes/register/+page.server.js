@@ -1,14 +1,13 @@
 import { fail, redirect } from "@sveltejs/kit";
 import { createUser } from "$lib/server/database.js";
 
-
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params }) {
-	  console.log("in PageServerLoad Params", params);
-	  return {
-		  image: "WOW, something",
-		      moreData: "JAH2"
-		    };
+  console.log("in PageServerLoad Params", params);
+  return {
+    image: "KWOW, something",
+    moreData: "JAH2"
+  };
 }
 console.log("dot server js has entered the building");
 export const actions = {
@@ -38,3 +37,5 @@ export const actions = {
     throw redirect(302, "/");
   }
 };
+
+console.log("ACTIONS ON REGISTER", JSON.stringify(actions), actions);

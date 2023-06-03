@@ -1,10 +1,15 @@
 <script>
   export let form;
+  /** @type {import('./$types').PageData} */
+  import { page } from "$app/stores";
+  const who = "login stuff";
 </script>
 
-<div class="register flex flex-col justify-center items-center h-screen">
-  <h1 class="text-3xl font-bold">Login</h1>
+<div class="login flex flex-col justify-center items-center h-screen">
+  <h1 class="text-3xl font-bold">HELLO?? Login</h1>
   <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" method="POST" action="/login?/login">
+    <p>{$page.data.image}</p>
+    {@debug who, form, $page}
     {#if form?.error}
       <div
         class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"

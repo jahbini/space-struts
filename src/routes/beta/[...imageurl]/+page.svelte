@@ -13,7 +13,7 @@
 {@debug}
   {JSON.stringify($page.data.image)}
 </pre>
-{#if form?.error}
+    {#if form?.error}
       <div
         class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
         role="alert"
@@ -21,7 +21,7 @@
         <strong class="font-bold">Error!</strong>
         <span class="block sm:inline">{form.error}</span>
       </div>
-{/if}
+    {/if}
     <form method="POST" action="/meta?/create">
       <!-- Markup example 1: input is inside label -->
       <label for="keywords">
