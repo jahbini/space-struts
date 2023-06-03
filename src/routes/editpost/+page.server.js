@@ -1,11 +1,7 @@
 import { error, json } from "@sveltejs/kit";
-//import { isLeft } from 'fp-ts/lib/Either.js';
-//import * as t from 'io-ts';
-//import { PathReporter } from 'io-ts/lib/PathReporter.js';
-
-//import { PositiveInt } from '../../types';
+import { error, json } from "@sveltejs/kit";
 import { getImageByURL, getUserById } from "$lib/server/database.js";
-
+//
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, cookies }) {
   console.log("in PageServerLoad Params", params);
@@ -43,3 +39,4 @@ export const actions = {
     throw redirect(302, "/");
   }
 };
+4;

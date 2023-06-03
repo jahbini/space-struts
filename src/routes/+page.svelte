@@ -14,7 +14,7 @@
     }
     return a;
   }
-  let showThese = shuffle(pix).slice(0, 6);
+  let showThese = shuffle(pix).slice(0, 8);
 </script>
 
 <div class="main grid">
@@ -33,20 +33,16 @@
 <div>
   <container class="grid">
     {#each showThese as index}
-      <div>{JSON.stringify(index)}</div>
       <a href="/meta/{index}">
         <article>
           <header>
             <img src={index} alt="image" />
           </header>
           <p>{index.headline}</p>
+          <p>{JSON.stringify(index)}</p>
         </article>
       </a>
     {/each}
-    <p>
-      This is the container it is mages long? This is the main page. and is full of text This is the
-      main page. and is full of text
-    </p>
   </container>
 </div>
 

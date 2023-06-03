@@ -4,6 +4,6 @@ import { fail, redirect } from "@sveltejs/kit";
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
   cookies.delete("userId");
-	console.log("Deleting user");
-	throw redirect (302,"/");
+  console.log("Deleting user");
+  throw redirect(302, "/");
 }

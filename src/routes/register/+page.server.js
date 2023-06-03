@@ -3,11 +3,11 @@ import { createUser } from "$lib/server/database.js";
 // direectory space-struts/src/routes/register
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ params ,cookies }) {
+export async function load({ params, cookies }) {
   const userId = cookies.get("userId");
-	if (userId) {
-		throw redirect(302,"/");
-	}
+  if (userId) {
+    throw redirect(302, "/");
+  }
   console.log("in PageServerLoad Params", params);
   return {
     image: "KWOW, something",

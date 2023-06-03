@@ -48,6 +48,9 @@ export async function loginUser({ email, password }) {
 export async function getUserById(id) {
   const db = await getDatabase();
   const result = await db.get(`SELECT * FROM users WHERE id = ?`, id);
+  if (!result) {
+    return null;
+  }
   delete result.password;
   return result;
 }
@@ -80,7 +83,7 @@ export async function setImage({ photoURL, headline, tags, photoDescription }) {
   });
 
   const result = await db.run(
-	  /*
+    /*
     'UPDATE images SET headline = "' +
       headline +
       '", tags = "' +
@@ -91,12 +94,8 @@ export async function setImage({ photoURL, headline, tags, photoDescription }) {
       photoURL +
       '"'
       */
-   'UPDATE images SET headline=(?), tags=(?), photoDescription=(?) WHERE photoURL =(?)',[
-	   headline,
-	   tags,
-	   photoDescription,
-	   photoURL
-   ]
+    "UPDATE images SET headline=(?), tags=(?), photoDescription=(?) WHERE photoURL =(?)",
+    [headline, tags, photoDescription, photoURL]
   );
   console.log("SQL result", result);
   return result;

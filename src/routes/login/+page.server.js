@@ -3,10 +3,10 @@ import { loginUser } from "$lib/server/database.js";
 // directory ucoa/space-struts/src/routes/login
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ params,cookies }) {
+export async function load({ params, cookies }) {
   const userId = cookies.get("userId");
   if (userId) {
-	throw redirect(302,"/");
+    throw redirect(302, "/");
   }
   console.log("in PageServerLoad Params", params);
   return {
