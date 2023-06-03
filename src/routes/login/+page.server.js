@@ -1,8 +1,13 @@
 import { fail, redirect } from "@sveltejs/kit";
 import { loginUser } from "$lib/server/database.js";
+// directory ucoa/space-struts/src/routes/login
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ params }) {
+export async function load({ params,cookies }) {
+  const userId = cookies.get("userId");
+  if (userId) {
+	throw redirect(302,"/");
+  }
   console.log("in PageServerLoad Params", params);
   return {
     image: "wSome hot stuff",

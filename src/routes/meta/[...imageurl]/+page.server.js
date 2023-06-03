@@ -4,12 +4,20 @@ import { error, json } from "@sveltejs/kit";
 //import { PathReporter } from 'io-ts/lib/PathReporter.js';
 
 //import { PositiveInt } from '../../types';
-import { getImageByURL, POST } from "$lib/server/database.js";
+import { getImageByURL, getUserById } from "$lib/server/database.js";
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ params }) {
+export async function load({ params,cookies }) {
   console.log("in PageServerLoad Params", params);
+  const userId = cookies.get("userId");
+  const user = {username: "bubba bo bob brain"}
+  if (userId != "undefined") {
+    const who  = await getUserById(userId);
+    if (who != "undefined") { user.username = who.username}
+    else user.username = "error" 
+  };
   return {
+    user,
     image: await getImageByURL(params),
     moreData: "JAH2"
   };

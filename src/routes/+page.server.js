@@ -1,9 +1,11 @@
 import { getUserById } from "$lib/server/database.js";
 
+/** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
-  const userId = cookies.get("userId");
-  if (userId == "undefined") {
-    return { user: { username: "bubba bo bob brain" } };
+  const userId = cookies.get("userId") || null;
+	console.log("USERRID :",userId);
+  if (!userId) {
+    return { user: null};
   }
 
   const user = await getUserById(userId);
