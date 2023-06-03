@@ -80,6 +80,7 @@ export async function setImage({ photoURL, headline, tags, photoDescription }) {
   });
 
   const result = await db.run(
+	  /*
     'UPDATE images SET headline = "' +
       headline +
       '", tags = "' +
@@ -89,6 +90,13 @@ export async function setImage({ photoURL, headline, tags, photoDescription }) {
       '" WHERE photoURL = "' +
       photoURL +
       '"'
+      */
+   'UPDATE images SET headline=(?), tags=(?), photoDescription=(?) WHERE photoURL =(?)',[
+	   headline,
+	   tags,
+	   photoDescription,
+	   photoURL
+   ]
   );
   console.log("SQL result", result);
   return result;
