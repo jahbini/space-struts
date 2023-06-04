@@ -2,13 +2,14 @@
   import dodecahedron from "./dodecahedron.svg?raw";
   import { page } from "$app/stores";
   export const identifier = "header";
+  let kunga = "Lib/Nav :";
 </script>
 
 <div class="header grid">
   {@html dodecahedron}
   <p>
+      {@debug kunga,$page}
     {#if !$page.status.error && $page.data.user}
-      {@debug page}
       Hi, {$page.data.user.username}, welcome back!
     {:else}
       {@debug page}

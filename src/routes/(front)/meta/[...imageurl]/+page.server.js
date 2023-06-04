@@ -10,13 +10,18 @@ import { getImageByURL, getUserById } from "$lib/server/database.js";
 export async function load({ params, cookies }) {
   console.log("in PageServerLoad Params", params);
   const userId = cookies.get("userId");
-  const user = { username: "bubba bo bob brain" };
+  let user;
   if (userId != "undefined") {
-    const who = await getUserById(userId);
-    if (who != "undefined") {
-      user.username = who.username;
-    } else user.username = "error";
+    user = await getUserById(userId);
+    try {
+          if (!user.admin) { throw redirect(302, "/"); }
+	}
+    catch { cookies.delete("userId"); throw redirect(302, "/"); }
   }
+  else {
+    cookies.delete("userId"); 
+    throw redirect(302, "/");
+	}
   return {
     user,
     image: await getImageByURL(params),
