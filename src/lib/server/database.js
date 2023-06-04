@@ -55,6 +55,24 @@ export async function getUserById(id) {
   return result;
 }
 
+export async function getAllArticles(){
+ //no params yet
+  const db = await getDatabase();
+  const result = await db.get(`SELECT * FROM articles`);
+  return result;
+}
+
+export async function getArticlesBytag(params){
+  const db = await getDatabase();
+  const result = await db.get(`SELECT * FROM articles WHERE COLUMN tag LIKE %?% `,params.tag);
+  return result;
+}
+export async function getArticlesBySlug(params){
+  const db = await getDatabase();
+  const result = await db.get(`SELECT * FROM articles WHERE SLUG = ?`,params.slug);
+  return result;
+}
+
 export async function getImageByURL(params) {
   console.log("in db getImage", params);
   const db = await getDatabase();
