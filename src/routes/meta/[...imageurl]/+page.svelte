@@ -38,7 +38,7 @@
         name="photoDescription"
         value={$page.data.image.photoDescription}
       />
-      <input type="text" id="photoURL" name="photoURL" value={$page.data.image.photoURL} />
+      <input type="hidden" id="photoURL" name="photoURL" value={$page.data.image.photoURL} />
 
       <button type="submit">Submit</button>
     </form>
