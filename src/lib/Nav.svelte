@@ -6,7 +6,6 @@
 
 <div class="nav">
   <a role="button" href="/">Home</a>
-  {@debug myId, page}
   {#if $page.data.user}
     <a data-sveltekit-reload role="button" href="/logout">Sign out</a>
    {#if $page.data.user && $page.data.user.admin}

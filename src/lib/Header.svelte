@@ -8,11 +8,9 @@
 <div class="header grid">
   {@html dodecahedron}
   <p>
-      {@debug kunga,$page}
     {#if !$page.status.error && $page.data.user}
       Hi, {$page.data.user.username}, welcome back!
     {:else}
-      {@debug page}
       Greetings Stranger, come and begin to understand 3D geometry like a star ship captain
     {/if}
   </p>
