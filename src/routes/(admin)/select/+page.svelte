@@ -7,13 +7,12 @@
   <container class="grid">
     <p>{console.log($page.data)}</p>
        {@debug $page}
-      <button type="submit">New Article</button>
+    <a href="/editpost?new"> Create new article<a/>  
     <ul>
     {#each $page.data.articles as article }
-      <li> {article.slug}</li>
+      <li> <a href="/editpost?{article.slug}"> {article.slug}</a></li>
     {/each}
     </ul>
-  <a href="/editpost"> Create new article<a/>  
   </container>
 </div>
 
