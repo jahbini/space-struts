@@ -3,7 +3,7 @@
 ----------------------------
 CREATE TABLE articles (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  published BOOLEAN,
+  published DATE,
   headline VARCHAR(255),
   tags VARCHAR(255),
   summary VARCHAR(512),

@@ -2,17 +2,17 @@
 import  Header  from "$lib/Header.svelte";
 const thisFile = "src/routes/(admin)/editpost";
 import { page } from '$app/stores';
-let tag,slug;
-$: ( { headline, text,summary, tags, slug} = $page.data.article);
+let tag;
+$: ( {id, headline, text,summary, tags,published} = $page.data.article);
 </script>
   <container class="grid">
     {JSON.stringify($page)}
   {@debug thisFile,$page}
-    <form method="POST" action="/editpost/create">
+    <form method="POST" action="/editpost?" >
       <!-- Markup example 1: input is inside label -->
-      <label for="slug">
+      <label for="published">
         Sluggo Line
-        <input type="text" id="slug" name="slug" value={slug} required />
+        <input type="text" id="published" name="published" value={published} />
       </label>
 
       <label for="tags">
@@ -47,6 +47,7 @@ $: ( { headline, text,summary, tags, slug} = $page.data.article);
         value={text}
       />
 
+      <input type="hidden" id="id" name="id" value={id} />
       <button type="submit">Submit</button>
     </form>
   </container>

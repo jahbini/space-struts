@@ -1,9 +1,10 @@
 import { error, json } from "@sveltejs/kit";
-import { getAllArticles, getUserById } from "$lib/server/database.js";
+import { getAllArticleIdAndHeadline, getUserById } from "$lib/server/database.js";
 //
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, cookies }) {
   console.log("in Manage PageServerLoad list All Articles", params);
+  console.log("peek at articles:", await getAllArticleIdAndHeadline() );
   // guard this page from casual eyes
   const userId = cookies.get("userId");
   if (userId != "undefined") {
@@ -15,7 +16,7 @@ export async function load({ params, cookies }) {
   return {
     //it has to work when the article list is empty
     user:user,
-    articles:[]
+    articles:getAllArticleIdAndHeadline()
    } 
   
 }

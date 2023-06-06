@@ -55,10 +55,11 @@ export async function getUserById(id) {
   return result;
 }
 
-export async function getAllArticles(){
+export async function getAllArticleIdAndHeadline(){
  //no params yet
   const db = await getDatabase();
-  const result = await db.get(`SELECT * FROM articles`);
+  const result = await db.all(`SELECT id, headline  FROM articles`);
+  console.log("result of all articles",result);
   return result;
 }
 
@@ -67,10 +68,34 @@ export async function getArticlesBytag(params){
   const result = await db.get(`SELECT * FROM articles WHERE COLUMN tag LIKE %?% `,params.tag);
   return result;
 }
-export async function getArticlesBySlug(params){
+
+
+export async function putArticleById({ id, headline, tags, text,summary,published }) {
   const db = await getDatabase();
-  const result = await db.get(`SELECT * FROM articles WHERE SLUG = ?`,params.slug);
-  return result;
+console.log("putting article?",id,headline);
+   
+  return await db.run(
+    "UPDATE articles SET headline=(?), tags=(?), summary=(?), text=(?),published=(?) WHERE id =(?)",
+    [headline, tags, summary, text, published,id]
+	);
+}
+
+export async function getArticleById({ id, headline, tags, text,summary,published }) {
+  const db = await getDatabase();
+console.log("getting article?",id,headline);
+  if (id && id != "new"  ) {
+	  let result = await db.get(`SELECT * FROM articles WHERE id = ?`, id);
+	  console.log("account from ID returning ", result);
+	  if (result) return result;
+   }
+  // if no id we will create a new one. 
+  const result = await db.run(
+    'INSERT INTO articles (headline,tags,text,summary,published) VALUES (?, ?, ?, ?, ?)',
+    [  headline, tags, text, summary, published ]
+  );
+  result.lastID;
+  console.log("we got a result from the article DB");
+  return await db.get(`SELECT * FROM articles WHERE id = ?`, result.lastID);
 }
 
 export async function getImageByURL(params) {
@@ -101,17 +126,6 @@ export async function setImage({ photoURL, headline, tags, photoDescription }) {
   });
 
   const result = await db.run(
-    /*
-    'UPDATE images SET headline = "' +
-      headline +
-      '", tags = "' +
-      tags +
-      '", photoDescription = "' +
-      photoDescription +
-      '" WHERE photoURL = "' +
-      photoURL +
-      '"'
-      */
     "UPDATE images SET headline=(?), tags=(?), photoDescription=(?) WHERE photoURL =(?)",
     [headline, tags, photoDescription, photoURL]
   );

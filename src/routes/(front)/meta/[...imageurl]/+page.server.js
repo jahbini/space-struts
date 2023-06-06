@@ -6,6 +6,9 @@ import { error, json } from "@sveltejs/kit";
 //import { PositiveInt } from '../../types';
 import { getImageByURL, getUserById } from "$lib/server/database.js";
 
+import { fail, redirect } from "@sveltejs/kit";
+import { setImage } from "$lib/server/database.js";
+
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, cookies }) {
   console.log("in PageServerLoad Params", params);
@@ -28,8 +31,6 @@ export async function load({ params, cookies }) {
     moreData: "JAH2"
   };
 }
-import { fail, redirect } from "@sveltejs/kit";
-import { setImage } from "$lib/server/database.js";
 
 export const actions = {
   async create({ request, cookies }) {

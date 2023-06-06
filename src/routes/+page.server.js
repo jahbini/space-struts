@@ -3,7 +3,7 @@ import { getUserById } from "$lib/server/database.js";
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
   const userId = cookies.get("userId") || null;
-  console.log("USERRID :", userId);
+  console.log("Main page server USERRID :", userId);
   if (!userId) {
     return { user: null };
   }
