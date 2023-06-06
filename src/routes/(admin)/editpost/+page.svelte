@@ -6,7 +6,6 @@ let tag;
 $: ( {id, headline, text,summary, tags,published} = $page.data.article);
 </script>
   <container class="grid">
-    {JSON.stringify($page)}
   {@debug thisFile,$page}
     <form method="POST" action="/editpost?" >
       <!-- Markup example 1: input is inside label -->

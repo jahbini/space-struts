@@ -5,11 +5,9 @@
 
 <div>
   <container class="grid">
-    <p>{console.log($page.data)}</p>
     <img src={$page.params.imageurl} alt="image" />
     <pre>
   {@debug $page}
-  {JSON.stringify($page.data.image)}
 </pre>
     <form method="POST" action="/meta/[...imageurl]?/create">
       <!-- Markup example 1: input is inside label -->

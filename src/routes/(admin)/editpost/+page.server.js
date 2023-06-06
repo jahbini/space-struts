@@ -10,18 +10,14 @@ export async function load({ url, cookies }) {
 		  summary:"what's it all about",
 		  text:"spill the beans..."
 	}
-  console.log("in Manage PageServerLoad set stage for articles",  url);
   // guard this page from casual eyes
   const userId = cookies.get("userId");
   if (userId != "undefined") {
     const user = await getUserById(userId);
-console.log("Must be admin user",user);
     try {
-console.log("must be ?new or a number  ",url.searchParams);
 
 	  if (!user.admin) { throw redirect(302, "/"); }
           let article = url.searchParams.get('article');
-console.log("what is article??",article);
 
 	articleData = getArticleById({id:article,...articleData});
 	}
@@ -44,7 +40,6 @@ export const actions = {
     const headline = data.get("headline");
     const published = data.get("published");
     const id = data.get("id")
-    console.log("formData??",id,published,headline,tags,text,summary,"That is all...");
     const update = await putArticleById({ id,tags,  headline, text, summary, published });
     if (!update) {
       return fail(422, {

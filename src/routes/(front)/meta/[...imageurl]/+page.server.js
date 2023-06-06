@@ -11,7 +11,6 @@ import { setImage } from "$lib/server/database.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, cookies }) {
-  console.log("in PageServerLoad Params", params);
   const userId = cookies.get("userId");
   let user;
   if (userId != "undefined") {
