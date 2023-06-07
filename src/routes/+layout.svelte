@@ -36,7 +36,6 @@
   .site {
     display: grid;
     grid-template-columns: 10% 75% 15%;
-    grid-template-rows: 10% 5% minmax(auto,75%)  5%;
     grid-template-areas:
       "Header Header Header"
       "Nav Nav Nav"
