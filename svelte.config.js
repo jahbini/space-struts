@@ -4,9 +4,10 @@ import preprocess from 'svelte-preprocess'
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  extensions: ['.svelte', '.md'],
+  extensions: ['.svelte', '.svx', '.md'],
   preprocess: [
-    mdsvex({ extensions: ['md']})
+  preprocess({}),
+    mdsvex({ extensions: ['md','svx']})
   ],
   prerender: { default: true},
   kit: {
