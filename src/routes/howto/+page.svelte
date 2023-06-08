@@ -1,9 +1,12 @@
 <script>
-	import Hello from "./Hello.svelte"
-	export let name = 'world';
 </script>
-something
 
-<Hello class="hello" />
 
-nothing
+<template lang="pug">
+h1 Svelte/SvelteKit 
+p  
+  |  Hi! Want to learn more about Svelte and SvelteKit? So do I! 
+  |  Gemo Beamo 
+  | . 
+
+</template>
