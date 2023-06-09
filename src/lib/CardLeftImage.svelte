@@ -3,26 +3,26 @@ export let heading;
 export let image;
 </script>
 
-<container class=flex>
+<container class="horizontal">
+<div class="photo">
+{heading}
 <img src="{image}" alt="slme" />
-<div>{heading}</div>
-<div><slot></slot></div>
+</div>
+<container><slot></slot></container>
 </container>
 
 <style>
 img {
  display: inline;
- width:175px;
 }
-.flex {
- display: inline-flex;
+.horizontal {
+  display:flex;
+  flex-direction: row;
 }
-div {
-   font-size:2em;
-   display:inline;
-   color:red;
+.photo {
+   font-size:1.2em;
+   min-width:175px;
+   max-width:175px;
 }
-.slot {
-  display:inline-block;
-}
+container container { padding: 1em ;}
 </style>
