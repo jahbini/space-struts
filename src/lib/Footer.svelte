@@ -8,9 +8,10 @@
 
 <style>
   .footer {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem;
-    grid-area: Footer;
+    background-color: #999;
+    padding: 0in;
+    position: fixed;
+    bottom: 0px;
+    
   }
 </style>

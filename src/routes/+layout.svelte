@@ -7,16 +7,16 @@
 
 <body>
   <div class="sitecontainer">
-    <div class="site">
       <Header class="" />
       <Nav class="" />
+    <div class="site">
       <div class="mainly">
         <slot />
       </div>
       <Aside />
-      <Footer />
     </div>
   </div>
+      <Footer />
 </body>
 
 <style>
@@ -26,7 +26,9 @@
    height: 100%;
   }
   .sitecontainer {
-    padding: 0;
+    padding: 0.1in;
+    display: flex;
+    flex-direction: column;
     height: 100vh;
     width: 100vw;
   }
@@ -37,10 +39,7 @@
     display: grid;
     grid-template-columns: 10% 75% 15%;
     grid-template-areas:
-      "Header Header Header"
-      "Nav Nav Nav"
-      "None Main Aside"
-      "Footer Footer Footer";
+      "None Main Aside";
     min-height: 100vh;
   }
 </style>
