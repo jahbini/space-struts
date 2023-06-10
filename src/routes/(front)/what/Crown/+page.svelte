@@ -4,8 +4,8 @@ import Card from '/src/lib/CardLeftImage.svelte';
 </script>
 
 <template lang="pug" >
-<Card image="/src/lib/space-struts/IMG_2540.jpeg" heading="The Collar" >
-p The Collar is made of 10 gnomon triangles.  Several joined together make a pentagonal corridor.
+<Card image="/src/lib/space-struts/IMG_2540.jpeg" heading="The Crown" >
+p The Crown is made with ten GGs linked together like a wreath.  Several joined together make a pentagonal corridor.
 
 p it also might work as a tractor wheel.
 </Card>
