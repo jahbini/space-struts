@@ -3,25 +3,25 @@
   import { page } from "$app/stores";
   
   function splitAt(paths,n){
+        console.log("AYTHS??",paths);
 	let x = [];
 	for (let text in paths) {
 		let t = text.split("/")[n];
-		console.log("match at?",t,n );
+		console.log("match at?",text,t,n );
 		x.push(t);
 	};
 	   return x;
   } 
 
   let x = [];
-  let owner ="what";
+  let owner = "nothing";
   function makeButtons(myInfo){
   console.log("DxxADADADA", page.data, myInfo);
   if (myInfo.navRoute )
    { x = splitAt(myInfo.navPages, 1);
      owner = myInfo.navRoute;
     } else { 
-	  let navPages = import.meta.glob("/src/routes/**/what/*/+page.svelte");
-	  x= splitAt( navPages,5);
+	  x= [];
 	  }
   }
   let myId = "component nav";
