@@ -22,6 +22,7 @@
   "type": "module",
   "dependencies": {
     "@picocss/pico": "^1.5.10",
+    "@sveltejs/adapter-node": "^1.2.4",
     "bcrypt": "^5.1.0",
     "pug": "^3.0.2",
     "sqlite": "^4.2.1",
