@@ -3,9 +3,15 @@
   import Carousel from "$lib/Carousel.svelte";
   let images = import.meta.glob("$lib/space-struts/*.jpeg");
   let pix = [];
+  let imageID = "";
   for (let image in images) {
-    pix.push(image);
+    try {
+      imageID=image.match(/\d\d\d\d/)[0];
+      console.log("ImageID=",imageID);
+      pix.push([imageID,image]);
+      } catch {};
   }
+  console.log("FP now IMAGES",pix);
 
   function shuffle(a) {
     for (let i = a.length; i; i--) {
@@ -24,7 +30,7 @@
       This is the main page. and is full of text This is the main page. and is full of text This is
       the main page. and is full of text This is the main page. and is full of text This is the main
       page. and is full of text This is the main page. and is full of text This is the main page.
-      and is full of text
+      and is full of this text
     </p>
   </div>
 
@@ -33,13 +39,9 @@
 <div>
   <container class="grid">
     {#each showThese as index}
-      <a href="/meta/{index}">
+      <a href="/pix/{index[0]}">
         <article>
-          <header>
-            <img src={index} alt="image" />
-          </header>
-          <p>{index.headline}</p>
-          <p>{JSON.stringify(index)}</p>
+            <img src={index[1]} alt="image" />
         </article>
       </a>
     {/each}
@@ -55,7 +57,6 @@
   container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
     grid-column-gap: 2px;
     grid-row-gap: 2px;
   }

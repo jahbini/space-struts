@@ -9,7 +9,6 @@
     function updateSlidePosition() {
       let slides = document.getElementsByClassName("carousel__item");
       if (!slides || slides.length == 0) return;
-      console.log("in slides", slides);
       for (let slide of slides) {
         slide.classList.remove("carousel__item--visible");
         slide.classList.add("carousel__item--hidden");
