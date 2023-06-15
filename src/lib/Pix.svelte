@@ -1,19 +1,21 @@
 <script>
    export let heading;
-   export let photoDescription;
+   export let tldr;
    export let photoURL;
    export let tags;
 </script>
 
 <pix>
-{@debug }
 <a href="{photoURL}">
 <article>
 <header>
-<img src={photoURL} alt="{heading}" />
+<h3>{heading}</h3>
 </header>
-<p>{heading}</p>
+<img src={photoURL} alt="{heading}" />
+<p>{tldr}</p>
+<footer>
 <p>{tags}</p>
+</footer>
 </article>
 </a>
 </pix>

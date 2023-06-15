@@ -3,8 +3,13 @@
 import Pix from "$lib/Pix.svelte"
  /** @type {import('./$types').PageData} */
  import { page } from "$app/stores";
+ import image from "./+page.json";
 </script>
-<h1>{$page.data.image.heading}!!</h1>
-<Pix { ...$page.data.image } />
+<div class="container grid">
+<div>
+<Pix { ...image } />
+</div>
+<div/><div/>
+</div>
 <style>
 </style>

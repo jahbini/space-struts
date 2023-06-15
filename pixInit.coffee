@@ -30,26 +30,24 @@ for number,image of Files
   console.log "an image", image
   fs.mkdirSync "src/routes/pix/#{number}",{recursive:true}
   imageText = JSON.stringify(image,null,2);
-  templateInfo = """//js file for image #{number}
-
-  /** @type {import('./$types').PageLoad} */
-  export async function load({ cookies }) {
-  return  { image: #{imageText }};
-  }
-"""
   templatePage = """
   <script>
   // file for image #{number}
   import Pix from "$lib/Pix.svelte"
    /** @type {import('./$types').PageData} */
    import { page } from "$app/stores";
+   import image from "./+page.json";
   </script>
-  <h1>{$page.data.image.heading}!!</h1>
-  <Pix { ...$page.data.image } />
+  <div class="container grid">
+  <div>
+  <Pix { ...image } />
+  </div>
+<div/><div/>
+  </div>
   <style>
   </style>
 """
   fs.mkdirSync "src/routes/pix/#{number}",{recursive:true}
-  fs.writeFileSync "src/routes/pix/#{number}/+page.js",templateInfo
+  fs.writeFileSync "src/routes/pix/#{number}/+page.json",imageText unless number == "2544"
   fs.writeFileSync "src/routes/pix/#{number}/+page.svelte",templatePage
 
