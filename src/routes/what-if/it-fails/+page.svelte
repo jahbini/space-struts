@@ -4,7 +4,7 @@ import Card from '/src/lib/CardLeftImage.svelte';
 </script>
 
 <template lang="pug" >
-<Card image="/src/lib/space-struts/IMG_2544.jpeg" heading="it Fails" >
+<Card image="/images/space-struts/IMG_2544.jpeg" heading="it Fails" >
 p Failure is all around
 
 p maybe it could be made into a tractor wheel

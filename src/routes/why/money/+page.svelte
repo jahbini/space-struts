@@ -4,7 +4,7 @@ import Card from '/src/lib/CardLeftImage.svelte';
 </script>
 
 <template lang="pug" >
-<Card image="/src/lib/space-struts/IMG_2544.jpeg" heading="The MONEY" >
+<Card image="/images/space-struts/IMG_2544.jpeg" heading="The MONEY" >
 p Get outa here, get me some money, too. -- Jessica Rabbit
 
 p Your love give's me such a thrill, but it won't pay my bills, I want money." -- The Universe

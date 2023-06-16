@@ -3,13 +3,13 @@
   import Carousel from "$lib/Carousel.svelte";
   let images = import.meta.glob("$lib/space-struts/*.jpeg");
   let pix = [];
-  let imageID = "";
+  let imageParts=[]
+  let imageID=""
   for (let image in images) {
-    try {
-      imageID=image.match(/\d\d\d\d/)[0];
-      console.log("ImageID=",imageID);
-      pix.push([imageID,image]);
-      } catch {};
+      console.log("raw image text",image);
+      imageID=image.split('/').pop();
+      console.log("ImageID=",image,imageID);
+      pix.push(imageID);
   }
   console.log("FP now IMAGES",pix);
 
@@ -39,9 +39,9 @@
 <div>
   <container class="grid">
     {#each showThese as index}
-      <a href="/pix/{index[0]}">
+      <a href="/pix/{index.slice(4,8)}">
         <article>
-            <img src={index[1]} alt="image" />
+            <img src="/images/space-struts/{index}" alt="image" />
         </article>
       </a>
     {/each}

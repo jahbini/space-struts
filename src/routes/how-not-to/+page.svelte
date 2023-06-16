@@ -12,28 +12,28 @@ p
 
 p __Stop!__ wait, I can't go on with _needs_. glue, jigs, bevels, attachments, do-hingy hongies.  _Need, need, need_.
 
-<Card image="/src/lib/space-struts/IMG_1972.jpeg", heading="Early Attempts" >
+<Card image="/images/space-struts/IMG_1972.jpeg", heading="Early Attempts" >
 
 p The 99% persperation. Er, exasperation...
 
 h4  What we _really_ need are the learnings along the way.
 </Card>
 
-<Card image="/src/lib/space-struts/IMG_2285.jpeg" heading="Dead Ends" >
+<Card image="/images/space-struts/IMG_2285.jpeg" heading="Dead Ends" >
 
 p It has taken months of plodding mistakes, attempts, materials, crafting, cajoling to reach the simplicity of the current simplified Space Struts that you are aboout to see.
 </Card>
 
 h2  __Some things that didn't work:__
-<Card heading="*Sewing:*" image="/src/lib/space-struts/IMG_2006.jpeg"><p>The 2D placement of patterns drove the seamstress wacko.  I can see why the mainstream art has shied away from Penta tiles for masonary. Also the 3D structures were really hard to sew.</p>
+<Card heading="*Sewing:*" image="/images/space-struts/IMG_2006.jpeg"><p>The 2D placement of patterns drove the seamstress wacko.  I can see why the mainstream art has shied away from Penta tiles for masonary. Also the 3D structures were really hard to sew.</p>
 </Card>
 
-<Card heading=" *Drilling Locator Holes:*" image="/src/lib/space-struts/IMG_2300.jpeg" >
+<Card heading=" *Drilling Locator Holes:*" image="/images/space-struts/IMG_2300.jpeg" >
 <p>The mathematics is clear: the holes need to be placed at critical spots that are dictated by the Golden Ratio. (que choir).  So, we drilled tiny holes at exxactly those points.  Bad implementation: deviations in the placement meant lots of rejects and bad fitting models.  These early models had enough internal stress that they soon crumbled.</p>
 </Card>
-<Card heading="*Large craft sticks:*" image="/src/lib/space-struts/IMG_2333.jpeg" alt="Large sticks form the skeleton of a tetrahedron" ><p>I thought they would be easy to work with, but they were not cost effective. The strength wasn't as good, and the glue we were using did not give solid joins.<p>
+<Card heading="*Large craft sticks:*" image="/images/space-struts/IMG_2333.jpeg" alt="Large sticks form the skeleton of a tetrahedron" ><p>I thought they would be easy to work with, but they were not cost effective. The strength wasn't as good, and the glue we were using did not give solid joins.<p>
 </Card>
-<Card heading="*Small craft sticks:*" image="/src/lib/space-struts/IMG_2393.jpeg" alt="small sticks did not fit well." ><p> They were easier to work with, especially since we switched away from drill holes for alignment.  Still, the thickness of the sticks created crowding and misalignment for 3D structures.</p>
+<Card heading="*Small craft sticks:*" image="/images/space-struts/IMG_2393.jpeg" alt="small sticks did not fit well." ><p> They were easier to work with, especially since we switched away from drill holes for alignment.  Still, the thickness of the sticks created crowding and misalignment for 3D structures.</p>
 </Card>
 ul
 	li

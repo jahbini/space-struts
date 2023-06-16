@@ -2,21 +2,26 @@ fs = require 'fs'
 allFiles = fs.readdirSync 'static/images/space-struts'
 Files = {}
 for file in allFiles
-  number = (file.match /.*IMG_(\d\d\d\d).*/)
+  number = (file.match /.*IMG_(\d\d\d\d)(.*)/)
   continue if !number
+  suffix=number[2]
   number=number[1]
   console.log number,file
   Files["#{number}"]={
     heading: 'empty Headline',
     tldr: null,
-    photoURL: "/src/lib/space-struts/" + file,
+    photoURL: "/images/space-struts/IMG_" + number + suffix,
     tags: ""
     }
 
 allImages = fs.readFileSync 'src/lib/server/images.json', "utf8"
 allImages = JSON.parse allImages
 for image in allImages
-  number = (image.photoURL.match /.*IMG_(\d\d\d\d).*$/)[1]
+  number = (file.match /.*IMG_(\d\d\d\d)(.*)/)
+  continue if !number
+  suffix=number[2]
+  number=number[1]
+  image.photoURL= "/images/space-struts/IMG_" + number + suffix
   Files["#{number}"]= {...image}
 
 
@@ -28,7 +33,6 @@ for number,image of Files
   delete image.photoDescription
 
   console.log "an image", image
-  fs.mkdirSync "src/routes/pix/#{number}",{recursive:true}
   imageText = JSON.stringify(image,null,2);
   templatePage = """
   <script>
