@@ -9,7 +9,16 @@ import Pix from "$lib/Pix.svelte"
 <div>
 <Pix { ...image } />
 </div>
-<div/><div/>
+<template lang="pug">
+article
+  p.
+     All acute triangles can be put together to for a disphenoid.
+     All acute isoseles triangles create disphenoids that have the the short edges 
+     and adjacent faces 
+     at exactly 90 degrees from each other.
+
+</template>
+<div/>
 </div>
 <style>
 </style>

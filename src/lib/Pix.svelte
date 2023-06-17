@@ -9,13 +9,15 @@
 <a href="{photoURL}">
 <article>
 <header>
-<h3>{heading}</h3>
+<h4>{heading}</h4>
 </header>
 <img src={photoURL} alt="{heading}" />
 <p>{tldr}</p>
+<!--
 <footer>
 <p>{tags}</p>
 </footer>
+-->
 </article>
 </a>
 </pix>

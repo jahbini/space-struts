@@ -6,10 +6,13 @@ import Pix from "$lib/Pix.svelte"
  import image from "./+page.json";
 </script>
 <div class="container grid">
-<div>
-<Pix { ...image } />
-</div>
-<div/><div/>
+<template lang="pug">
+div
+  article
+    p These are rumored to be remains of KingD's grandparents, and are enjoying their retirement in Florida's heartland.
+div
+  <Pix { ...image } />
+</template>
 </div>
 <style>
 </style>
