@@ -9,7 +9,9 @@ import Pix from "$lib/Pix.svelte"
 <div>
 <Pix { ...image } />
 </div>
-<div/><div/>
+<p>The hat is smallest 3D structure, but very useful.  It combines three planes into a fourth marking an equilateral triangle on that plane.
+</p> 
+<div/>
 </div>
 <style>
 </style>

@@ -36,6 +36,9 @@ export async function load({ cookies }) {
           'IMG_2430.jpeg', 'IMG_2431.jpeg', 'IMG_2439.jpeg', 'IMG_2441.jpeg',
           'IMG_2447.jpeg', 'IMG_2496.jpeg', 'IMG_2533.jpeg', 'IMG_2540.jpeg',
           'IMG_2544.jpeg', 'IMG_2545.jpeg', 'IMG_2546.jpeg', 'IMG_2549.jpeg'
+          ],
+        imagesOK: [
+          '2385','2386','2387','2388','2403','2407','2540','2544'
           ]
           };
   

@@ -27,6 +27,9 @@
       'IMG_2447.jpeg', 'IMG_2496.jpeg', 'IMG_2533.jpeg', 'IMG_2540.jpeg',
       'IMG_2544.jpeg', 'IMG_2545.jpeg', 'IMG_2546.jpeg', 'IMG_2549.jpeg'
       ];
+    pix= [
+          'IMG_2385.jpeg','IMG_2386.jpeg','IMG_2387.jpeg','IMG_2388.jpeg','IMG_2403.jpeg','IMG_2407.jpeg','IMG_2540.jpeg','IMG_2544.jpeg'
+          ]
   function shuffle(a) {
     for (let i = a.length; i; i--) {
       let j = Math.floor(Math.random() * i);
@@ -37,30 +40,29 @@
   let showThese = shuffle(pix).slice(0, 8);
 </script>
 
-<div class="main grid">
+<template lang="pug">
+div.main.grid
+  div
+    h3 Space Struts -- The construction system for the Ages.
+    p.
+      Space Struts is based on solid geometric principles, but we will focus not on the mathematics,
+      but on how easy it is to actually construct complicated and novel shapes of your own design.
+      In words that can be understood by children, you can get physical confirmation
+      of solid geometric principles by the most authouattive source a person has: their own physical and sensory feedback.
+  div
+    <Carousel />
+</template>
   <div>
-    <h1>Left Hand {identifier}!</h1>
-    <p>
-      This is the main page. and is full of text This is the main page. and is full of text This is
-      the main page. and is full of text This is the main page. and is full of text This is the main
-      page. and is full of text This is the main page. and is full of text This is the main page.
-      and is full of this text
-    </p>
+    <container class="grid">
+      {#each showThese as index}
+        <a href="/pix/{index.slice(4,8)}">
+          <article>
+              <img src="/images/space-struts/{index}" alt="image" />
+          </article>
+        </a>
+      {/each}
+    </container>
   </div>
-
-  <Carousel />
-</div>
-<div>
-  <container class="grid">
-    {#each showThese as index}
-      <a href="/pix/{index.slice(4,8)}">
-        <article>
-            <img src="/images/space-struts/{index}" alt="image" />
-        </article>
-      </a>
-    {/each}
-  </container>
-</div>
 
 <style>
   .main {
