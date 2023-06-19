@@ -25,16 +25,20 @@
  $: makeButtons($page.data);
 </script>
 
-<div class="nav">
-  <a role="button" href="/">Home</a>
+<nav>
+ <ul>
+  <li><a role="button" href="/">Home</a></li>
+  </ul>
+  <ul>
   {#each x as NP }
-    <a role="button" href="/{owner}/{NP}">{NP}</a>
+    <li><a role="button" href="/{owner}/{NP}">{NP}</a></li>
   {/each}
-</div>
+  </ul>
+</nav>
 
 <style>
-  .nav {
-    background: #531;
+  nav {
+    background: #337;
     padding: 1rem;
     grid-area: Nav;
   }

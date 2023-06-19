@@ -47,8 +47,8 @@ div.main.grid
     p.
       Space Struts is based on solid geometric principles, but we will focus not on the mathematics,
       but on how easy it is to actually construct complicated and novel shapes of your own design.
-      In words that can be understood by children, you can get physical confirmation
-      of solid geometric principles by the most authouattive source a person has: their own physical and sensory feedback.
+      Using craft skills that children can easily master, you can get physical confirmation
+      of solid geometric principles by the most authoritative source a person has: your own physical and sensory feedback.
   div
     <Carousel />
 </template>

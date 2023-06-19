@@ -3,6 +3,12 @@
   import Footer from "$lib/Footer.svelte";
   import Nav from "$lib/Nav.svelte";
   import Aside from "$lib/Aside.svelte";
+  export let navPages= {
+          "/what/":"what",
+          "/how/": "how",
+          "/why/":"why",
+          "/what-if/":"wuzza"
+          }; 
 </script>
 
 <body>
