@@ -21,8 +21,8 @@
       </div>
       <Aside />
     </div>
-  </div>
       <Footer />
+  </div>
 </body>
 
 <style>
@@ -35,7 +35,7 @@
     padding: 0.1in;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: auto;
     width: 100vw;
   }
   .mainly {
