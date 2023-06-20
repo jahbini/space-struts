@@ -1,21 +1,18 @@
 <script>
-  import dodecahedron from "./dodecahedron.svg?raw";
   import { page } from "$app/stores";
   export const identifier = "header";
-  let kunga = "Lib/Nav :";
 </script>
 
-<div class="header grid">
-  {@html dodecahedron}
-  <p>
-    {#if !$page.status.error && $page.data.user}
-      Hi, {$page.data.user.username}, welcome back!
-    {:else}
-      Greetings Stranger, come and begin to understand 3D geometry like a star ship captain
-    {/if}
-  </p>
-  {@html dodecahedron}
-</div>
+<template lang="pug">
+d.header.grid
+  d
+    img(inline src="src/lib/dodecahedron.svg")
+  d
+    p.
+      Greetings, come and begin to understand 3D geometry like a star ship captain.
+  d
+    img(inline src="src/lib/dodecahedron.svg?raw")
+</template>
 
 <style>
   .header {
