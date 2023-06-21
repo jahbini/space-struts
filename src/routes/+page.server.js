@@ -6,9 +6,9 @@ export async function load({ cookies }) {
   const pageData = {
 	navRoute: ".",
         navPages: {
+          "/why/":"why",
           "/what/":"what",
           "/how/": "how",
-          "/why/":"why",
           "/what-if/":"wuzza"
           }, 
         user: null,

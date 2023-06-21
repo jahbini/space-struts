@@ -5,7 +5,7 @@
 <template lang="pug">
 footer(class="footer")
     p.
-          XXXSince the uses of Space Struts in actual construction of human sized dwellings and structures, on earth or in space, many miles of red-tape need to be digested.  For that reason, a provisional patent has been applied for, and the use of that patent only allows crafts for education, not construction.  Let the Patent Pend.
+      Since the uses of Space Struts in actual construction of human sized dwellings and structures, on earth or in space, many miles of red-tape need to be digested.  For that reason, a provisional patent has been applied for, and the use of that patent only allows crafts for education, not construction.  Let the Patent Pend.
 
 d
     p.

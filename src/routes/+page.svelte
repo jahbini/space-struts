@@ -43,7 +43,23 @@
 <template lang="pug">
 div.main.grid
   div
-    h3 Space Struts -- The construction system for the Ages.
+    p
+      strong Spock:
+      br
+      em He is intelligent, but not experienced. His pattern indicates 2 dimensional thinking.
+    p
+      | We are all suffering from 2 dimensional thinking.  Our art creates 2D images to suggest 3D 
+      | realities.  Our world starts at the floor and ends at the ceiling.  Maybe 2 and a half dimensions.
+      | It isn't that the full 3D context is not there, only that gravity limits our perception.
+    p
+      | The only way to educate ourselves is by direct examination and sensory feedback.  In other words, crafts and play.
+      em Space Struts
+      |  fills that need.  Easy to make with only craft sticks, glue and tape, amazing and endless
+      | structures can be built.  Some that are rigid or some designed to hinge and open up.  
+      | Things that show three or four or five way symmetry, or beyond. Or no symmetry at all.
+      | But always, a fully triangulated and strong structure comes from only TWO triangles: GG and GT.
+    
+    h6 Space Struts -- The construction system for the Ages.
     p.
       Space Struts is based on solid geometric principles, but we will focus not on the mathematics,
       but on how easy it is to actually construct complicated and novel shapes of your own design.
