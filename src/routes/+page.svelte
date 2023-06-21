@@ -57,7 +57,7 @@ div.main.grid
       |  fills that need.  Easy to make with only craft sticks, glue and tape, amazing and endless
       | structures can be built.  Some that are rigid or some designed to hinge and open up.  
       | Things that show three or four or five way symmetry, or beyond. Or no symmetry at all.
-      | But always, a fully triangulated and strong structure comes from only TWO triangles: GG and GT.
+      | But always, a fully triangulated and strong structure comes from only TWO triangles:  #[a(href="what/GG") GG] and #[a(href="what/GT") GT].
     
     h6 Space Struts -- The construction system for the Ages.
     p.
