@@ -2,7 +2,7 @@
   import Flick from "$lib/Flick.svelte"
   export const identifier = "main";
   import Carousel from "$lib/Carousel.svelte";
-  export const flickPix="images/space-struts/Pomono2.mp4";
+  export const flickPix="/space-struts/Pomono2.mp4";
   let images = import.meta.glob("$lib/space-struts/*.jpeg");
   let pix = [
       'IMG_0671.jpeg', 'IMG_1183.jpeg', 'IMG_1297.jpeg', 'IMG_1332.jpeg',
@@ -83,7 +83,7 @@ div.main.grid
       // source(src="images/basic3.wmv" type="video/wmv")  Nogo 124Meg
       // source(src="images/basic3.mkv" type="video/mkv") Nogo 150Meg
       // source(src="images/basic3.ogg" type="video/ogg") Nogo
-      source(src="images/space-struts/IMG_2351.mpeg" type="video/mpeg")
+      source(src="/space-struts/IMG_2351.mpeg" type="video/mpeg")
     p
       | His next thoughts were for his love: PrincessT. He commanded me to bring her to this reality.
 </template>
@@ -92,7 +92,7 @@ div.main.grid
       {#each showThese as index}
         <a href="/pix/{index.slice(4,8)}">
           <article>
-              <img src="/images/space-struts/{index}" alt="image" />
+              <img src="/space-struts/{index}" alt="image" />
           </article>
         </a>
       {/each}
