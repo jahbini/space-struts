@@ -6,12 +6,12 @@
 <template lang="pug">
 d.header.grid
   d
-    img(src="images/dodecahedron.svg")
+    img(src="/images/dodecahedron.svg")
   d
     p.
       Greetings, come and begin to understand 3D geometry like a star ship captain.
   d
-    img(src="images/dodecahedron.svg?raw")
+    img(src="/images/dodecahedron.svg?raw")
 </template>
 
 <style>

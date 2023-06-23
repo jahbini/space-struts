@@ -83,7 +83,7 @@ div.main.grid
       // source(src="images/basic3.wmv" type="video/wmv")  Nogo 124Meg
       // source(src="images/basic3.mkv" type="video/mkv") Nogo 150Meg
       // source(src="images/basic3.ogg" type="video/ogg") Nogo
-      source(src="images/basic2.mpeg" type="video/mpeg") 
+      source(src="images/space-struts/IMG_2351.mpeg" type="video/mpeg")
     p
       | His next thoughts were for his love: PrincessT. He commanded me to bring her to this reality.
 </template>
