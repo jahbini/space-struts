@@ -1,6 +1,8 @@
 <script>
+  import Flick from "$lib/Flick.svelte"
   export const identifier = "main";
   import Carousel from "$lib/Carousel.svelte";
+  export const flickPix="images/space-struts/Pomono2.mp4";
   let images = import.meta.glob("$lib/space-struts/*.jpeg");
   let pix = [
       'IMG_0671.jpeg', 'IMG_1183.jpeg', 'IMG_1297.jpeg', 'IMG_1332.jpeg',
@@ -65,8 +67,25 @@ div.main.grid
       but on how easy it is to actually construct complicated and novel shapes of your own design.
       Using craft skills that children can easily master, you can get physical confirmation
       of solid geometric principles by the most authoritative source a person has: your own physical and sensory feedback.
-  div
-    <Carousel />
+
+  d
+    p
+      strong King D Arrives in our Realm
+      br
+      em This video was captured at the moment of first contact.
+      | His first words were "I am King D, and I am here to help you."
+    video(width="300" controls)
+      //source(src="images/IMG_2351.MOV" type="video/quicktime")
+      //source(src="images/basic1.mpeg" type="video/mpeg") Worked 73 meg
+      // source(src="images/basic2.mp4" type="video/mp4")  Nogo 140Meg
+      //source(src="images/basic3.avi" type="video/avi")   Nogo 54Meg
+      // source(src="images/basic3.avi" type="video/x-msvideo") also Nogo
+      // source(src="images/basic3.wmv" type="video/wmv")  Nogo 124Meg
+      // source(src="images/basic3.mkv" type="video/mkv") Nogo 150Meg
+      // source(src="images/basic3.ogg" type="video/ogg") Nogo
+      source(src="images/basic2.mpeg" type="video/mpeg") 
+    p
+      | His next thoughts were for his love: PrincessT. He commanded me to bring her to this reality.
 </template>
   <div>
     <container class="grid">
@@ -84,7 +103,7 @@ div.main.grid
   .main {
     background-color: #f0f0f0;
     padding: 20px;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns: 3fr 2fr;
   }
   container {
     display: grid;

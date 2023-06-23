@@ -13,10 +13,10 @@
 
   let x = [];
   let owner = "nothing";
-  function makeButtons(myInfo){
-  if (myInfo.navRoute )
-   { x = splitAt(myInfo.navPages, 1);
-     owner = myInfo.navRoute;
+  function makeButtons(pageData){
+  if (pageData.navRoute )
+   { x = splitAt(pageData.navPages, 1);
+     owner = pageData.navRoute;
     } else { 
 	  x= [];
 	  }

@@ -9,7 +9,21 @@
           "/why/":"why",
           "/what-if/":"wuzza"
           }; 
+  export let flickPix = "images/space-struts/Pomona2.mp4"
 </script>
+<svelte:head>
+<!-- Default theme. ~960B -->
+<link
+  rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@vime/core@^5/themes/default.css"
+    />
+
+    <!-- Optional light theme (extends default). ~400B -->
+    <link
+      rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@vime/core@^5/themes/light.css"
+        />
+</svelte:head>
 
 <body>
   <div class="sitecontainer">
