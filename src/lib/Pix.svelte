@@ -6,8 +6,8 @@
    export let tags;
   function locatePhoto(photoURL,width) {
     let imageName=photoURL.split('/').pop();
-    if(width==0) return "/images/space-struts/"+imageName;
-    return "/images/space-struts/size"+width+"/"+imageName;
+    if(width==0) return "/space-struts/"+imageName;
+    return "/space-struts/size"+width+"/"+imageName;
    }
 </script>
 
