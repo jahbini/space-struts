@@ -1,5 +1,5 @@
 // /Users/jahbini/development/ucoa/space-struts/src/routes/page.server.js
-import { getUserById } from "$lib/server/database.js";
+//import { getUserById } from "$lib/server/database.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
@@ -41,7 +41,7 @@ export async function load({ cookies }) {
           '2385','2386','2387','2388','2403','2407','2540','2544'
           ]
           };
-  
+  /*  
   const userId = cookies.get("userId") || null;
   console.log("Main page server USERRID :", userId);
   if (userId) {
@@ -52,5 +52,6 @@ export async function load({ cookies }) {
 		 cookies.set("userId",null);
 		}
 	}
+  */
   return pageData;
 }
