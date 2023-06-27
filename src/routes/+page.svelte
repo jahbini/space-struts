@@ -1,7 +1,5 @@
 <script>
-  import Flick from "$lib/Flick.svelte"
   export const identifier = "main";
-  import Carousel from "$lib/Carousel.svelte";
   export const flickPix="images/space-struts/Pomono2.mp4";
   let images = import.meta.glob("$lib/space-struts/*.jpeg");
   let pix = [
