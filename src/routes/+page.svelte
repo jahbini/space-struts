@@ -92,7 +92,7 @@ div.main.grid
       {#each showThese as index}
         <a href="/pix/{index.slice(4,8)}">
           <article>
-              <img src="/space-struts/{index}" alt="image" />
+              <img src="/images/space-struts/{index}" alt="image" />
           </article>
         </a>
       {/each}

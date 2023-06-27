@@ -7,7 +7,7 @@
   function locatePhoto(photoURL,width) {
     let imageName=photoURL.split('/').pop();
     if(width==0) return "/space-struts/"+imageName;
-    return "/space-struts/size"+width+"/"+imageName;
+    return "/images/space-struts/size"+width+"/"+imageName;
    }
 </script>
 
