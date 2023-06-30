@@ -18,17 +18,17 @@ container.grid
       Even more fascinating is the fact that these Golden Gnomons can be split up
       into smaller pieces that always leave smaller GGs and GTs.
     <a title="Personline, Public domain, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Golden_triangle_and_Fibonacci_spiral.svg"><img class="rotateme" width="256" alt="Golden triangle and Fibonacci spiral" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Golden_triangle_and_Fibonacci_spiral.svg/256px-Golden_triangle_and_Fibonacci_spiral.svg.png"></a>
-    h6 But that's not all... 
-    p.
-      Is it a coincidence that, according to
   d
     h5 The story as told by KingD
     p.
-      Life had bee good in outer space.  Good?  no. Great.  The freedom to roam the universe went to our heads.
+      Life had been good in outer space.  Good?  no. Great.  The freedom to roam the universe went to our heads.
       What do you call it? Ah, Car Bone, a simple combination of protons and newtrons that form a perfect PrincessT.
       Ah, sweet love of my life, PrincessT.
+    a(href="https://www.physics-in-a-nutshell.com/article/13/diamond-structure" data-tooltip="Tetrahedrical structure of carbon in diamond:\nEach atom forms bonds with four nearest neighbours\n(enclosed angles are 109.47°). There are no spare bonds.")
+       img(src="/images/tetra.svg" alt="The tetrahedrical structure of diamond" style="max-Width: 400px; stroke: black")
 
 </template>
 <style>
 .rotateme { transform: rotate(-72deg); }
+[data-tooltip]::before { white-space: pre; }
 </style>
