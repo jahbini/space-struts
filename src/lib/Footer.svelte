@@ -1,19 +1,17 @@
 <script>
   export const identifier = "BambooCanDo";
+  import footerText from "./footerText.txt?raw"
 </script>
 
 <template lang="pug">
 footer(class="footer")
   button
     a(href="mailto:gimobeamo@spacestruts.com?subject=I want to know more&") Contact Us
-  p.
-    Since the uses of Space Struts in actual construction of human sized dwellings and structures, on earth or in space, many miles of red-tape need to be digested.  For that reason, a provisional patent has been applied for, and the use of that patent only allows crafts for education, not construction.  Let the Patent Pend.
-
+  p {footerText}
 d
   button
     a(href="mailto:gimobeamo@spacestruts.com?subject=I want to know more&") Contact Us
-  p.noColor
-    | Since the uses of Space Struts in actual construction of human sized dwellings and structures, on earth or in space, many miles of red-tape need to be digested.  For that reason, a provisional patent has been applied for, and the use of that patent only allows crafts for education, not construction.  Let the Patent Pend.
+  p.noColor {footerText}
 </template>
 <style>
   a { color:black; }

@@ -31,9 +31,6 @@ container.grid
       #[a(href="what/GG") GG], the #[a(href="what/FlyinA") FlyinA], #[a(href="/what/GT") GT] and More!!
     p.
       Come explore as I, Gemo Beamo, fill out the dark corners of this websight with instructions on how to create an unending nnumber of 3D structures in craft sticks.
-    h6 Fine Print
-    p.
-      Since the uses of Space Struts in actual construction of human sized dwellings and structures, on earth or in space, many miles of red-tape need to be digested.  For that reason, a provisional patent has been applied for, and the use of that patent only allows crafts for education, not construction.  Let the Patent Pend.
 
   d
     h5 The story as told by King D
@@ -57,8 +54,7 @@ container.grid
       what he thinks is his own creation.  Let the puny human think whatever he wants.
       Finally, after many stupid attempts, he created our primal Goddess, Pomona (cue choir). 
 
-    p  end of transmission #2902 from Kai B Z 10 Troy
-p(height="12em") --------
+    small(height="12em") end of transmission #2902 from Kai B Z 10 Troy
 </template>
 <style>
 container { padding-bottom: "12em";}
