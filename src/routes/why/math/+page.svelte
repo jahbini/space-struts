@@ -9,7 +9,7 @@ import Card from '/src/lib/CardLeftImage.svelte';
   h3 The easier road to mastery in Mathematics
   h6 Less hand waving is a good thing
   p 
-    | The Celestial Geometry of the Sun, Moon and Stars created the seasons and was our first mathematics. Closely followed by land based Geometry, measuring the size of your land; they both grew up alongside Arithmetic, counting bushels of your grain.
+    | The Celestial Geometry of the Sun, Moon and Stars created the seasons.  That spawned agriculture and was our first mathematics, followed by earth bound Geometry, measuring the size of your land; they all grew up alongside Arithmetic, counting bushels of your grain.
     | All three have spawned major advancements in the human condition. And still are.
 
   p
