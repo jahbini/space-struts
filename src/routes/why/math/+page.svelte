@@ -1,9 +1,9 @@
 <script>
-/*  /src/routes/(front)/how/template */
-import Card from '/src/lib/CardLeftImage.svelte';
+  /*  /src/routes/(front)/how/template */
+  import Card from "/src/lib/CardLeftImage.svelte";
 </script>
 
-<template lang="pug" >
+<template lang="pug">
 <Card image="/images/space-struts/IMG_2545.jpeg" heading="Mathematics" >
 
   h3 The easier road to mastery in Mathematics
@@ -39,5 +39,4 @@ import Card from '/src/lib/CardLeftImage.svelte';
 </template>
 
 <style>
-
 </style>

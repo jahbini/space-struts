@@ -3,37 +3,32 @@
   import Footer from "$lib/Footer.svelte";
   import Nav from "$lib/Nav.svelte";
   import Aside from "$lib/Aside.svelte";
-  export let navPages= {
-          "/what/":"what",
-          "/how/": "how",
-          "/why/":"why",
-          "/what-if/":"wuzza"
-          }; 
-  export let flickPix = "images/space-struts/Pomona2.mp4"
 </script>
+
 <svelte:head>
-<!-- Default theme. ~960B -->
+  <!-- Default theme. ~960B -->
 </svelte:head>
 
 <body>
   <div class="sitecontainer">
-      <Header class="" />
-      <Nav class="" />
+    <Header class="" />
+    <Nav class="" />
     <div class="site">
       <div class="mainly">
         <slot />
       </div>
       <Aside />
     </div>
-      <Footer />
+    <Footer />
   </div>
 </body>
 
 <style>
   @import "@picocss/pico";
-  html,body {
-   width: 100%;
-   height: 100%;
+  html,
+  body {
+    width: 100%;
+    height: 100%;
   }
   .sitecontainer {
     padding: 0.1in;
@@ -48,8 +43,7 @@
   .site {
     display: grid;
     grid-template-columns: 10% 75% 15%;
-    grid-template-areas:
-      "None Main Aside";
+    grid-template-areas: "None Main Aside";
     min-height: 100vh;
   }
 </style>

@@ -1,6 +1,7 @@
 <script>
- import Card from '/src/lib/CardLeftImage.svelte'
+  import Card from "/src/lib/CardLeftImage.svelte";
 </script>
+
 <template lang="pug">
 h1 How to, starts with don't do..
 
@@ -56,8 +57,8 @@ ul
 </template>
 
 <style>
-img {
-  display: inline-block;
-  height: 150px;
-}
+  img {
+    display: inline-block;
+    height: 150px;
+  }
 </style>

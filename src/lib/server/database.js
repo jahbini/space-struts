@@ -51,39 +51,38 @@ export async function getUserById(id) {
   return result;
 }
 
-export async function getAllArticleIdAndHeadline(){
- //no params yet
+export async function getAllArticleIdAndHeadline() {
+  //no params yet
   const db = await getDatabase();
   const result = await db.all(`SELECT id, headline  FROM articles`);
   return result;
 }
 
-export async function getArticlesBytag(params){
+export async function getArticlesBytag(params) {
   const db = await getDatabase();
-  const result = await db.get(`SELECT * FROM articles WHERE COLUMN tag LIKE %?% `,params.tag);
+  const result = await db.get(`SELECT * FROM articles WHERE COLUMN tag LIKE %?% `, params.tag);
   return result;
 }
 
-
-export async function putArticleById({ id, headline, tags, text,summary,published }) {
+export async function putArticleById({ id, headline, tags, text, summary, published }) {
   const db = await getDatabase();
-   
+
   return await db.run(
     "UPDATE articles SET headline=(?), tags=(?), summary=(?), text=(?),published=(?) WHERE id =(?)",
-    [headline, tags, summary, text, published,id]
-	);
+    [headline, tags, summary, text, published, id]
+  );
 }
 
-export async function getArticleById({ id, headline, tags, text,summary,published }) {
+export async function getArticleById({ id, headline, tags, text, summary, published }) {
   const db = await getDatabase();
-  if (id && id != "new"  ) {
-	  let result = await db.get(`SELECT * FROM articles WHERE id = ?`, id);
-	  if (result) return result;
-   }
-  // if no id we will create a new one. 
+  if (id && id != "new") {
+    let result = await db.get(`SELECT * FROM articles WHERE id = ?`, id);
+    if (result) return result;
+  }
+  // if no id we will create a new one.
   const result = await db.run(
-    'INSERT INTO articles (headline,tags,text,summary,published) VALUES (?, ?, ?, ?, ?)',
-    [  headline, tags, text, summary, published ]
+    "INSERT INTO articles (headline,tags,text,summary,published) VALUES (?, ?, ?, ?, ?)",
+    [headline, tags, text, summary, published]
   );
   result.lastID;
   return await db.get(`SELECT * FROM articles WHERE id = ?`, result.lastID);

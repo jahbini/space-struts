@@ -16,14 +16,17 @@ export async function load({ params, cookies }) {
   if (userId != "undefined") {
     user = await getUserById(userId);
     try {
-          if (!user.admin) { throw redirect(302, "/"); }
-	}
-    catch { cookies.delete("userId"); throw redirect(302, "/"); }
-  }
-  else {
-    cookies.delete("userId"); 
+      if (!user.admin) {
+        throw redirect(302, "/");
+      }
+    } catch {
+      cookies.delete("userId");
+      throw redirect(302, "/");
+    }
+  } else {
+    cookies.delete("userId");
     throw redirect(302, "/");
-	}
+  }
   return {
     user,
     image: await getImageByURL(params),

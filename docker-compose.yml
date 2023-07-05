@@ -1,4 +1,4 @@
-version: '3.6'
+version: "3.6"
 
 networks:
   iotstack_nw: # Exposed by your host.
@@ -8,8 +8,8 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: 10.77.60.0/24
-        # - gateway: 10.77.60.1
+        - subnet: 10.77.60.0/24
+          # - gateway: 10.77.60.1
 
   iotstack_nw_internal: # For interservice communication. No access to outside
     name: IOTstack_Net_Internal
@@ -18,17 +18,17 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: 10.77.76.0/24
-        # - gateway: 10.77.76.1
- 
+        - subnet: 10.77.76.0/24
+          # - gateway: 10.77.76.1
+
   vpn_nw: # Network specifically for VPN
     name: IOTstack_VPN
     driver: bridge
     ipam:
       driver: default
       config:
-      - subnet: 10.77.88.0/24
-        # - gateway: 192.18.200.1
+        - subnet: 10.77.88.0/24
+          # - gateway: 192.18.200.1
 
   nextcloud_internal: # Network for NextCloud service
     name: IOTstack_NextCloud
@@ -43,7 +43,6 @@ networks:
   #   driver: hosts
 
 services:
-
   space-struts:
     container_name: space-struts
     #image: daptin/dadadash
@@ -58,7 +57,7 @@ services:
     volumes:
       - ./volumes/space-struts:/app/build/client/images
     networks:
-    - iotstack_nw_internal
+      - iotstack_nw_internal
 
   letsencrypt-nginx-proxy-companion:
     restart: unless-stopped
@@ -97,19 +96,17 @@ services:
     image: portainer/portainer-ce
     restart: unless-stopped
     ports:
-    - "8000:8000"
-    - "9000:9000"
+      - "8000:8000"
+      - "9000:9000"
     volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - ./volumes/portainer-ce/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./volumes/portainer-ce/data:/data
     environment:
-    - VIRTUAL_HOST=portainer.bamboojim.com
-    - LETSENCRYPT_HOST=portainer.bamboojim.com
-    - VIRTUAL_PORT=9000
+      - VIRTUAL_HOST=portainer.bamboojim.com
+      - LETSENCRYPT_HOST=portainer.bamboojim.com
+      - VIRTUAL_PORT=9000
     networks:
-    - iotstack_nw_internal
-
-
+      - iotstack_nw_internal
 #  surv:
 #  container_name: coder
 #    image: codercom/code-server:latest
@@ -131,5 +128,4 @@ services:
 #    networks:
 #    - iotstack_nw_internal
 #    - iotstack_nw
-
 

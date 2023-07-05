@@ -1,15 +1,16 @@
 <script>
-// file for image 2400
-import Pix from "$lib/Pix.svelte"
- /** @type {import('./$types').PageData} */
- import { page } from "$app/stores";
- import image from "./+page.json";
+  // file for image 2400
+  import Pix from "$lib/Pix.svelte";
+  /** @type {import('./$types').PageData} */
+  import { page } from "$app/stores";
+  import image from "./+page.json";
 </script>
+
 <div class="container grid">
-<div>
-<Pix { ...image } />
-</div>
-<template lang="pug">
+  <div>
+    <Pix {...image} />
+  </div>
+  <template lang="pug">
 article
   p.
      All acute triangles can be put together to for a disphenoid.
@@ -17,8 +18,9 @@ article
      and adjacent faces 
      at exactly 90 degrees from each other.
 
-</template>
-<div/>
+  </template>
+  <div />
 </div>
+
 <style>
 </style>

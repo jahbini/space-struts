@@ -1,12 +1,12 @@
 <script>
-/*  /src/routes/(front)/what/collar */
-import Card from '/src/lib/CardLeftImage.svelte';
-import { page } from "$app/stores";
-import Pix from "$lib/Pix.svelte"
-import image from "/src/routes/pix/2540/+page.json";
+  /*  /src/routes/(front)/what/collar */
+  import Card from "/src/lib/CardLeftImage.svelte";
+  import { page } from "$app/stores";
+  import Pix from "$lib/Pix.svelte";
+  import image from "/src/routes/pix/2540/+page.json";
 </script>
 
-<template lang="pug" >
+<template lang="pug">
 
 div.container.grid
   div
@@ -17,9 +17,9 @@ div.container.grid
       this structure.  He kept reassuring me that it would also form a pentagonal corridor that could extend for miles
       in outerspace.
     p.
-      The jury is still out on that one, but it might also work as a tractor wheel.  
+      The jury is still out on that one, but it might also work as a tractor wheel.
 </template>
-  div
+div
+
 <style>
 </style>
-

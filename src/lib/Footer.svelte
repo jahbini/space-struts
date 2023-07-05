@@ -1,6 +1,6 @@
 <script>
   export const identifier = "BambooCanDo";
-  import footerText from "./footerText.txt?raw"
+  import footerText from "./footerText.txt?raw";
 </script>
 
 <template lang="pug">
@@ -13,10 +13,17 @@ d
     a(href="mailto:gimobeamo@spacestruts.com?subject=I want to know more&") Contact Us
   p.noColor {footerText}
 </template>
+
 <style>
-  a { color:black; }
-  .pure-button { background: dark-grey; }
-  .noColor { color: #fff; }
+  a {
+    color: black;
+  }
+  .pure-button {
+    background: dark-grey;
+  }
+  .noColor {
+    color: #fff;
+  }
   .footer {
     background-color: beige;
     padding-top: 0.1in;

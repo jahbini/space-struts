@@ -1,6 +1,5 @@
 <script>
-///Users/jahbini/development/ucoa/space-struts/src/routes/(front)/Why
-
+  ///Users/jahbini/development/ucoa/space-struts/src/routes/(front)/Why
 </script>
 
 <template lang="pug">
@@ -56,6 +55,9 @@ container.grid
 
     small(height="12em") end of transmission #2902 from Kai B Z 10 Troy
 </template>
+
 <style>
-container { padding-bottom: "12em";}
+  container {
+    padding-bottom: "12em";
+  }
 </style>

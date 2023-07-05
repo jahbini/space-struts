@@ -1,12 +1,12 @@
 <script>
-/*  /src/routes/(front)/what/collar */
-import Card from '/src/lib/CardLeftImage.svelte';
-import { page } from "$app/stores";
-import Pix from "$lib/Pix.svelte"
-import image from "/src/routes/pix/2385/+page.json";
+  /*  /src/routes/(front)/what/collar */
+  import Card from "/src/lib/CardLeftImage.svelte";
+  import { page } from "$app/stores";
+  import Pix from "$lib/Pix.svelte";
+  import image from "/src/routes/pix/2385/+page.json";
 </script>
 
-<template lang="pug" >
+<template lang="pug">
 div.container.grid
   div
    <Pix { ...image } />
@@ -16,6 +16,6 @@ div.container.grid
     p This two dimensional structure gives rise to the Golden Gnomon, The Flying-A, and then the Golden Triangle.
 
 </template>
+
 <style>
 </style>
-

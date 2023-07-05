@@ -1,9 +1,9 @@
 <script>
-/*  /src/routes/(front)/how/template */
-import Card from '/src/lib/CardLeftImage.svelte';
+  /*  /src/routes/(front)/how/template */
+  import Card from "/src/lib/CardLeftImage.svelte";
 </script>
 
-<template lang="pug" >
+<template lang="pug">
 <Card image="/images/space-struts/IMG_2544.jpeg" heading="it Fails" >
 p Failure is all around
 

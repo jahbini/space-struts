@@ -1,12 +1,12 @@
 <script>
-/*  /src/routes/(front)/what/collar */
-import Card from '/src/lib/CardLeftImage.svelte';
-import { page } from "$app/stores";
-import Pix from "$lib/Pix.svelte"
-import image from "/src/routes/pix/2447/+page.json";
+  /*  /src/routes/(front)/what/collar */
+  import Card from "/src/lib/CardLeftImage.svelte";
+  import { page } from "$app/stores";
+  import Pix from "$lib/Pix.svelte";
+  import image from "/src/routes/pix/2447/+page.json";
 </script>
 
-<template lang="pug" >
+<template lang="pug">
 
 div.container.grid
   div
@@ -16,7 +16,7 @@ div.container.grid
 
     p The golden triangles are forced to participate in all the verticies of a dodecahedron made from Huts.  Other variants of the Docahedron have three Gnomons at six corners.
 </template>
-  div
+div
+
 <style>
 </style>
-

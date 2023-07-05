@@ -9,7 +9,9 @@ d.aside
 </template>
 
 <style>
-  a { color:black; }
+  a {
+    color: black;
+  }
 
   .aside {
     background-color: beige;

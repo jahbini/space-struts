@@ -1,6 +1,5 @@
 <script>
-///Users/jahbini/development/ucoa/space-struts/src/routes/(front)/what-if
-
+  ///Users/jahbini/development/ucoa/space-struts/src/routes/(front)/what-if
 </script>
 
 <template lang="pug">

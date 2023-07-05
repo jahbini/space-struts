@@ -1,7 +1,6 @@
 <script>
 </script>
 
-
 <template lang="pug">
 h1 Svelte/SvelteKit 
 p  

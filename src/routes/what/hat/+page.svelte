@@ -1,12 +1,12 @@
 <script>
-/*  /src/routes/(front)/what/collar */
-import Card from '/src/lib/CardLeftImage.svelte';
-import { page } from "$app/stores";
-import Pix from "$lib/Pix.svelte"
-import image from "/src/routes/pix/2544/+page.json";
+  /*  /src/routes/(front)/what/collar */
+  import Card from "/src/lib/CardLeftImage.svelte";
+  import { page } from "$app/stores";
+  import Pix from "$lib/Pix.svelte";
+  import image from "/src/routes/pix/2544/+page.json";
 </script>
 
-<template lang="pug" >
+<template lang="pug">
 
 div.container.grid
   div
@@ -22,7 +22,7 @@ div.container.grid
 
     p Technically the shape is formed from the intersection of three blades to create an equilateral triangle on a fourth blade.
 </template>
-  div
+div
+
 <style>
 </style>
-

@@ -1,6 +1,5 @@
 <script>
-///Users/jahbini/development/ucoa/space-struts/src/routes/(front)/what
-
+  ///Users/jahbini/development/ucoa/space-struts/src/routes/(front)/what
 </script>
 
 <template lang="pug">
@@ -28,7 +27,12 @@ container.grid
        img(src="/images/tetra.svg" alt="The tetrahedrical structure of diamond" style="max-Width: 400px; stroke: black")
 
 </template>
+
 <style>
-.rotateme { transform: rotate(-72deg); }
-[data-tooltip]::before { white-space: pre; }
+  .rotateme {
+    transform: rotate(-72deg);
+  }
+  [data-tooltip]::before {
+    white-space: pre;
+  }
 </style>
