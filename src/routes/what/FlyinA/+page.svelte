@@ -18,7 +18,6 @@ div.container.grid
 
     p It also might work as a tractor wheel.
 </template>
-div
 
 <style>
 </style>

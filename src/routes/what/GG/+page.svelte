@@ -19,7 +19,6 @@ div.container.grid
     p.
       Forever.  Smaller or bigger.  The magic bridge between addition and multiplication. infinitely... in 60 directions.
 </template>
-div
 
 <style>
 </style>

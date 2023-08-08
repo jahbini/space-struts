@@ -19,7 +19,6 @@ div.container.grid
     p.
       The jury is still out on that one, but it might also work as a tractor wheel.
 </template>
-div
 
 <style>
 </style>

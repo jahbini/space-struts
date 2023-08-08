@@ -3,6 +3,7 @@
   import Footer from "$lib/Footer.svelte";
   import Nav from "$lib/Nav.svelte";
   import Aside from "$lib/Aside.svelte";
+  import "@picocss/pico";
 </script>
 
 <svelte:head>
@@ -24,8 +25,6 @@
 </body>
 
 <style>
-  @import "@picocss/pico";
-  html,
   body {
     width: 100%;
     height: 100%;

@@ -22,7 +22,6 @@ div.container.grid
 
     p Technically the shape is formed from the intersection of three blades to create an equilateral triangle on a fourth blade.
 </template>
-div
 
 <style>
 </style>

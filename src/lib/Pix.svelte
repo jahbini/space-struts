@@ -14,11 +14,11 @@
 <pix>
   <a href={locatePhoto(photoURL, 0)}>
     <article>
-      <header>
-        <h4>{heading}</h4>
-      </header>
-      <img src={locatePhoto(photoURL, width)} alt={heading} />
-      <p>{tldr}</p>
+      <h3>{heading}</h3>
+      <figure>
+        <img src={locatePhoto(photoURL, width)} alt={heading} />
+      <figcaption>{tldr}</figcaption>
+      </figure>
       <!--
 <footer>
 <p>{tags}</p>

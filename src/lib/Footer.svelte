@@ -5,12 +5,8 @@
 
 <template lang="pug">
 footer(class="footer")
-  button
-    a(href="mailto:gimobeamo@spacestruts.com?subject=I want to know more&") Contact Us
   p {footerText}
 d
-  button
-    a(href="mailto:gimobeamo@spacestruts.com?subject=I want to know more&") Contact Us
   p.noColor {footerText}
 </template>
 
@@ -23,6 +19,9 @@ d
   }
   .noColor {
     color: #fff;
+  }
+  p {
+    font-size: small;
   }
   .footer {
     background-color: beige;

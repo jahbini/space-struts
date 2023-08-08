@@ -16,7 +16,6 @@ div.container.grid
 
     p The golden triangles are forced to participate in all the verticies of a dodecahedron made from Huts.  Other variants of the Docahedron have three Gnomons at six corners.
 </template>
-div
 
 <style>
 </style>
