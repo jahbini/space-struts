@@ -8,7 +8,8 @@ export async function load({ cookies }) {
     navPages: {
       "/why/": "why",
       "/what/": "what",
-      "/how/": "how"
+      "/how/": "how",
+      "/explore/": "explore"
     },
     user: null,
     images: [

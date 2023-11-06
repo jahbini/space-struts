@@ -1,6 +1,7 @@
 .DS_Store
 *.swp
 node_modules
+static/images/space-struts
 /build
 /.svelte-kit
 /package
