@@ -411,8 +411,26 @@ makeScene= (filterThis)->
   <title>Star</title>
 </svelte:head>
 <div class="pageContainer">
-  <h1>Display and Save Platonic Shapes...  and Beyond</h1>
-  <p>We are viewing {shapesText} with segments of length {segmentText}</p>
+  <h5>Select Platonic Skeletons, add segments, rotate 'em and save as 3D SVG files: Have Fun</h5>
+<div class="sb show dropdown-content" >
+  Shapes: {#each _.keys(G.Polyhedra) as theShape  }
+    <Checkme n={theShape} update={updateShapesWanted} v={false} />
+  {/each}
+</div>
+<hr/>
+<div class="sb show dropdown-content" >
+  <a class="button" on:click={()=>makeScene(filters,filters.vertex=!filters.vertex)} href="#">
+    {#if (filters.vertex) } hide {:else} show {/if} points</a>
+  <a class="button" on:click={()=>makeScene(filters,filters.labels=!filters.labels)} href="#">
+    {#if (filters.labels) } hide {:else} show {/if} labels</a>
+</div>
+<div class="sb show dropdown-content" >
+  {#each _.keys(segmentsByMagnitude) as m}
+    <Checkme n={m} update={makeResponsiveScene} v={segmentsActive[m]} />
+  {/each}
+</div>
+<hr/>
+
 
 <div>
   <figure style="float:left; margin: 0 0 0 0">
@@ -431,26 +449,6 @@ makeScene= (filterThis)->
     <svg width="400" height="400" id="seen-svg1" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
     <svg width="400" height="400" id="seen-svg2" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
   </div>
-</div>
-<div style="float:left">
-<legend>shapes:</legend>
-  {#each _.keys(G.Polyhedra) as theShape  }
-    <Checkme n={theShape} update={updateShapesWanted} v={false} />
-  {/each}
-</div>
-<div >
-<p>segments</p>
-<div class="sb show dropdown-content" >
-  <a class="button" on:click={()=>makeScene(filters,filters.vertex=!filters.vertex)} href="#">
-    {#if (filters.vertex) } hide {:else} show {/if} points</a>
-  <a class="button" on:click={()=>makeScene(filters,filters.labels=!filters.labels)} href="#">
-    {#if (filters.labels) } hide {:else} show {/if} labels</a>
-
-  {#each _.keys(segmentsByMagnitude) as m}
-    {@debug segmentsByMagnitude}
-    <Checkme n={m} update={makeResponsiveScene} v={segmentsActive[m]} />
-  {/each}
-</div>
 </div>
 </div>
 
