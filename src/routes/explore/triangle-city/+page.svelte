@@ -3,9 +3,9 @@
 import * as seenModule from '$lib/seen.m.coffee';
 import { onMount } from 'svelte'
 import  _  from 'underscore'
-import { Memo } from './memo.coffee'
 import { page } from '$app/stores';
 import  Checkme from './Checkme.svelte'
+import { Geo} from './Geo.coffee'
 
 duh=($page.url.searchParams.get 'useShapes') || []
 duh=  duh.split /, ?/ if 'string' == typeof duh
@@ -31,7 +31,7 @@ filters=
   vertex: true
   labels: true
   segmentMagnitudes: {}
-  angleMagnitudes: {}
+  angleMagnitude: -1
   magnitude: false
   useShapes: useShapes 
 
@@ -41,18 +41,9 @@ segmentText=""
 pointName = {}
 pointsToShow= []
 segmentsByMagnitude=[]
+segmentNames=[]
 anglesByMagnitude=[]
-
-M = new Memo()
-
-###
-  Memo API
-  saveThis: (key, value)->
-  theLowdown: (key)=> returns current info on value at key
-  waitFor: (aList,andDo)=> wait for updates to ANY of the aList and call andDo via promise
-  notifyMe: (n,andDo)=>
-###
-
+angleNames=[]
 ###
 # the Memo is an object used by Geo with keys of the forms:
 # "#xyz" for points
@@ -69,152 +60,6 @@ M = new Memo()
 # where Phi == (1+sqrt(5))/2
 #
 ###
-class Geo
-  square = "#ffz-#Ffz-#FFz-#fFz"
-  pentagon = "#zFP-#OOO-#PzF-#OoO-#zfP"
-  octahedron = "#O00-#o00-#0o0-#0O0-#00o-#00O"
-  cube = "#OOO-#oOO-#OoO-#ooO-#OOo-#oOo-#Ooo-#ooo"
-  tetrahedron1="#ooo-#oOO-#OoO-#OOo"
-  tetrahedron2="#OOO-#Ooo-#oOo-#ooO"
-  icosahedron1 = "#zOF-#zoF-#zof-#zOf-#oFz-#ofz-#OFz-#Ofz-#FzO-#fzO-#Fzo-#fzo"
-  icosahedron2 = "#zFO-#zFo-#zfo-#zfO-#Foz-#foz-#FOz-#fOz-#OzF-#Ozf-#ozF-#ozf"
-  dodecahedron1="#ooo-#ooO-#oOo-#oOO-#Ooo-#OoO-#OOo-#OOO-#zfp-#zFp-#zfP-#zFP-#pzf-#Pzf-#pzF-#PzF-#fpz-#Fpz-#fPz-#FPz"
-  dodecahedron2="#ooo-#oOo-#ooO-#oOO-#Ooo-#OOo-#OoO-#OOO-#zpf-#zpF-#zPf-#zPF-#fzp-#fzP-#Fzp-#FzP-#pfz-#pFz-#Pfz-#PFz"
-
-  fe= (Math.sqrt(5)-1)/2.0
-  Phi= (1+Math.sqrt 5)/2
-
-  #  "Z": 0
-  decode = 
-    "z": 0
-    "O": 1
-    "o": -1
-    "f": -1/Phi
-    "F": 1/Phi
-    "p": -Phi
-    "P": Phi
-  ###+
-  # param: ptxt encoding of essential points above text
-  # returns new seen.P decorated with ID: ptxt
-  # side-effect: adds point to pointName map to this returned value
-  ###
-  createSeenPoint = (ptxt,shapeName = "")->
-    return null if ! xyz=ptxt.match '#(.)(.)(.)$'
-    if null != p=(M.theLowdown ptxt).value
-      p.shapeName[shapeName] = shapeName
-      return (M.theLowdown ptxt).value
-    p = seen.P decode[xyz[1]],decode[xyz[2]],decode[xyz[3]]
-    p.d = p.magnitude().toFixed 3
-    p.shapeName = { "#{shapeName}": shapeName }
-    p.ID = ptxt
-    (M.saveThis ptxt, p).value #return just the point value, not the meta info
-    
-  ###
-  # formPointsFrom creates entries in the Memo
-  # from the point sets of the shape
-  # the originating shape name is used as a tag in the Memo
-  ###
-  formPointsFrom =(shape,shapeName="") ->
-    shapePoints = for i in shape.split '-'
-      createSeenPoint i,shapeName
-    (M.saveThis shapeName,shapePoints).value
-    
-  menuItems= ()=>
-    for key of @Polyhedra
-      key
-  
-  ###
-  # createSegment:
-  # creates two seenpoints from the two ID's
-  # the resulting seenpoints are stored into the Memo as an array
-  # with attributes ID, d for magnitude (to 3 digits) 
-  #
-  ###
-  createSegment = (ptxt1,ptxt2)->
-    (t=ptxt1; ptxt1=ptxt2; ptxt2=t) if ptxt2<ptxt1
-    ID= "#{ptxt1}-#{ptxt2}"
-    return ID if M.MM[ID]
-    p1=createSeenPoint ptxt1
-    p2=createSeenPoint ptxt2
-    path = [p1,p2]
-    d=p1.copy().subtract(p2).magnitude()
-    d=d.toFixed 3
-    M.saveThis ID, {ID,path,d}
-    ID
-
-  ###
-  # createSegments:
-  # iterates through all the points (seen.P) created by createPoint
-  # and splices each into all the segments those points create
-  # creates Object theSegments with all the segments keyed by the endpoint names
-  # creates Object segmentsByMagnitude with all segments sorted and grouped by magnitude
-  # theSegments are used in the actual drawing
-  # segmentsByMagnitude select the segments to be drawn
-  # segments are stored in the Memo with keys of the form '#ppp-#ppp' with end point names ppp
-  ###
-  createSegments: (points)->
-    theSegments={}
-    for p1,i in points
-      for p2,j in points[i+1 ...]
-          tag= createSegment p1.ID,p2.ID
-          theSegments[tag]= M.MM[tag]
-    segmentsByMagnitude=_.chain(theSegments)
-      .map (v)->v.value
-      .sortBy 'd'
-      .groupBy('d')
-      .value()
-    
-  angleBetween=(localOrigin,segmentID0,segmentID1)->
-    # get the underlying seen value
-    localOriginData=M.MM[localOrigin].value
-    seg0Vector = M.MM[segmentID0].value
-    seg1Vector = M.MM[segmentID1].value
-    v0 = seg0Vector.copy().subtract localOriginData
-    v1= seg1Vector.copy().subtract localOriginData
-    dot = v1.dot v0
-    raw= dot / (v1.magnitude() * v0.magnitude() )
-    # angle in radians
-    #angleRadians = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-    # angle in degrees
-    angleDeg = Math.acos(raw) * 180 / Math.PI;
-    angleDeg = angleDeg.toFixed 3
-    
-
-  createAngles: (points, segments)->
-    biVectors = {}
-    for i in points
-      for j in segments
-        [leg0,leg1]= j.ID.split "-"
-        continue if  i.ID== leg0 || i.ID == leg1
-        d = angleBetween i.ID,leg0,leg1
-        ID="#{i.ID}<#{leg0}-#{leg1}"
-        seg0Vector = M.MM[leg0].value
-        seg1Vector = M.MM[leg1].value
-        path= [seg0Vector,i,seg1Vector]
-        M.saveThis ID, {ID,path,d}
-        biVectors[ID]=M.MM[ID] 
-    anglesByMagnitude=_.chain(biVectors)
-      .map (v)->v.value
-      .sortBy 'd'
-      .groupBy('d')
-      .value()
-
-  constructor:()->
-    @Polyhedra = 
-      Square: formPointsFrom square,"square"
-      Pentagon: formPointsFrom pentagon,"pentagon"
-      Tetrahedron1: formPointsFrom tetrahedron1, "tetrahedron"
-      Tetrahedron2: formPointsFrom tetrahedron2, "tetrahedron"
-      Octahedron: formPointsFrom octahedron,"octahedron"
-      Cube: formPointsFrom cube,"cube"
-      Icosahedron1: formPointsFrom icosahedron1, "icosahedron"
-      Icosahedron2: formPointsFrom icosahedron2, "icosahedron"
-      Dodecahedron1: formPointsFrom dodecahedron1, "dodecahedron"
-      Dodecahedron2: formPointsFrom dodecahedron2, "dodecahedron"
-
-    Melements=  _(M.MM).filter (item,key)-> key.match /^#...$/
-    @createSegments _.mapObject Melements, (item,key)->item.value
-
 ###
 # Global level code: At this point, the data in the Geo/Memo can 
 # compute seen objects for display.  This code can request data
@@ -263,19 +108,31 @@ wireframe = (points,color = "#000000")->
   p.surfaces[0]["stroke-width"]=1
   p
 
-showSegments = (mdl,segments,color="#000000")->
-  return [] unless segments.length
-  p = mdl.append()
+showSegments = (segments,color="#000000")->
+  p=new seen.Model()
+  return p unless segments.length
   for s in segments
     p.add wireframe s.path, color if s
   p.scale defaultSize
+  p
+
+showVectors = (segments,color="#000000")->
+  p=new seen.Model()
+  return p unless segments.length
+  for s in segments
+    continue unless s
+    p.add wireframe s.path, color
+    p.add wireframe [s.path[0],s.path[2]] , "#AAFFFF"
+
+  p.scale defaultSize
+  p
   
 ###+
 # descr: generate the vertices as tetrahedrons from seen's model mdl
 # param: mdl seenjs model to attach this graphic
 ###
-showPoints = (mdl,points)->
-  p = mdl.append()
+showPoints = (points)->
+  p = new seen.Model()
   for point in points
     glyf=seen.Shapes.tetrahedron 1
     glyf.fill '#4cc488'
@@ -284,8 +141,8 @@ showPoints = (mdl,points)->
     p.add glyf
   p
 
-showPointNames = (mdl,points)->
-  cluster = mdl.append()
+showPointNames = (points)->
+  cluster = new seen.Model()
   for point in points
     label=seen.Shapes.text point.ID,{
       font: '10px Roboto'
@@ -410,7 +267,7 @@ updateShapesWanted = (shape,show=true) ->
   for key of filters.useShapes
     pointsToShow=pointsToShow.concat G.Polyhedra[key]
 
-  G.createSegments pointsToShow
+  {segmentNames,segmentsByMagnitude} = G.createSegments pointsToShow
   # remove any segments that don't have a length of the shapes displayed
   for k of filters.segmentMagnitudes
     filters.segmentMagnitudes[k] = segmentsByMagnitude[k]?
@@ -420,7 +277,7 @@ updateShapesWanted = (shape,show=true) ->
     labels: filters.labels
     segmentMagnitudes: filters.segmentMagnitudes
     magnitude: filters.magnitude
-    angleMagnitudes: {}
+    angleMagnitude: -1
     useShapes: filters.useShapes
 
   # delete ALL segments if a shape has been deleted
@@ -428,13 +285,14 @@ updateShapesWanted = (shape,show=true) ->
   makeScene filterThis=filters
 
 makeResponsiveAngles= (k,v)->
-  debugger
   angleText=[]
   anglesActive={}
-  filters.angleMagnitudes[k]=v
+  k=-1 unless v
+  filters.angleMagnitude=k
   makeScene filters
 
 makeResponsiveScene= (k,v)->
+  debugger
   segmentText=[]
   segmentsActive={}
   filters.segmentMagnitudes[k]=v
@@ -449,19 +307,21 @@ makeScene= (filterThis)->
 
   mdl.remove image if image
   if filterThis.vertex
-    image = showPoints(mdl,pointsToShow)
+    image = showPoints pointsToShow
     image.scale 0.90
     #image.translate 220,180 
+    mdl.add image
   
   mdl.remove labels if labels
   if filterThis.labels
-    labels = showPointNames(mdl,pointsToShow)
+    labels = showPointNames pointsToShow
     labels.scale 0.90
     #labels.translate 235,180
+    mdl.add labels
 
   mdl.remove showLines if showLines
-  showLines={}
-  G.createSegments pointsToShow
+  showLines = {}
+  {segmentNames,segmentsByMagnitude} = G.createSegments pointsToShow
   someLines = []
   segmentText=[]
   segmentsActive={}
@@ -472,28 +332,30 @@ makeScene= (filterThis)->
     segmentsByMagnitude[key]
   someLines=_.flatten someLines
   if someLines?.length 
-    showLines = showSegments mdl,someLines,"#AAAAAA"
+    showLines = showSegments someLines,"#AAAAAA"
     showLines.scale 0.90
     #showLines.translate 220,180
 
   mdl.remove showAngles if showAngles
   showAngles={}
-  anglesByMagnitude=[]
-  sammy = G.createAngles pointsToShow, someLines if someLines?.length>0
+  {angleNames, anglesByMagnitude} =  G.createAngles pointsToShow, someLines 
+
 
   someAngles = []
   angleText=[]
   anglesActive={}
-  someAngles= for key,value of filterThis.angleMagnitudes
-    continue unless value
+  if (key=filterThis.angleMagnitude) != -1
     angleText.push key
     anglesActive[key]=true
-    anglesByMagnitude[key]
-  someAngles=_.flatten someAngles
+  someAngles =  anglesByMagnitude[key] || []
   if someAngles?.length 
-    showAngles = showSegments mdl,someAngles,"#7021b1"
+    showAngles = showVectors someAngles,"#7021b1"
     showAngles.scale 0.90
-  
+    mdl.add showAngles  
+
+  if someAngles.length == 0
+    mdl.add showLines if showLines
+
   shapesText = (key for key of filterThis.useShapes).join ', '
   segmentText = segmentText.join ', '
   logo = mdl.append()
@@ -507,6 +369,7 @@ makeScene= (filterThis)->
   logo.scale 0.4
   logo.translate 370,-70
   mdl.remove logo
+
   scene1.flushCache()
   scene2.flushCache()
 
@@ -532,13 +395,13 @@ makeScene= (filterThis)->
     {#if (filters.labels) } hide {:else} show {/if} labels</a>
 </div>
 <div class="sb show dropdown-content" >
-  {#each _.keys(segmentsByMagnitude) as m}
+  {#each segmentNames as m}
     <Checkme n={m} update={makeResponsiveScene} v={segmentsActive[m]} />
   {/each}
 </div>
 <hr/>
 <div class="sb show dropdown-content" >
-  {#each _.keys(anglesByMagnitude) as m}
+  {#each angleNames as m}
     <Checkme n={m} update={makeResponsiveAngles} v={anglesActive[m]} />
   {/each}
 </div>
