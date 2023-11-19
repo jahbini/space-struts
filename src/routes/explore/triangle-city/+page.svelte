@@ -13,14 +13,25 @@ duh=  duh.split /, ?/ if 'string' == typeof duh
 useShapes = ("#{shape}": shape for shape in duh) || {}
 
 G={Polyhedra:[]}
+shapesText=""
+
 context1="undefined"
 context2=null
-image=null
+dotsToShow=null
 labels=null
-showLines=null
-showAngles=null
+pointName = {}
+pointsToShow= []
+
+linesToShow=null
 segmentsActive={}
+segmentText=""
+segmentsByMagnitude=[]
+segmentNames=[]
+
+anglesToShow=null
 anglesActive={}
+anglesByMagnitude=[]
+angleNames=[]
 
 selected={}
 scene1=null
@@ -35,15 +46,6 @@ filters=
   magnitude: false
   useShapes: useShapes 
 
-shapesText=""
-segmentText=""
-    
-pointName = {}
-pointsToShow= []
-segmentsByMagnitude=[]
-segmentNames=[]
-anglesByMagnitude=[]
-angleNames=[]
 ###
 # the Memo is an object used by Geo with keys of the forms:
 # "#xyz" for points
@@ -176,6 +178,7 @@ initializeContext= ()->
     cullBackfaces: false
   scene1.camera.translate 0,0,-50
   scene2.camera.translate 50,0,-50
+  scene2.camera.roty 0.55
   console.log "xform",xform if xform?
   mdl.transform xform if xform
 
@@ -205,16 +208,16 @@ initializeContext= ()->
   ry = 0.00027
   frame1=context1.animate()
     .onBefore((t, dt) -> 
-      showLines?.rotx(rx).roty(ry)
-      image?.rotx(rx).roty(ry)
+      linesToShow?.rotx(rx).roty(ry)
+      dotsToShow?.rotx(rx).roty(ry)
       labels?.rotx(rx).roty(ry)
       )
     .start()
   
   frame2=context2.animate()
     .onBefore((t, dt) -> 
-      showLines?.rotx(rx).roty(ry)
-      image?.rotx(rx).roty(ry)
+      linesToShow?.rotx(rx).roty(ry)
+      dotsToShow?.rotx(rx).roty(ry)
       labels?.rotx(rx).roty(ry)
       )
     .start()
@@ -305,12 +308,12 @@ makeScene= (filterThis)->
   # computation for display will proceed.
   ###
 
-  mdl.remove image if image
+  mdl.remove dotsToShow if dotsToShow
   if filterThis.vertex
-    image = showPoints pointsToShow
-    image.scale 0.90
-    #image.translate 220,180 
-    mdl.add image
+    dotsToShow = showPoints pointsToShow
+    dotsToShow.scale 0.90
+    #dotsToShow.translate 220,180 
+    mdl.add dotsToShow
   
   mdl.remove labels if labels
   if filterThis.labels
@@ -319,8 +322,8 @@ makeScene= (filterThis)->
     #labels.translate 235,180
     mdl.add labels
 
-  mdl.remove showLines if showLines
-  showLines = {}
+  mdl.remove linesToShow if linesToShow
+  linesToShow = {}
   {segmentNames,segmentsByMagnitude} = G.createSegments pointsToShow
   someLines = []
   segmentText=[]
@@ -332,12 +335,12 @@ makeScene= (filterThis)->
     segmentsByMagnitude[key]
   someLines=_.flatten someLines
   if someLines?.length 
-    showLines = showSegments someLines,"#AAAAAA"
-    showLines.scale 0.90
-    #showLines.translate 220,180
+    linesToShow = showSegments someLines,"#AAAAAA"
+    linesToShow.scale 0.90
+    #linesToShow.translate 220,180
 
-  mdl.remove showAngles if showAngles
-  showAngles={}
+  mdl.remove anglesToShow if anglesToShow
+  anglesToShow={}
   {angleNames, anglesByMagnitude} =  G.createAngles pointsToShow, someLines 
 
 
@@ -349,12 +352,12 @@ makeScene= (filterThis)->
     anglesActive[key]=true
   someAngles =  anglesByMagnitude[key] || []
   if someAngles?.length 
-    showAngles = showVectors someAngles,"#7021b1"
-    showAngles.scale 0.90
-    mdl.add showAngles  
+    anglesToShow = showVectors someAngles[0..5],"#7021b1"
+    anglesToShow.scale 0.90
+    mdl.add anglesToShow  
 
   if someAngles.length == 0
-    mdl.add showLines if showLines
+    mdl.add linesToShow if linesToShow
 
   shapesText = (key for key of filterThis.useShapes).join ', '
   segmentText = segmentText.join ', '

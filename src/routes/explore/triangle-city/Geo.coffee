@@ -97,7 +97,8 @@ export class Geo
   createSegments: (points)->
     theSegments={}
     for p1,i in points
-      for p2,j in points[i+1 ...]
+      for p2,j in points
+          continue if p1==p2
           tag= @createSegment p1.ID,p2.ID
           theSegments[tag]= M.MM[tag]
     segmentsByMagnitude=_.chain(theSegments)
