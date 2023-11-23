@@ -1,12 +1,14 @@
 <script lang="coffeescript" type="text/coffeescript">
 
-import * as seenModule from '$lib/seen.m.coffee';
+import Select from 'svelte-select'
+import * as seenModule from '$lib/seen.m.coffee'
 import { onMount } from 'svelte'
 import  _  from 'underscore'
 import { page } from '$app/stores';
 import  Checkme from './Checkme.svelte'
 import { Geo} from './Geo.coffee'
 
+items = ['One', 'Two', 'Three'];
 duh=($page.url.searchParams.get 'useShapes') || []
 duh=  duh.split /, ?/ if 'string' == typeof duh
 
@@ -42,7 +44,7 @@ filters=
   vertex: true
   labels: true
   segmentMagnitudes: {}
-  angleMagnitude: -1
+  angleMagnitude: ""  #a string value of format 999.999 0-360
   magnitude: false
   useShapes: useShapes 
 
@@ -68,7 +70,7 @@ filters=
 # for points, segments and soon, triangles according to the UI
 # allowed by this code.
 ###
-defaultSize=100
+defaultSize=98
 # Create a shape
 pSize = 55
 phi=1.61803398
@@ -110,6 +112,18 @@ wireframe = (points,color = "#000000")->
   p.surfaces[0]["stroke-width"]=1
   p
 
+filledAngle = (points, color="000000")->
+  p=seen.Shapes.path points
+  p.cullBackfaces = false
+  m= new seen.Colors.hex color
+  #make Transparent
+  m.a=0x40
+  m= new seen.Material m
+  #p.stroke m
+  p.surfaces[0].fillMaterial = m
+  p.surfaces[0]["stroke-width"]=0
+  p
+
 showSegments = (segments,color="#000000")->
   p=new seen.Model()
   return p unless segments.length
@@ -123,8 +137,7 @@ showVectors = (segments,color="#000000")->
   return p unless segments.length
   for s in segments
     continue unless s
-    p.add wireframe s.path, color
-    p.add wireframe [s.path[0],s.path[2]] , "#AAFFFF"
+    p.add filledAngle [s.path[0],s.path[1],s.path[2],s.path[0]], color
 
   p.scale defaultSize
   p
@@ -157,13 +170,6 @@ showPointNames = (points)->
     cluster.add label
   cluster
     
-viewRotate=
-  x: 0
-  y: 0
-  z: 0
-updateRotation = ()->
-
-
 initializeContext= ()->
   # Create scene and add shape to model
   scene1 = new seen.Scene
@@ -194,14 +200,6 @@ initializeContext= ()->
     context2.render()
   )
 
-  myUpdateRotation= ()->
-    mdl.reset()
-    mdl.rotx viewRotate.x*Math.PI/180
-    mdl.roty viewRotate.y*Math.PI/180
-    mdl.rotz viewRotate.z*Math.PI/180
-    context1.render()
-    context2.render()
-  updateRotation = myUpdateRotation  
   ###
   # Slowly rotate sphere
   rx = 0.0004
@@ -245,8 +243,9 @@ snapshot=(name,scene)->
       console.log "NADA",nada
   
 shootTheMoon= (value)->
-  alert("shoot",JSON.stringify(value))
   debugger
+  console.log "Shooting",value
+  number= value.target?.value
 
 mdl=null
 onMount ->
@@ -260,13 +259,16 @@ onMount ->
     initializeContext()
     makeScene filters
   
-updateShapesWanted = (shape,show=true) ->
+updateShapesWanted = (event) ->
+  console.log event
+  debugger
+  filters.useShapes={}
+  if event.detail?
+    for request in event.detail
+     filters.useShapes[request.value]=request.value
   # reset filters upon adding shape in viewport
   pointsToShow= []
-  if show
-    filters.useShapes[shape]=shape
-  else
-    delete filters.useShapes[shape]
+  filters.segmentMagnitudes = []
   for key of filters.useShapes
     pointsToShow=pointsToShow.concat G.Polyhedra[key]
 
@@ -280,25 +282,44 @@ updateShapesWanted = (shape,show=true) ->
     labels: filters.labels
     segmentMagnitudes: filters.segmentMagnitudes
     magnitude: filters.magnitude
-    angleMagnitude: -1
+    angleMagnitude: ""
     useShapes: filters.useShapes
 
-  # delete ALL segments if a shape has been deleted
-  filters.segmentMagnitudes = [] unless show 
   makeScene filterThis=filters
 
-makeResponsiveAngles= (k,v)->
+howManyAngles = 5
+recursive=false
+showSomeAngles=(event)->
+  return howManyAngles if !event
+  howManyAngles = event.target?.value
+  makeScene filters
+
+makeResponsiveAngles= (event)->
+  angleText=[]
+  debugger
+  anglesActive={}
+  filters.angleMagnitude=event.detail?.value 
+  makeScene filters
+
+makeResponsiveScene2= (event)->
+  if event.detail?
+    for request in event.detail
+     filters.segmentMagnitudes[request.value]=request.value
+  else
+     filters.segmentMagnitudes={}
+  someAngles = []
   angleText=[]
   anglesActive={}
-  k=-1 unless v
-  filters.angleMagnitude=k
+  segmentText=[]
+  segmentsActive={}
+  filters.angleMagnitude=""
   makeScene filters
 
 makeResponsiveScene= (k,v)->
-  debugger
   segmentText=[]
   segmentsActive={}
   filters.segmentMagnitudes[k]=v
+  filters.angleMagnitude=""
   makeScene filters
 
 makeScene= (filterThis)->
@@ -311,14 +332,12 @@ makeScene= (filterThis)->
   mdl.remove dotsToShow if dotsToShow
   if filterThis.vertex
     dotsToShow = showPoints pointsToShow
-    dotsToShow.scale 0.90
     #dotsToShow.translate 220,180 
     mdl.add dotsToShow
   
   mdl.remove labels if labels
   if filterThis.labels
     labels = showPointNames pointsToShow
-    labels.scale 0.90
     #labels.translate 235,180
     mdl.add labels
 
@@ -336,7 +355,6 @@ makeScene= (filterThis)->
   someLines=_.flatten someLines
   if someLines?.length 
     linesToShow = showSegments someLines,"#AAAAAA"
-    linesToShow.scale 0.90
     #linesToShow.translate 220,180
 
   mdl.remove anglesToShow if anglesToShow
@@ -347,20 +365,18 @@ makeScene= (filterThis)->
   someAngles = []
   angleText=[]
   anglesActive={}
-  if (key=filterThis.angleMagnitude) != -1
+  if (key=filterThis.angleMagnitude)
     angleText.push key
     anglesActive[key]=true
   someAngles =  anglesByMagnitude[key] || []
   if someAngles?.length 
-    anglesToShow = showVectors someAngles[0..5],"#7021b1"
-    anglesToShow.scale 0.90
+    anglesToShow = showVectors someAngles[0..showSomeAngles()],"#7021b1"
     mdl.add anglesToShow  
 
   if someAngles.length == 0
     mdl.add linesToShow if linesToShow
 
   shapesText = (key for key of filterThis.useShapes).join ', '
-  segmentText = segmentText.join ', '
   logo = mdl.append()
 
   # Render it!
@@ -378,6 +394,7 @@ makeScene= (filterThis)->
 
   context1.render()
   context2.render()
+  items=_.keys(G.Polyhedra)
   
 </script>
 <svelte:head>
@@ -385,28 +402,40 @@ makeScene= (filterThis)->
 </svelte:head>
 <div class="pageContainer">
   <h5>Select Platonic Skeletons, create triangles, rotate 'em and save as 3D SVG files: Have Fun</h5>
-<div class="sb show dropdown-content" >
-  Shapes: {#each _.keys(G.Polyhedra) as theShape  }
-    <Checkme n={theShape} update={updateShapesWanted} v={false} />
-  {/each}
-</div>
-<hr/>
-<div class="sb show dropdown-content" >
+
+
+<div class="container">
   <a class="button" on:click={()=>makeScene(filters,filters.vertex=!filters.vertex)} href="#">
     {#if (filters.vertex) } hide {:else} show {/if} points</a>
+  - -
   <a class="button" on:click={()=>makeScene(filters,filters.labels=!filters.labels)} href="#">
     {#if (filters.labels) } hide {:else} show {/if} labels</a>
 </div>
-<div class="sb show dropdown-content" >
-  {#each segmentNames as m}
-    <Checkme n={m} update={makeResponsiveScene} v={segmentsActive[m]} />
-  {/each}
+
+<div class="mini grid container" >
+<div>
+<h5>Shapes:</h5>
+<Select id="selectShapes" {items} multiple on:input={updateShapesWanted} inputStyles="box-sizing: border-box;"></Select>
 </div>
-<hr/>
-<div class="sb show dropdown-content" >
-  {#each angleNames as m}
-    <Checkme n={m} update={makeResponsiveAngles} v={anglesActive[m]} />
-  {/each}
+<div >
+  {#if (segmentNames.length > 0) }
+  <h5>Segments?</h5>
+  <Select items={ segmentNames } multiple on:input={makeResponsiveScene2} inputStyles="box-sizing:border-box;"></Select>
+  {/if}
+</div>
+<div>
+{#if angleNames.length > 1} 
+<div>
+  <h5>Angle?</h5>
+    <Select id="Angles" type="checkbox" inputStyles="box-sizing:border-box;" items={angleNames} role="switch" on:input={makeResponsiveAngles}></Select>
+</div>
+<div>
+  <label for="range">How Many Triangles?
+    <input type="range" on:input={showSomeAngles} min="0" max="100" value="50" id="range" name="range">
+  </label>
+</div>
+{/if}
+</div>
 </div>
 
 
@@ -431,6 +460,10 @@ makeScene= (filterThis)->
 </div>
 
 <style>
+label {
+   float:left;
+}
+Select {--font-size:small; float:right;}
 .dropdown-content {
   display: none;
   background-color: #f6f6f6;
@@ -441,7 +474,7 @@ makeScene= (filterThis)->
 .button {
   margin-left: 2px;
 }
-select {height:140px}
+.mini { --font-size:small; --padding:1px; }
 
 /* Show the dropdown menu */  
 .show {display:block;}  

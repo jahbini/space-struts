@@ -128,7 +128,6 @@ export class Geo
 
   createAngles: (points, segments)->
     biVectors = {}
-    debugger
     for i in points
       for j in segments
         continue unless j?.ID
@@ -154,15 +153,13 @@ export class Geo
 
   constructor:()->
     @Polyhedra = 
-      Square: @formPointsFrom square,"square"
-      Pentagon: @formPointsFrom pentagon,"pentagon"
       Tetrahedron1: @formPointsFrom tetrahedron1, "tetrahedron"
-      Tetrahedron2: @formPointsFrom tetrahedron2, "tetrahedron"
       Octahedron: @formPointsFrom octahedron,"octahedron"
       Cube: @formPointsFrom cube,"cube"
       Icosahedron1: @formPointsFrom icosahedron1, "icosahedron"
-      Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
       Dodecahedron1: @formPointsFrom dodecahedron1, "dodecahedron"
+      Tetrahedron2: @formPointsFrom tetrahedron2, "tetrahedron"
+      Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
       Dodecahedron2: @formPointsFrom dodecahedron2, "dodecahedron"
 
     Melements=  _(M.MM).filter (item,key)-> key.match /^#...$/
