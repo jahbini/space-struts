@@ -3,15 +3,25 @@
   export const identifier = "header";
 </script>
 
-<template lang="pug">
-d.header.grid
-  d
-    img(src="/images/dodecahedron.svg")
-  d
-    p.
+<template >
+<div class="header grid">
+  <div>
+    <img src="/images/dodecahedron.svg" />
+  </div>
+  <div>
+    <h5>
       Greetings, come and begin to understand 3D geometry like a star ship captain.
-  d
-    img(src="/images/dodecahedron.svg?raw")
+    </h5>
+    {#if $page.data.intro }
+    <h6>
+    { $page.data.intro}
+    </h6>
+    {/if}
+  </div>
+  <div>
+    <img src="/images/dodecahedron.svg" />
+  </div>
+</div>
 </template>
 
 <style>

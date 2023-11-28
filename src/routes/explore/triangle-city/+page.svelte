@@ -7,6 +7,8 @@ import  _  from 'underscore'
 import { page } from '$app/stores';
 import  Checkme from './Checkme.svelte'
 import { Geo} from './Geo.coffee'
+import ColorPicker from 'svelte-awesome-color-picker';
+
 
 items = ['One', 'Two', 'Three'];
 duh=($page.url.searchParams.get 'useShapes') || []
@@ -30,6 +32,7 @@ segmentText=""
 segmentsByMagnitude=[]
 segmentNames=[]
 
+selectedAngle=null
 anglesToShow=null
 anglesActive={}
 anglesByMagnitude=[]
@@ -107,20 +110,23 @@ wireframe = (points,color = "#000000")->
   p=seen.Shapes.path points
   p.cullBackfaces = false
   m= new seen.Material new seen.Colors.hex color
+  m.a=0xff
   p.stroke m
   p.surfaces[0].fillMaterial = null
   p.surfaces[0]["stroke-width"]=1
   p
 
-filledAngle = (points, color="000000")->
+rgbObj = r:50,g:50,b:200,a:0.2
+
+materialfiller= null
+
+filledAngle = (points)->
   p=seen.Shapes.path points
   p.cullBackfaces = false
-  m= new seen.Colors.hex color
-  #make Transparent
-  m.a=0x40
+  m= seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
   m= new seen.Material m
   #p.stroke m
-  p.surfaces[0].fillMaterial = m
+  p.surfaces[0].fillMaterial = materialfiller
   p.surfaces[0]["stroke-width"]=0
   p
 
@@ -132,12 +138,12 @@ showSegments = (segments,color="#000000")->
   p.scale defaultSize
   p
 
-showVectors = (segments,color="#000000")->
+showVectors = (segments)->
   p=new seen.Model()
   return p unless segments.length
   for s in segments
     continue unless s
-    p.add filledAngle [s.path[0],s.path[1],s.path[2],s.path[0]], color
+    p.add filledAngle [s.path[0],s.path[1],s.path[2],s.path[0]]
 
   p.scale defaultSize
   p
@@ -161,7 +167,7 @@ showPointNames = (points)->
   for point in points
     label=seen.Shapes.text point.ID,{
       font: '10px Roboto'
-      cullBackFaces: false
+      cullBackFaces: true
       style: "text-anchor":"end"
     }
     label.fill '#000000'
@@ -256,12 +262,11 @@ onMount ->
     G=new Geo()
     mdl = seen.Models.default()
     mdl.cullBackfaces = false
+    materialfiller= new seen.Material seen.C 40,60,80,30
     initializeContext()
     makeScene filters
   
 updateShapesWanted = (event) ->
-  console.log event
-  debugger
   filters.useShapes={}
   if event.detail?
     for request in event.detail
@@ -284,11 +289,12 @@ updateShapesWanted = (event) ->
     magnitude: filters.magnitude
     angleMagnitude: ""
     useShapes: filters.useShapes
+    showTriangles: false
 
   makeScene filterThis=filters
 
 howManyAngles = 5
-recursive=false
+someAngles=0
 showSomeAngles=(event)->
   return howManyAngles if !event
   howManyAngles = event.target?.value
@@ -296,17 +302,20 @@ showSomeAngles=(event)->
 
 makeResponsiveAngles= (event)->
   angleText=[]
-  debugger
   anglesActive={}
   filters.angleMagnitude=event.detail?.value 
+  filters.showTriangles=true
   makeScene filters
 
-makeResponsiveScene2= (event)->
+makeResponsiveScene= (event)->
+  debugger
+  selectedAngle.handleClear() if selectedAngle
   if event.detail?
     for request in event.detail
      filters.segmentMagnitudes[request.value]=request.value
   else
      filters.segmentMagnitudes={}
+  filters.showTriangles=false
   someAngles = []
   angleText=[]
   anglesActive={}
@@ -315,11 +324,10 @@ makeResponsiveScene2= (event)->
   filters.angleMagnitude=""
   makeScene filters
 
-makeResponsiveScene= (k,v)->
-  segmentText=[]
-  segmentsActive={}
-  filters.segmentMagnitudes[k]=v
-  filters.angleMagnitude=""
+setAngleColor=(event)->
+  console.log event.detail
+  rgbObj= event.detail.rgb
+  materialfiller= new seen.Material seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
   makeScene filters
 
 makeScene= (filterThis)->
@@ -353,7 +361,7 @@ makeScene= (filterThis)->
     segmentsActive[key]=true
     segmentsByMagnitude[key]
   someLines=_.flatten someLines
-  if someLines?.length 
+  if someLines?.length  && !filterThis.showTriangles
     linesToShow = showSegments someLines,"#AAAAAA"
     #linesToShow.translate 220,180
 
@@ -370,7 +378,7 @@ makeScene= (filterThis)->
     anglesActive[key]=true
   someAngles =  anglesByMagnitude[key] || []
   if someAngles?.length 
-    anglesToShow = showVectors someAngles[0..showSomeAngles()],"#7021b1"
+    anglesToShow = showVectors someAngles[0..showSomeAngles()]
     mdl.add anglesToShow  
 
   if someAngles.length == 0
@@ -401,15 +409,29 @@ makeScene= (filterThis)->
   <title>Star</title>
 </svelte:head>
 <div class="pageContainer">
-  <h5>Select Platonic Skeletons, create triangles, rotate 'em and save as 3D SVG files: Have Fun</h5>
+<div>
+  <figure style="float:left; margin: 0 0 0 0">
+    <canvas width="400px" style="background:white" height="400px" id="seen-canvas1"></canvas>
+  </figure>
+  <figure style="margin: 0 0 0 0">
+    <canvas width="400px" style="background:white" height="400px" id="seen-canvas2"></canvas>
+  </figure>
+  <div id="SVGstuff" class="hidden" >
+    <svg width="400" height="400" id="seen-svg1" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
+    <svg width="400" height="400" id="seen-svg2" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
+  </div>
+</div>
 
 
 <div class="container">
   <a class="button" on:click={()=>makeScene(filters,filters.vertex=!filters.vertex)} href="#">
-    {#if (filters.vertex) } hide {:else} show {/if} points</a>
+    {#if (filters.vertex) } Hide {:else} Show {/if} points</a>
   - -
   <a class="button" on:click={()=>makeScene(filters,filters.labels=!filters.labels)} href="#">
-    {#if (filters.labels) } hide {:else} show {/if} labels</a>
+    {#if (filters.labels) } Hide {:else} Show {/if} labels</a>
+      <a class="button" on:click={snapshot('seen-svg2',scene2)}>Save Right Image</a>
+      <a class="button" on:click={snapshot('seen-svg1',scene1)}>Save Left Image</a>
+
 </div>
 
 <div class="mini grid container" >
@@ -420,43 +442,25 @@ makeScene= (filterThis)->
 <div >
   {#if (segmentNames.length > 0) }
   <h5>Segments?</h5>
-  <Select items={ segmentNames } multiple on:input={makeResponsiveScene2} inputStyles="box-sizing:border-box;"></Select>
+  <Select items={ segmentNames } multiple on:input={makeResponsiveScene} inputStyles="box-sizing:border-box;"></Select>
   {/if}
 </div>
 <div>
 {#if angleNames.length > 1} 
 <div>
   <h5>Angle?</h5>
-    <Select id="Angles" type="checkbox" inputStyles="box-sizing:border-box;" items={angleNames} role="switch" on:input={makeResponsiveAngles}></Select>
+    <Select value="none" bind:this={selectedAngle} id="Angles" type="checkbox" inputStyles="box-sizing:border-box;" items={angleNames} role="switch" on:input={makeResponsiveAngles}></Select>
 </div>
 <div>
+<ColorPicker hex="#20406080"  on:input={setAngleColor} />
   <label for="range">How Many Triangles?
-    <input type="range" on:input={showSomeAngles} min="0" max="100" value="50" id="range" name="range">
+    <input type="range" on:input={showSomeAngles} min="0" value=1 max="{someAngles.length}"  id="range" name="range">
   </label>
 </div>
 {/if}
 </div>
 </div>
 
-
-<div>
-  <figure style="float:left; margin: 0 0 0 0">
-    <canvas width="400px" style="background:tan" height="400px" id="seen-canvas1"></canvas>
-    <figcaption>
-      <button on:click={snapshot('seen-svg1',scene1)}>Save Left Image</button>
-    </figcaption>
-  </figure>
-  <figure style="margin: 0 0 0 0">
-    <canvas width="400px" style="background:tan" height="400px" id="seen-canvas2"></canvas>
-    <figcaption width="400px" style="width:400px">
-      <button on:click={snapshot('seen-svg2',scene2)}>Save Right Image</button>
-    </figcaption>
-  </figure>
-  <div id="SVGstuff" class="hidden" >
-    <svg width="400" height="400" id="seen-svg1" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
-    <svg width="400" height="400" id="seen-svg2" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
-  </div>
-</div>
 </div>
 
 <style>
