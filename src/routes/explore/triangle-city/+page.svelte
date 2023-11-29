@@ -18,7 +18,8 @@ useShapes = ("#{shape}": shape for shape in duh) || {}
 
 G={Polyhedra:[]}
 shapesText=""
-
+svgSize=200
+defaultSize=48
 context1="undefined"
 context2=null
 dotsToShow=null
@@ -172,7 +173,7 @@ showPointNames = (points)->
     }
     label.fill '#000000'
     label.scale 2.5
-    label.translate defaultSize*point.x,defaultSize*point.y,125*point.z
+    label.translate defaultSize*point.x,defaultSize*point.y,svgSize*0.4*point.z
     cluster.add label
   cluster
     
@@ -188,9 +189,16 @@ initializeContext= ()->
     model    : mdl
     viewport : seen.Viewports.center(400,400)
     cullBackfaces: false
-  scene1.camera.translate 0,0,-50
-  scene2.camera.translate 50,0,-50
-  scene2.camera.roty 0.55
+
+  if svgSize < 300
+    scene1.camera.translate -200,200,-300
+    scene2.camera.translate -200,200,-300
+    scene2.camera.roty 0.05
+  else 
+    scene1.camera.translate 0,0,-100
+    scene2.camera.translate 0,0,-100
+    scene2.camera.roty 0.55
+
   console.log "xform",xform if xform?
   mdl.transform xform if xform
 
@@ -198,6 +206,7 @@ initializeContext= ()->
   context1 = seen.Context('seen-canvas1', scene1)
   context2 = seen.Context('seen-canvas2', scene2)
 
+  ###
   dragger = new seen.Drag('seen-canvas1', {inertia : true})
   dragger.on('drag.rotate', (e) ->
     xform = seen.Quaternion.xyToTransform(e.offsetRelative...)
@@ -205,27 +214,30 @@ initializeContext= ()->
     context1.render()
     context2.render()
   )
-
   ###
+
   # Slowly rotate sphere
   rx = 0.0004
   ry = 0.00027
+  rz = 0.0027
   frame1=context1.animate()
     .onBefore((t, dt) -> 
-      linesToShow?.rotx(rx).roty(ry)
-      dotsToShow?.rotx(rx).roty(ry)
-      labels?.rotx(rx).roty(ry)
+      anglesToShow?.rotx(rx).roty(ry).rotz(rz) if anglesToShow?.rotx
+      linesToShow?.rotx(rx).roty(ry).rotz(rz) if linesToShow?.rotx
+      dotsToShow?.rotx(rx).roty(ry).rotz(rz) if dotsToShow?.rotx
+      labels?.rotx(rx).roty(ry).rotz(rz) if labels?.rotx
       )
     .start()
   
   frame2=context2.animate()
     .onBefore((t, dt) -> 
-      linesToShow?.rotx(rx).roty(ry)
-      dotsToShow?.rotx(rx).roty(ry)
-      labels?.rotx(rx).roty(ry)
+      anglesToShow?.rotx(rx).roty(ry).rotz(rz) if anglesToShow?.rotx
+      linesToShow?.rotx(rx).roty(ry).rotz(rz) if linesToShow?.rotx
+      dotsToShow?.rotx(rx).roty(ry).rotz(rz) if dotsToShow?.rotx
+      labels?.rotx(rx).roty(ry).rotz(rz) if labels?.rotx
       )
     .start()
-  ###
+  
   context1.render()
   context2.render()
 
@@ -263,9 +275,18 @@ onMount ->
     mdl = seen.Models.default()
     mdl.cullBackfaces = false
     materialfiller= new seen.Material seen.C 40,60,80,30
-    initializeContext()
-    makeScene filters
+    setSvgSize false
   
+setSvgSize=(big=false)->
+  if big
+    svgSize=400
+    defaultSize=98
+  else
+    svgSize=200
+    defaultSize=48
+  initializeContext()
+  makeScene filters
+
 updateShapesWanted = (event) ->
   filters.useShapes={}
   if event.detail?
@@ -411,10 +432,10 @@ makeScene= (filterThis)->
 <div class="pageContainer">
 <div>
   <figure style="float:left; margin: 0 0 0 0">
-    <canvas width="400px" style="background:white" height="400px" id="seen-canvas1"></canvas>
+    <canvas width={svgSize+"px"} style="background:white" height={svgSize+"px"} id="seen-canvas1"></canvas>
   </figure>
   <figure style="margin: 0 0 0 0">
-    <canvas width="400px" style="background:white" height="400px" id="seen-canvas2"></canvas>
+    <canvas width={svgSize+"px"} style="background:white" height={svgSize+"px"} id="seen-canvas2"></canvas>
   </figure>
   <div id="SVGstuff" class="hidden" >
     <svg width="400" height="400" id="seen-svg1" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
@@ -431,6 +452,7 @@ makeScene= (filterThis)->
     {#if (filters.labels) } Hide {:else} Show {/if} labels</a>
       <a class="button" on:click={snapshot('seen-svg2',scene2)}>Save Right Image</a>
       <a class="button" on:click={snapshot('seen-svg1',scene1)}>Save Left Image</a>
+      <a class="button" on:click={setSvgSize(true)}>make Big Pix</a>
 
 </div>
 
