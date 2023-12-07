@@ -61,10 +61,10 @@ export class Geo
       @createSeenPoint i,shapeName
     (M.saveThis shapeName,shapePoints).value
     
-  menuItems= ()=>
-    for key of @Polyhedra
-      key
-  
+  getPointAt:(m)->
+    return M.MM[m].value if M.MM[m]?
+    null
+
   ###
   # createSegment:
   # creates two seenpoints from the two ID's

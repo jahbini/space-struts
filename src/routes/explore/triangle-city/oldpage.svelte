@@ -17,6 +17,7 @@ duh=  duh.split /, ?/ if 'string' == typeof duh
 useShapes = ("#{shape}": shape for shape in duh) || {}
 
 G={Polyhedra:[]}
+shapesText=""
 svgSize=200
 defaultSize=48
 context1="undefined"
@@ -24,10 +25,7 @@ context2=null
 dotsToShow=null
 labels=null
 pointName = {}
-# points on screen is the final list of seenPoint values
-pointsFromShapes= []
-pointsToShow= []
-pointsOnScreen=[]
+cantidatePoints= []
 
 linesToShow=null
 segmentsActive={}
@@ -168,7 +166,6 @@ showPoints = (points)->
 showPointNames = (points)->
   cluster = new seen.Model()
   for point in points
-    continue if !point
     label=seen.Shapes.text point.ID,{
       font: '10px Roboto'
       cullBackFaces: true
@@ -176,7 +173,7 @@ showPointNames = (points)->
     }
     label.fill '#000000'
     label.scale 2.5
-    label.translate defaultSize*point.x,defaultSize*point.y,defaultSize*point.z
+    label.translate defaultSize*point.x,defaultSize*point.y,svgSize*0.4*point.z
     cluster.add label
   cluster
     
@@ -296,17 +293,14 @@ updateShapesWanted = (event) ->
     for request in event.detail
      filters.useShapes[request.value]=request.value
   # reset filters upon adding shape in viewport
-  pointsFromShapes= []
+  cantidatePoints= []
   filters.segmentMagnitudes = []
   for key of filters.useShapes
-    pointsFromShapes=pointsToShow.concat G.Polyhedra[key]
-  
-
-  {segmentNames,segmentsByMagnitude} = G.createSegments pointsFromShapes
+    cantidatePoints=cantidatePoints.concat G.Polyhedra[key]
+  {segmentNames,segmentsByMagnitude} = G.createSegments cantidatePoints
   # remove any segments that don't have a length of the shapes displayed
   for k of filters.segmentMagnitudes
     filters.segmentMagnitudes[k] = segmentsByMagnitude[k]?
-  
   filters=
     vertex: filters.vertex
     labels: filters.labels
@@ -315,12 +309,11 @@ updateShapesWanted = (event) ->
     angleMagnitude: ""
     useShapes: filters.useShapes
     showTriangles: false
-
-  makeScene filterThis=filters
+  makeScene filters=filters
 
 howManyAngles = 5
 someAngles=0
-showSomeAngles=(event=null)->
+showSomeAngles=(event)->
   return howManyAngles if !event
   howManyAngles = event.target?.value
   makeScene filters
@@ -333,6 +326,7 @@ makeResponsiveAngles= (event)->
   makeScene filters
 
 makeResponsiveScene= (event)->
+  debugger
   selectedAngle.handleClear() if selectedAngle
   if event.detail?
     for request in event.detail
@@ -354,84 +348,58 @@ setAngleColor=(event)->
   materialfiller= new seen.Material seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
   makeScene filters
 
-makeScene= (filterThis)->
+makeScene= (filters)->
   
   ###
   # seen is now loaded and can be used.
   # computation for display will proceed.
   ###
-
-  ###
-  # if we are forming segments or angles, we need to pprune the
-  # pointsFromShapes and form the names and value  lists
-  # for the segments or triangles
-  ### 
   mdl.remove linesToShow if linesToShow
   linesToShow = {}
-  # first calculate all the segments from the whole list of points
-  #
-  {segmentNames,segmentsByMagnitude} = G.createSegments pointsFromShapes
+  {segmentNames,segmentsByMagnitude} = G.createSegments cantidatePoints
   someLines = []
   segmentText=[]
   segmentsActive={}
-  someLines= for key,value of filterThis.segmentMagnitudes
+  someLines= for key,value of filters.segmentMagnitudes
     continue unless value
     segmentText.push key
     segmentsActive[key]=true
     segmentsByMagnitude[key]
-  mapToNames= (t,a)->
-    x=a.ID.split /[-|<|>]/
-    t[x[0]] =true
-    t[x[1]] =true
-    t 
   someLines=_.flatten someLines
-  if someLines?.length  && !filterThis.showTriangles
+  if someLines?.length  && !filters.showTriangles
     linesToShow = showSegments someLines,"#AAAAAA"
     #linesToShow.translate 220,180
-    temp1=_.reduce(someLines,mapToNames,{})
-    pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)
-  else
-    pointsToShow = pointsFromShapes
-    
-    
 
   mdl.remove anglesToShow if anglesToShow
   anglesToShow={}
-  anglesActive={}
-  someAngles = []
-  {angleNames, anglesByMagnitude} =  G.createAngles pointsToShow, someLines 
-  if filterThis.angleMagnitude != ""
-    debugger
-    mapToNames= (t,a)->
-      x=a.ID.split /[-|<|>]/
-      debugger if x.length<3
-      t[x[0]] =true
-      t[x[1]] =true
-      t[x[2]] =true
-      t 
-    key=filterThis.angleMagnitude
-    angleText=[ key ]
-    anglesActive[ key ]=true
-    someAngles =  anglesByMagnitude[key] || []
-    if someAngles?.length 
-      anglesToShow = showVectors someAngles[0..showSomeAngles()]
-      mdl.add anglesToShow  
-      temp1=_.reduce(someAngles,mapToNames,{})
-      pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)[0..showSomeAngles()]
+  {angleNames, anglesByMagnitude} =  G.createAngles cantidatePoints, someLines 
 
-  else
+
+  someAngles = []
+  angleText=[]
+  anglesActive={}
+  if (key=filters.angleMagnitude)
+    angleText.push key
+    anglesActive[key]=true
+  someAngles =  anglesByMagnitude[key] || []
+  if someAngles?.length 
+    anglesToShow = showVectors someAngles[0..showSomeAngles()]
+    mdl.add anglesToShow  
+
+  if someAngles.length == 0
     mdl.add linesToShow if linesToShow
 
+  shapesText = (key for key of filters.useShapes).join ', '
 
   mdl.remove dotsToShow if dotsToShow
-  if filterThis.vertex
-    dotsToShow = showPoints pointsToShow
+  if filters.vertex
+    dotsToShow = showPoints cantidatePoints
     #dotsToShow.translate 220,180 
     mdl.add dotsToShow
   
   mdl.remove labels if labels
-  if filterThis.labels
-    labels = showPointNames pointsToShow
+  if filters.labels
+    labels = showPointNames cantidatePoints
     #labels.translate 235,180
     mdl.add labels
 
