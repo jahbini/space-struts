@@ -1,5 +1,6 @@
 import { Memo } from './memo.coffee'
 import _ from 'underscore'
+import * as seenModule from '$lib/seen.m.coffee'
 
 M = new Memo()
 
@@ -165,4 +166,6 @@ export class Geo
     Melements=  _(M.MM).filter (item,key)-> key.match /^#...$/
     {segmentNames,segmentsByMagnitude} =
       @createSegments _.mapObject Melements, (item,key)->item.value
+    @segmentNames = segmentNames
+    @segmentsByMagnitude = segmentsByMagnitude
 

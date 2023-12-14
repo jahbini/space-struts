@@ -31,11 +31,10 @@ pointsOnScreen=[]
 
 linesToShow=null
 segmentsActive={}
-segmentText=""
 segmentsByMagnitude=[]
 segmentNames=[]
 
-selectedAngle=null
+uiSelectedAngle=null
 anglesToShow=null
 anglesActive={}
 anglesByMagnitude=[]
@@ -46,7 +45,7 @@ scene1=null
 scene2=null
 xform=null
 
-filters=
+pageState=
   vertex: true
   labels: true
   segmentMagnitudes: {}
@@ -159,7 +158,7 @@ showPoints = (points)->
   p = new seen.Model()
   for point in points
     glyf=seen.Shapes.tetrahedron 1
-    glyf.fill '#4cc488'
+    glyf.fill glyf.filler
     glyf.scale 5
     glyf.translate defaultSize*point.x,defaultSize*point.y,defaultSize*point.z
     p.add glyf
@@ -171,10 +170,11 @@ showPointNames = (points)->
     continue if !point
     label=seen.Shapes.text point.ID,{
       font: '10px Roboto'
-      cullBackFaces: true
+      cullBackFaces: false
       style: "text-anchor":"end"
     }
     label.fill '#000000'
+    debugger
     label.scale 2.5
     label.translate defaultSize*point.x,defaultSize*point.y,defaultSize*point.z
     cluster.add label
@@ -278,6 +278,7 @@ onMount ->
     mdl = seen.Models.default()
     mdl.cullBackfaces = false
     materialfiller= new seen.Material seen.C 40,60,80,30
+    glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize false
   
 setSvgSize=(big=false)->
@@ -288,73 +289,80 @@ setSvgSize=(big=false)->
     svgSize=200
     defaultSize=48
   initializeContext()
-  makeScene filters
+  makeScene()
 
+###
+# updateShapesWanted
+# called from user interaction, and recalculates permissable vertices
+###
 updateShapesWanted = (event) ->
-  filters.useShapes={}
+  pageState.useShapes={}
   if event.detail?
     for request in event.detail
-     filters.useShapes[request.value]=request.value
-  # reset filters upon adding shape in viewport
+     pageState.useShapes[request.value]=request.value
+  # reset pageState upon adding shape in viewport
   pointsFromShapes= []
-  filters.segmentMagnitudes = []
-  for key of filters.useShapes
+  pageState.segmentMagnitudes = []
+  for key of pageState.useShapes
     pointsFromShapes=pointsToShow.concat G.Polyhedra[key]
   
 
   {segmentNames,segmentsByMagnitude} = G.createSegments pointsFromShapes
   # remove any segments that don't have a length of the shapes displayed
-  for k of filters.segmentMagnitudes
-    filters.segmentMagnitudes[k] = segmentsByMagnitude[k]?
+  for k of pageState.segmentMagnitudes
+    pageState.segmentMagnitudes[k] = segmentsByMagnitude[k]?
   
-  filters=
-    vertex: filters.vertex
-    labels: filters.labels
-    segmentMagnitudes: filters.segmentMagnitudes
-    magnitude: filters.magnitude
+  pageState=
+    vertex: pageState.vertex
+    labels: pageState.labels
+    segmentMagnitudes: pageState.segmentMagnitudes
+    magnitude: pageState.magnitude
     angleMagnitude: ""
-    useShapes: filters.useShapes
+    useShapes: pageState.useShapes
     showTriangles: false
 
-  makeScene filterThis=filters
+  makeScene()
 
+recalculateAngles=true
 howManyAngles = 5
 someAngles=0
 showSomeAngles=(event=null)->
   return howManyAngles if !event
   howManyAngles = event.target?.value
-  makeScene filters
+  makeScene()
 
-makeResponsiveAngles= (event)->
+makeAngles= (event)->
+  howManyAngles=1
   angleText=[]
   anglesActive={}
-  filters.angleMagnitude=event.detail?.value 
-  filters.showTriangles=true
-  makeScene filters
+  pageState.angleMagnitude=event.detail?.value 
+  pageState.showTriangles=true
+  makeScene()
 
-makeResponsiveScene= (event)->
-  selectedAngle.handleClear() if selectedAngle
+makeSegments= (event)->
+  # clear out the ui for any angle since the segment pool changed
+  uiSelectedAngle.handleClear() if uiSelectedAngle
+  howManyAngles=1
   if event.detail?
     for request in event.detail
-     filters.segmentMagnitudes[request.value]=request.value
+     pageState.segmentMagnitudes[request.value]=request.value
   else
-     filters.segmentMagnitudes={}
-  filters.showTriangles=false
+     pageState.segmentMagnitudes={}
+  pageState.showTriangles=false
   someAngles = []
   angleText=[]
   anglesActive={}
-  segmentText=[]
   segmentsActive={}
-  filters.angleMagnitude=""
-  makeScene filters
+  pageState.angleMagnitude=""
+  makeScene()
 
 setAngleColor=(event)->
   console.log event.detail
   rgbObj= event.detail.rgb
   materialfiller= new seen.Material seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
-  makeScene filters
+  makeScene()
 
-makeScene= (filterThis)->
+makeScene= ()->
   
   ###
   # seen is now loaded and can be used.
@@ -372,11 +380,9 @@ makeScene= (filterThis)->
   #
   {segmentNames,segmentsByMagnitude} = G.createSegments pointsFromShapes
   someLines = []
-  segmentText=[]
   segmentsActive={}
-  someLines= for key,value of filterThis.segmentMagnitudes
+  someLines= for key,value of pageState.segmentMagnitudes
     continue unless value
-    segmentText.push key
     segmentsActive[key]=true
     segmentsByMagnitude[key]
   mapToNames= (t,a)->
@@ -385,7 +391,7 @@ makeScene= (filterThis)->
     t[x[1]] =true
     t 
   someLines=_.flatten someLines
-  if someLines?.length  && !filterThis.showTriangles
+  if someLines?.length  && !pageState.showTriangles
     linesToShow = showSegments someLines,"#AAAAAA"
     #linesToShow.translate 220,180
     temp1=_.reduce(someLines,mapToNames,{})
@@ -396,12 +402,14 @@ makeScene= (filterThis)->
     
 
   mdl.remove anglesToShow if anglesToShow
-  anglesToShow={}
-  anglesActive={}
-  someAngles = []
-  {angleNames, anglesByMagnitude} =  G.createAngles pointsToShow, someLines 
-  if filterThis.angleMagnitude != ""
-    debugger
+  if recalculateAngles
+    anglesToShow={}
+    anglesActive={}
+    someAngles = []
+    {angleNames, anglesByMagnitude} =  G.createAngles pointsToShow, someLines 
+  if pageState.angleMagnitude == ""
+    mdl.add linesToShow if linesToShow
+  else
     mapToNames= (t,a)->
       x=a.ID.split /[-|<|>]/
       debugger if x.length<3
@@ -409,28 +417,27 @@ makeScene= (filterThis)->
       t[x[1]] =true
       t[x[2]] =true
       t 
-    key=filterThis.angleMagnitude
+    key=pageState.angleMagnitude
     angleText=[ key ]
     anglesActive[ key ]=true
     someAngles =  anglesByMagnitude[key] || []
     if someAngles?.length 
       anglesToShow = showVectors someAngles[0..showSomeAngles()]
       mdl.add anglesToShow  
-      temp1=_.reduce(someAngles,mapToNames,{})
-      pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)[0..showSomeAngles()]
+      debugger
+      temp1=_.reduce(someAngles[0..showSomeAngles()],mapToNames,{})
+      pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)
 
-  else
-    mdl.add linesToShow if linesToShow
 
 
   mdl.remove dotsToShow if dotsToShow
-  if filterThis.vertex
+  if pageState.vertex
     dotsToShow = showPoints pointsToShow
     #dotsToShow.translate 220,180 
     mdl.add dotsToShow
   
   mdl.remove labels if labels
-  if filterThis.labels
+  if pageState.labels
     labels = showPointNames pointsToShow
     #labels.translate 235,180
     mdl.add labels
@@ -474,11 +481,11 @@ makeScene= (filterThis)->
 
 
 <div class="container">
-  <a class="button" on:click={()=>makeScene(filters,filters.vertex=!filters.vertex)} href="#">
-    {#if (filters.vertex) } Hide {:else} Show {/if} points</a>
+  <a class="button" on:click={()=>makeScene(pageState,pageState.vertex=!pageState.vertex)} href="#">
+    {#if (pageState.vertex) } Hide {:else} Show {/if} points</a>
   - -
-  <a class="button" on:click={()=>makeScene(filters,filters.labels=!filters.labels)} href="#">
-    {#if (filters.labels) } Hide {:else} Show {/if} labels</a>
+  <a class="button" on:click={()=>makeScene(pageState,pageState.labels=!pageState.labels)} href="#">
+    {#if (pageState.labels) } Hide {:else} Show {/if} labels</a>
       <a class="button" on:click={snapshot('seen-svg2',scene2)}>Save Right Image</a>
       <a class="button" on:click={snapshot('seen-svg1',scene1)}>Save Left Image</a>
       <a class="button" on:click={setSvgSize(true)}>make Big Pix</a>
@@ -488,19 +495,19 @@ makeScene= (filterThis)->
 <div class="mini grid container" >
 <div>
 <h5>Shapes:</h5>
-<Select id="selectShapes" {items} multiple on:input={updateShapesWanted} inputStyles="box-sizing: border-box;"></Select>
+<Select {items} multiple on:input={updateShapesWanted} inputStyles="box-sizing: border-box;"></Select>
 </div>
 <div >
   {#if (segmentNames.length > 0) }
   <h5>Segments?</h5>
-  <Select items={ segmentNames } multiple on:input={makeResponsiveScene} inputStyles="box-sizing:border-box;"></Select>
+  <Select items={ segmentNames } multiple on:input={makeSegments} inputStyles="box-sizing:border-box;"></Select>
   {/if}
 </div>
 <div>
 {#if angleNames.length > 1} 
 <div>
   <h5>Angle?</h5>
-    <Select value="none" bind:this={selectedAngle} id="Angles" type="checkbox" inputStyles="box-sizing:border-box;" items={angleNames} role="switch" on:input={makeResponsiveAngles}></Select>
+    <Select value="none" bind:this={uiSelectedAngle} id="Angles" type="checkbox" inputStyles="box-sizing:border-box;" items={angleNames} role="switch" on:input={makeAngles}></Select>
 </div>
 <div>
 <ColorPicker hex="#20406080"  on:input={setAngleColor} />
