@@ -269,6 +269,7 @@ shootTheMoon= (value)->
   number= value.target?.value
 
 mdl=null
+glyf={}
 onMount ->
   if !seen
     setTimeout onMount,50

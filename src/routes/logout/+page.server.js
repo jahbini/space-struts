@@ -3,7 +3,7 @@ import { fail, redirect } from "@sveltejs/kit";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
-  cookies.delete("userId");
+  /* @migration task: add path argument */ cookies.delete("userId");
   console.log("Deleting user");
-  throw redirect(302, "/");
+  redirect(302, "/");
 }

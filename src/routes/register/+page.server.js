@@ -6,7 +6,7 @@ import { createUser } from "$lib/server/database.js";
 export async function load({ params, cookies }) {
   const userId = cookies.get("userId");
   if (userId) {
-    throw redirect(302, "/");
+    redirect(302, "/");
   }
   console.log("in PageServerLoad Params", params);
   return {
@@ -39,7 +39,7 @@ export const actions = {
     // set cookie
     cookies.set("userId", userId);
     // redirect to home page
-    throw redirect(302, "/");
+    redirect(302, "/");
   }
 };
 
