@@ -22,6 +22,7 @@ defaultSize=48
 context1="undefined"
 context2=null
 dotsToShow=null
+facesShown=null
 labels=null
 pointName = {}
 # points on screen is the final list of seenPoint values
@@ -52,6 +53,7 @@ pageState=
   angleMagnitude: ""  #a string value of format 999.999 0-360
   magnitude: false
   useShapes: useShapes 
+  showFaces: true
 
 ###
 # the Memo is an object used by Geo with keys of the forms:
@@ -108,13 +110,13 @@ To = ( a,l )-> #angle in degrees from x-axis, length
 fromTo = (a,t,l)->
   a.copy().add To t,l
 
-wireframe = (points,color = "#000000")->
+wireframe = (points,color = "#000000",fill=null)->
   p=seen.Shapes.path points
   p.cullBackfaces = false
   m= new seen.Material new seen.Colors.hex color
   m.a=0xff
   p.stroke m
-  p.surfaces[0].fillMaterial = null
+  p.surfaces[0].fillMaterial = fill
   p.surfaces[0]["stroke-width"]=1
   p
 
@@ -137,6 +139,17 @@ showSegments = (segments,color="#000000")->
   return p unless segments.length
   for s in segments
     p.add wireframe s.path, color if s
+  p.scale defaultSize
+  p
+
+showFaces = (faces,color="#000000")->
+  p=new seen.Model()
+  return p unless faces.length
+  debugger
+  for s in faces
+    items= G.formPointsFrom s,s
+    console.log "ITEMS",items
+    p.add wireframe items, color, new seen.Material seen.C 40,60,80,30
   p.scale defaultSize
   p
 
@@ -174,7 +187,6 @@ showPointNames = (points)->
       style: "text-anchor":"end"
     }
     label.fill '#000000'
-    debugger
     label.scale 2.5
     label.translate defaultSize*point.x,defaultSize*point.y,defaultSize*point.z
     cluster.add label
@@ -281,6 +293,7 @@ onMount ->
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize false
+    updateShapesWanted()
   
 setSvgSize=(big=false)->
   if big
@@ -298,14 +311,9 @@ setSvgSize=(big=false)->
 ###
 updateShapesWanted = (event) ->
   pageState.useShapes={}
-  if event.detail?
-    for request in event.detail
-     pageState.useShapes[request.value]=request.value
-  # reset pageState upon adding shape in viewport
   pointsFromShapes= []
   pageState.segmentMagnitudes = []
-  for key of pageState.useShapes
-    pointsFromShapes=pointsToShow.concat G.Polyhedra[key]
+  pointsFromShapes=pointsToShow.concat G.Polyhedra["Dodecahedron1"]
   
 
   {segmentNames,segmentsByMagnitude} = G.createSegments pointsFromShapes
@@ -321,6 +329,7 @@ updateShapesWanted = (event) ->
     angleMagnitude: ""
     useShapes: pageState.useShapes
     showTriangles: false
+    showFaces: true
 
   makeScene()
 
@@ -362,6 +371,7 @@ setAngleColor=(event)->
   rgbObj= event.detail.rgb
   materialfiller= new seen.Material seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
   makeScene()
+
 
 makeScene= ()->
   
@@ -429,14 +439,19 @@ makeScene= ()->
       temp1=_.reduce(someAngles[0..showSomeAngles()],mapToNames,{})
       pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)
 
-
-
+  debugger
+  mdl.remove facesShown if facesShown
+  if pageState.showFaces
+    facesShown = showFaces  G.Faces
+    mdl.add facesShown 
+   
   mdl.remove dotsToShow if dotsToShow
   if pageState.vertex
     dotsToShow = showPoints pointsToShow
     #dotsToShow.translate 220,180 
     mdl.add dotsToShow
   
+  debugger
   mdl.remove labels if labels
   if pageState.labels
     labels = showPointNames pointsToShow
@@ -463,6 +478,7 @@ makeScene= ()->
   context2.render()
   items=_.keys(G.Polyhedra)
   
+
 </script>
 <svelte:head>
   <title>Star</title>
@@ -482,7 +498,7 @@ makeScene= ()->
 </div>
 
 
-<div class="container">
+<div class="container" on:load={ updateShapesWanted() }>
   <a class="button" on:click={()=>makeScene(pageState,pageState.vertex=!pageState.vertex)} href="#">
     {#if (pageState.vertex) } Hide {:else} Show {/if} points</a>
   - -
@@ -495,10 +511,6 @@ makeScene= ()->
 </div>
 
 <div class="mini grid container" >
-<div>
-<h5>Shapes:</h5>
-<Select {items} multiple on:input={updateShapesWanted} inputStyles="box-sizing: border-box;"></Select>
-</div>
 <div >
   {#if (segmentNames.length > 0) }
   <h5>Segments?</h5>
