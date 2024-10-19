@@ -168,18 +168,18 @@ export class Geo
     @segmentNames = segmentNames
     @segmentsByMagnitude = segmentsByMagnitude
     @Faces = [
-             "#oOO-#zFP-#OOO-#FPz-#fPz",
-             "#OoO-#PzF-#OOO-#zFP-#zfP",
-             "#OOo-#FPz-#OOO-#PzF-#Pzf",
-             "#ooo-#fpz-#ooO-#pzF-#pzf",
-             "#ooo-#pzf-#oOo-#zFp-#zfp",
-             "#ooo-#zfp-#Ooo-#Fpz-#fpz",
-             "#Ooo-#Fpz-#OoO-#PzF-#Pzf",
-             "#Ooo-#Pzf-#OOo-#zFp-#zfp",
-             "#ooO-#zfP-#OoO-#Fpz-#fpz",
-             "#ooO-#pzF-#oOO-#zFP-#zfP",
-             "#oOo-#fPz-#oOO-#pzF-#pzf",
-             "#oOo-#zFp-#OOo-#FPz-#fPz"
+             "#ooO-#zfP-#OoO-#Fpz-#fpz",  # Face A
+             "#oOo-#zFp-#OOo-#FPz-#fPz",   # Face a
+             "#ooo-#fpz-#ooO-#pzF-#pzf",   #Face B
+             "#OOo-#FPz-#OOO-#PzF-#Pzf",   #Face b
+             "#ooo-#zfp-#Ooo-#Fpz-#fpz",    #Face C
+             "#oOO-#zFP-#OOO-#FPz-#fPz",   #Face c
+             "#Ooo-#Fpz-#OoO-#PzF-#Pzf",  # Face D
+             "#oOo-#fPz-#oOO-#pzF-#pzf"   # Face d
+             "#ooo-#pzf-#oOo-#zFp-#zfp",   #Face E
+             "#OoO-#PzF-#OOO-#zFP-#zfP",   #Face e
+             "#ooO-#pzF-#oOO-#zFP-#zfP",    #Face F
+             "#Ooo-#Pzf-#OOo-#zFp-#zfp",  #Face f
            ]
     {faceNames,facePaths} = @createSegments _.mapObject Melements, (item,key)->item.value
     @faceNames = faceNames
