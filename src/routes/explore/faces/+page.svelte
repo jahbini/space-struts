@@ -22,7 +22,7 @@ defaultSize=48
 context1="undefined"
 context2=null
 dotsToShow=null
-facesShown=null
+facesToShow=null
 labels=null
 pointName = {}
 # points on screen is the final list of seenPoint values
@@ -145,11 +145,22 @@ showSegments = (segments,color="#000000")->
 showFaces = (faces,color="#000000")->
   p=new seen.Model()
   return p unless faces.length
-  debugger
+  centroid = seen.P 0,0,0
   for s in faces
     items= G.formPointsFrom s,s
-    console.log "ITEMS",items
-    p.add wireframe items, color, new seen.Material seen.C 40,60,80,30
+    pivot = items[1].ID
+    hueman = '#'
+    for hueStrength in pivot[1...]
+      switch hueStrength
+        when 'z' then hueman += '60'
+        when 'f' then hueman += '90'
+        when 'F' then hueman += 'D0'
+        when 'p' then hueman += '20'
+        when 'P' then hueman += '40'
+    debugger
+    faceColor = seen.Colors.hex hueman
+    faceColor.a = 40
+    p.add wireframe items, color, new seen.Material faceColor
   p.scale defaultSize
   p
 
@@ -292,10 +303,10 @@ onMount ->
     mdl.cullBackfaces = false
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
-    setSvgSize false
+    setSvgSize true
     updateShapesWanted()
   
-setSvgSize=(big=false)->
+setSvgSize=(big=true)->
   if big
     svgSize=400
     defaultSize=98
@@ -435,15 +446,13 @@ makeScene= ()->
     if someAngles?.length 
       anglesToShow = showVectors someAngles[0..showSomeAngles()]
       mdl.add anglesToShow  
-      debugger
       temp1=_.reduce(someAngles[0..showSomeAngles()],mapToNames,{})
       pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)
 
-  debugger
-  mdl.remove facesShown if facesShown
+  mdl.remove facesToShow if facesToShow
   if pageState.showFaces
-    facesShown = showFaces  G.Faces
-    mdl.add facesShown 
+    facesToShow = showFaces  G.Faces
+    mdl.add facesToShow 
    
   mdl.remove dotsToShow if dotsToShow
   if pageState.vertex
@@ -451,7 +460,6 @@ makeScene= ()->
     #dotsToShow.translate 220,180 
     mdl.add dotsToShow
   
-  debugger
   mdl.remove labels if labels
   if pageState.labels
     labels = showPointNames pointsToShow
