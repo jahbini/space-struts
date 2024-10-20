@@ -80,7 +80,6 @@ pageState=
 defaultSize=98
 # Create a shape
 pSize = 55
-phi=1.61803398
 phi= (Math.sqrt(5.0)+1.0)/2.0
 s05=pSize/phi
 s1=pSize
@@ -145,9 +144,17 @@ showSegments = (segments,color="#000000")->
 showFaces = (faces,color="#000000")->
   p=new seen.Model()
   return p unless faces.length
-  centroid = seen.P 0,0,0
   for s in faces
+    centroid = seen.P 0,0,0
     items= G.formPointsFrom s,s
+    for pp in items
+      centroid.add pp
+
+    centroid.divide 5
+    tet = seen.Shapes.tetrahedron()
+    tet.scale .04
+    tet.translate centroid.x,centroid.y,centroid.z
+    p.add tet
     pivot = items[1].ID
     hueman = '#'
     for hueStrength in pivot[1...]
