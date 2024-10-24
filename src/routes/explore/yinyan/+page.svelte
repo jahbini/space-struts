@@ -183,10 +183,42 @@ showFaces = (faces,color="#000000")->
   p.scale defaultSize
   p
 
+createClique = (faces) ->
+  return [] unless faces.length
+  for thisFace in faces
+    items = G.formPointsFrom thisFace,thisFace
+    thisFaceItems = [...items,...items]
+    for otherFace in faces
+      continue if otherFace == thisFace
+      items = G.formPointsFrom otherFace,otherFace
+      #debugger
+      otherFaceItems = [...items,...items]
+      for thisI in [0..4]
+        thisYin = thisFaceItems[thisI].copy().subtract thisFaceItems[thisI+1]
+        thisYan = thisFaceItems[thisI].copy().subtract thisFaceItems[thisI+2] 
+        for otherI in [0..4]
+          otherYin = otherFaceItems[otherI].copy().subtract otherFaceItems[thisI+1]
+          otherYan = otherFaceItems[otherI].copy().subtract otherFaceItems[thisI+2]
+          zz=thisYin.copy().cross otherYin
+          ww=thisYan.copy().cross otherYan
+          if zz.magnitude() < 0.1
+             debugger
+             console.log zz.magnitude(),"Yin less than ???"
+             console.log thisFaceItems[thisI],otherFaceItems[otherI]
+          if ww.magnitude() < 0.1
+             console.log ww.magnitude(),"Yin less than ???"
+             console.log thisFaceItems[thisI],otherFaceItems[otherI]
+
+          
+           
+        #p.add wireframe [itms[i],itms[i+1],itms[i+2]],"#ff0000",new seen.Material makeColorFromID items[i].ID 
+        #p.add wireframe [itms[i],itms[i+2],itms[i+3]],"#00ff00",new seen.Material makeColorFromID items[i].ID 
+
+      
 showYinYan = (faces) ->
   p=new seen.Model()
   return p unless faces.length
-  debugger
+  createClique (faces)
   for s in faces
     items = G.formPointsFrom s,s
     itms = [...items,...items]
@@ -486,7 +518,7 @@ makeScene= ()->
   if pageState.showFaces
     facesToShow = showYinYan  G.Faces
     mdl.add facesToShow 
-    mdl.add showCentroid G.Faces
+    #mdl.add showCentroid G.Faces
    
   mdl.remove dotsToShow if dotsToShow
   if pageState.vertex
