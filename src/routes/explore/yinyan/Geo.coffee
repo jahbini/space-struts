@@ -2,7 +2,7 @@ import { Memo } from './memo.coffee'
 import _ from 'underscore'
 import * as seenModule from '$lib/seen.m.coffee'
 
-M = new Memo()
+export M = new Memo()
 fe= (Math.sqrt(5)-1)/2.0
 Phi= (1+Math.sqrt 5)/2
 
@@ -78,10 +78,9 @@ export class Geo
     return ID if M.MM[ID]
     p1=@createSeenPoint ptxt1
     p2=@createSeenPoint ptxt2
-    path = [p1,p2]
-    d=p1.copy().subtract(p2).magnitude()
-    d=d.toFixed 3
-    M.saveThis ID, {ID,path,d}
+    points = [p1,p2]
+    vetric=p1.copy().subtract(p2)
+    M.saveThis ID, {ID,points,vetric}
     ID
 
   ###
@@ -125,7 +124,14 @@ export class Geo
     angleDeg = Math.acos(raw) * 180 / Math.PI;
     angleDeg = angleDeg.toFixed 3
     
-
+  createTriangle: ( p1,p2,p3)->
+    s1= @createSegment p1,p2
+    s2= @createSegment p2,p3
+    s3= @createSegment p1,p2
+    M.saveThis "#{p1}>#{p2}>#{p3}",
+      path:[p1,p2,p3]
+      segments:[s1,s2,s3]
+   
   createAngles: (points, segments)->
     biVectors = {}
     for i in points

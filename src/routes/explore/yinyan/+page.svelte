@@ -6,7 +6,7 @@ import { onMount } from 'svelte'
 import  _  from 'underscore'
 import { page } from '$app/stores';
 import  Checkme from './Checkme.svelte'
-import { Geo} from './Geo.coffee'
+import { Geo, M } from './Geo.coffee'
 import ColorPicker from 'svelte-awesome-color-picker';
 
 
@@ -111,7 +111,9 @@ fromTo = (a,t,l)->
 
 wireframe = (points,color = "#000000",fill=null)->
   debugger unless points[points.length-1]
-  p=seen.Shapes.path points
+  pointLowdown = for s in points
+    G.createSeenPoint s
+  p=seen.Shapes.path pointLowdown
   p.cullBackfaces = false
   m= new seen.Material new seen.Colors.hex color
   m.a=0xff
@@ -183,19 +185,39 @@ showFaces = (faces,color="#000000")->
   p.scale defaultSize
   p
 
+fiboTriangles = []
 createClique = (faces) ->
-  return [] unless faces.length
+  return [] unless fiboTriangles.length
+  cliques = []
+  cantidates = fiboTriangles.slice 0 
+  debugger
+  while masterTriangle = cantidates.pop()
+    for s in masterTriangle.value.segments
+      console.log s
+      sV = (M.theLowdown s).value.vetric
+      cantidateTriangle = cantidates.pop()
+      for cc in cantidateTriangle.value.segments
+        cV=(M.theLowdown cc).value.vetric
+        zz=sV.copy().cross cV
+        if zz < 0.1 and zz > -0.1
+          cliques.push cantidateTriangle
+        else
+          cantidates.unshift cantidateTriangle
+        
+  return
+
+###  
   for thisFace in faces
     items = G.formPointsFrom thisFace,thisFace
     thisFaceItems = [...items,...items]
+    for thisI in [0..4]
+      thisYin = thisFaceItems[thisI].copy().subtract thisFaceItems[thisI+1]
+      thisYan = thisFaceItems[thisI].copy().subtract thisFaceItems[thisI+2] 
     for otherFace in faces
       continue if otherFace == thisFace
       items = G.formPointsFrom otherFace,otherFace
-      #debugger
+      debugger
       otherFaceItems = [...items,...items]
-      for thisI in [0..4]
-        thisYin = thisFaceItems[thisI].copy().subtract thisFaceItems[thisI+1]
-        thisYan = thisFaceItems[thisI].copy().subtract thisFaceItems[thisI+2] 
         for otherI in [0..4]
           otherYin = otherFaceItems[otherI].copy().subtract otherFaceItems[thisI+1]
           otherYan = otherFaceItems[otherI].copy().subtract otherFaceItems[thisI+2]
@@ -214,20 +236,28 @@ createClique = (faces) ->
         #p.add wireframe [itms[i],itms[i+1],itms[i+2]],"#ff0000",new seen.Material makeColorFromID items[i].ID 
         #p.add wireframe [itms[i],itms[i+2],itms[i+3]],"#00ff00",new seen.Material makeColorFromID items[i].ID 
 
+###  
       
+splitName = (longName)->
+  value = longName.split /-|<|>/
+  return value
+
+
 showYinYan = (faces) ->
   p=new seen.Model()
   return p unless faces.length
-  createClique (faces)
   for s in faces
-    items = G.formPointsFrom s,s
-    itms = [...items,...items]
+    names = splitName s
+    itms = [...names,...names]
     for i in [0..4]
-      p.add wireframe [itms[i],itms[i+1],itms[i+2]],"#ff0000",new seen.Material makeColorFromID items[i].ID 
-      p.add wireframe [itms[i],itms[i+2],itms[i+3]],"#00ff00",new seen.Material makeColorFromID items[i].ID 
+      fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+2]
+      fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+3]
+      p.add wireframe [itms[i],itms[i+1],itms[i+2]],"#ff0000",new seen.Material makeColorFromID itms[i] 
+      p.add wireframe [itms[i],itms[i+2],itms[i+3]],"#00ff00",new seen.Material makeColorFromID itms[i]
 
-   p.scale defaultSize
-   p
+  createClique faces
+  p.scale defaultSize
+  p
       
 showVectors = (segments)->
   p=new seen.Model()
