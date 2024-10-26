@@ -190,20 +190,26 @@ createClique = (faces) ->
   return [] unless fiboTriangles.length
   cliques = []
   cantidates = fiboTriangles.slice 0 
-  debugger
   while masterTriangle = cantidates.pop()
+    clique = [ masterTriangle ]
+    debugger
     for s in masterTriangle.value.segments
-      console.log s
       sV = (M.theLowdown s).value.vetric
-      cantidateTriangle = cantidates.pop()
-      for cc in cantidateTriangle.value.segments
-        cV=(M.theLowdown cc).value.vetric
-        zz=sV.copy().cross cV
-        if zz < 0.1 and zz > -0.1
-          cliques.push cantidateTriangle
+      rejects = []
+      while cantidateTriangle = cantidates.pop()
+        for cc in cantidateTriangle.value.segments
+          clicked = false
+          cV=(M.theLowdown cc).value.vetric
+          zz=sV.copy().cross cV
+          clicked |=  zz.magnitudeSquared() < 0.1
+
+        if clicked
+          clique.push cantidateTriangle
         else
-          cantidates.unshift cantidateTriangle
-        
+          rejects.unshift cantidateTriangle
+      cantidates = rejects
+    cliques.push clique    
+  console.log "cliques", cliques.length
   return
 
 ###  
