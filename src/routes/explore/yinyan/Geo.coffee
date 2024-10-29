@@ -125,10 +125,16 @@ export class Geo
     angleDeg = angleDeg.toFixed 3
     
   createTriangle: ( p1,p2,p3)->
+    key = [p1,p2,p3].sort()
+    p1=key[0]
+    p2=key[1]
+    p3=key[2] 
     s1= @createSegment p1,p2
     s2= @createSegment p2,p3
-    s3= @createSegment p1,p2
-    M.saveThis "#{p1}>#{p2}>#{p3}",
+    s3= @createSegment p1,p3
+    ID= "#{p1}>#{p2}>#{p3}"
+    M.saveThis ID,
+      ID: ID
       path:[p1,p2,p3]
       segments:[s1,s2,s3]
    

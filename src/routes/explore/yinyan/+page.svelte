@@ -186,70 +186,41 @@ showFaces = (faces,color="#000000")->
   p
 
 fiboTriangles = []
-createClique = (faces) ->
+
+cliques= {}
+
+createCliques = (faces) ->
   return [] unless fiboTriangles.length
-  cliques = []
+  cliques = {}
   cantidates = fiboTriangles.slice 0 
-  while masterTriangle = cantidates.pop()
-    clique = [ masterTriangle ]
-    debugger
-    for s in masterTriangle.value.segments
+  for  masterTriangle in cantidates
+    for s,idx in masterTriangle.value.segments
       sV = (M.theLowdown s).value.vetric
-      rejects = []
-      while cantidateTriangle = cantidates.pop()
+      sVmS = sV.magnitudeSquared()
+      cliques[s] = {"#{masterTriangle.value.ID}": s } 
+      for cantidateTriangle in cantidates
         for cc in cantidateTriangle.value.segments
-          clicked = false
           cV=(M.theLowdown cc).value.vetric
           zz=sV.copy().cross cV
-          clicked |=  zz.magnitudeSquared() < 0.1
-
-        if clicked
-          clique.push cantidateTriangle
-        else
-          rejects.unshift cantidateTriangle
-      cantidates = rejects
-    cliques.push clique    
-  console.log "cliques", cliques.length
+          cVmS = cV.magnitudeSquared()
+          lDiff = Math.abs cVmS-sVmS
+          if lDiff < 0.1  and zz.magnitudeSquared() < 0.1
+            cliques[s][cantidateTriangle.value.ID]=cc
   return
 
-###  
-  for thisFace in faces
-    items = G.formPointsFrom thisFace,thisFace
-    thisFaceItems = [...items,...items]
-    for thisI in [0..4]
-      thisYin = thisFaceItems[thisI].copy().subtract thisFaceItems[thisI+1]
-      thisYan = thisFaceItems[thisI].copy().subtract thisFaceItems[thisI+2] 
-    for otherFace in faces
-      continue if otherFace == thisFace
-      items = G.formPointsFrom otherFace,otherFace
-      debugger
-      otherFaceItems = [...items,...items]
-        for otherI in [0..4]
-          otherYin = otherFaceItems[otherI].copy().subtract otherFaceItems[thisI+1]
-          otherYan = otherFaceItems[otherI].copy().subtract otherFaceItems[thisI+2]
-          zz=thisYin.copy().cross otherYin
-          ww=thisYan.copy().cross otherYan
-          if zz.magnitude() < 0.1
-             debugger
-             console.log zz.magnitude(),"Yin less than ???"
-             console.log thisFaceItems[thisI],otherFaceItems[otherI]
-          if ww.magnitude() < 0.1
-             console.log ww.magnitude(),"Yin less than ???"
-             console.log thisFaceItems[thisI],otherFaceItems[otherI]
-
-          
-           
-        #p.add wireframe [itms[i],itms[i+1],itms[i+2]],"#ff0000",new seen.Material makeColorFromID items[i].ID 
-        #p.add wireframe [itms[i],itms[i+2],itms[i+3]],"#00ff00",new seen.Material makeColorFromID items[i].ID 
-
-###  
       
 splitName = (longName)->
   value = longName.split /-|<|>/
   return value
 
-
 showYinYan = (faces) ->
+  showClique=(segmentID)->
+    triangles = cliques[segmentID]
+    for k,t of triangles
+      p.add wireframe (k.split /-|>|</) ,"#0f0f80"
+      p.add wireframe (t.split /-|<|>/) ,"#f0f000"
+    p.add wireframe (segmentID.split /-|<|>/),"#ff0000"
+    
   p=new seen.Model()
   return p unless faces.length
   for s in faces
@@ -258,10 +229,11 @@ showYinYan = (faces) ->
     for i in [0..4]
       fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+2]
       fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+3]
-      p.add wireframe [itms[i],itms[i+1],itms[i+2]],"#ff0000",new seen.Material makeColorFromID itms[i] 
-      p.add wireframe [itms[i],itms[i+2],itms[i+3]],"#00ff00",new seen.Material makeColorFromID itms[i]
+  createCliques faces
+  #showClique "#oOO-#zFP"
+  showClique "#zFP-#zfP"
+  debugger
 
-  createClique faces
   p.scale defaultSize
   p
       
