@@ -23,6 +23,8 @@ context1="undefined"
 context2=null
 dotsToShow=null
 facesToShow=null
+yinYanToShow=null
+cliquesToShow=null
 labels=null
 pointName = {}
 # points on screen is the final list of seenPoint values
@@ -53,7 +55,9 @@ pageState=
   angleMagnitude: ""  #a string value of format 999.999 0-360
   magnitude: false
   useShapes: useShapes 
-  showFaces: true
+  showFaces: false
+  showYinYan: true
+  cliquesToShow: {}
 
 ###
 # the Memo is an object used by Geo with keys of the forms:
@@ -109,10 +113,24 @@ To = ( a,l )-> #angle in degrees from x-axis, length
 fromTo = (a,t,l)->
   a.copy().add To t,l
 
+pointFrame = (points,color = "#000000",fill=null)->
+  debugger unless points[points.length-1]
+  p=seen.Shapes.path ...points
+  p.cullBackfaces = false
+  m= new seen.Material new seen.Colors.hex color
+  m.a=0xff
+  p.stroke m
+  p.surfaces[0].fillMaterial = fill
+  p.surfaces[0]["stroke-width"]=1
+  p
+
 wireframe = (points,color = "#000000",fill=null)->
   debugger unless points[points.length-1]
   pointLowdown = for s in points
-    G.createSeenPoint s
+    if "Point" == s.constructor.name
+      s
+    else
+      G.createSeenPoint s
   p=seen.Shapes.path pointLowdown
   p.cullBackfaces = false
   m= new seen.Material new seen.Colors.hex color
@@ -188,10 +206,12 @@ showFaces = (faces,color="#000000")->
 fiboTriangles = []
 
 cliques= {}
+cliqueNames = []
 
 createCliques = (faces) ->
   return [] unless fiboTriangles.length
   cliques = {}
+  cnames = []
   cantidates = fiboTriangles.slice 0 
   for  masterTriangle in cantidates
     for s,idx in masterTriangle.value.segments
@@ -206,12 +226,21 @@ createCliques = (faces) ->
           lDiff = Math.abs cVmS-sVmS
           if lDiff < 0.1  and zz.magnitudeSquared() < 0.1
             cliques[s][cantidateTriangle.value.ID]=cc
+  cnames = for s of cliques
+    s
+  cliqueNames = cnames.slice()
   return
 
       
 splitName = (longName)->
   value = longName.split /-|<|>/
   return value
+
+moveTriangle = (tID,seenPoint)->
+  p = new seen.Model()
+  p.add wireframe (tID.split /-|<|>/),"#00f000", new seen.Material seen.C 40,60,80,30
+  p.translate seenPoint.x,seenPoint.y,seenPoint.z
+  p.scale defaultSize/5
 
 showYinYan = (faces) ->
   showClique=(segmentID)->
@@ -230,13 +259,23 @@ showYinYan = (faces) ->
       fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+2]
       fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+3]
   createCliques faces
-  #showClique "#oOO-#zFP"
-  showClique "#zFP-#zfP"
-  debugger
+  #showClique "#oOO-#zfP"
+  #showClique "#zFP-#zfP"
 
   p.scale defaultSize
   p
       
+showClique=(segmentID)->
+  debugger
+  p=new seen.Model()
+  triangles = cliques[segmentID]
+  for k,t of triangles
+    p.add wireframe (k.split /-|>|</) ,"#0f0f80"
+    p.add wireframe (t.split /-|<|>/) ,"#f0f000"
+  p.add wireframe (segmentID.split /-|<|>/),"#ff0000"
+  p.scale defaultSize
+  p
+
 showVectors = (segments)->
   p=new seen.Model()
   return p unless segments.length
@@ -279,41 +318,46 @@ showPointNames = (points)->
 initializeContext= ()->
   # Create scene and add shape to model
   scene1 = new seen.Scene
-    model    : mdl
+    model    : mdl1
     viewport : seen.Viewports.center(400,400)
     cullBackfaces: false
 
   # Create scene and add shape to model
   scene2= new seen.Scene
-    model    : mdl
+    model    : mdl2
     viewport : seen.Viewports.center(400,400)
     cullBackfaces: false
 
   if svgSize < 300
     scene1.camera.translate -200,200,-300
     scene2.camera.translate -200,200,-300
-    scene2.camera.roty 0.05
+    #scene2.camera.roty 0.05
   else 
-    scene1.camera.translate 0,0,-100
+    scene1.camera.rotx Math.PI/Math.PI
+    scene1.camera.translate 0,-10,0
     scene2.camera.translate 0,0,-100
-    scene2.camera.roty 0.55
+    #scene2.camera.roty 0.55
 
   console.log "xform",xform if xform?
-  mdl.transform xform if xform
+  mdl1.transform xform if xform
+  mdl2.transform xform if xform
 
   # Create render context into seen- canvas or svg
   context1 = seen.Context('seen-canvas1', scene1)
   context2 = seen.Context('seen-canvas2', scene2)
+  setTimeout context1.render,1
+  setTimeout context2.render,1
 
   dragger = new seen.Drag('seen-canvas1', {inertia : true})
   dragger.on('drag.rotate', (e) ->
     xform = seen.Quaternion.xyToTransform(e.offsetRelative...)
-    mdl.transform(xform)
+    mdl1.transform(xform)
+    #mdl2.transform(xform)
     context1.render()
     context2.render()
   )
-  ###
 
+  ###
   # Slowly rotate sphere
   rx = 0.0004
   ry = 0.00027
@@ -364,7 +408,8 @@ shootTheMoon= (value)->
   console.log "Shooting",value
   number= value.target?.value
 
-mdl=null
+mdl1=null
+mdl2=null
 glyf={}
 onMount ->
   if !seen
@@ -372,8 +417,10 @@ onMount ->
     return
   else
     G=new Geo()
-    mdl = seen.Models.default()
-    mdl.cullBackfaces = false
+    mdl1 = seen.Models.default()
+    mdl2 = seen.Models.default()
+    mdl1.cullBackfaces = false
+    mdl2.cullBackfaces = false
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize true
@@ -413,9 +460,12 @@ updateShapesWanted = (event) ->
     angleMagnitude: ""
     useShapes: pageState.useShapes
     showTriangles: false
-    showFaces: true
+    showFaces: false
+    showYinYan: true
 
   makeScene()
+  context1.render()
+  context2.render()
 
 recalculateAngles=true
 howManyAngles = 5
@@ -423,6 +473,12 @@ someAngles=0
 showSomeAngles=(event=null)->
   return howManyAngles if !event
   howManyAngles = event.target?.value
+  makeScene()
+
+cliqueToShow = null
+showSomeCliques=(event)->
+  cliqueToShow = event.detail[0].label
+  debugger
   makeScene()
 
 makeAngles= (event)->
@@ -469,7 +525,7 @@ makeScene= ()->
   # pointsFromShapes and form the names and value  lists
   # for the segments or triangles
   ### 
-  mdl.remove linesToShow if linesToShow
+  mdl1.remove linesToShow if linesToShow
   linesToShow = {}
   # first calculate all the segments from the whole list of points
   #
@@ -496,14 +552,14 @@ makeScene= ()->
     
     
 
-  mdl.remove anglesToShow if anglesToShow
+  mdl1.remove anglesToShow if anglesToShow
   if recalculateAngles
     anglesToShow={}
     anglesActive={}
     someAngles = []
     {angleNames, anglesByMagnitude} =  G.createAngles pointsToShow, someLines 
   if pageState.angleMagnitude == ""
-    mdl.add linesToShow if linesToShow
+    mdl1.add linesToShow if linesToShow
   else
     mapToNames= (t,a)->
       x=a.ID.split /[-|<|>]/
@@ -518,40 +574,42 @@ makeScene= ()->
     someAngles =  anglesByMagnitude[key] || []
     if someAngles?.length 
       anglesToShow = showVectors someAngles[0..showSomeAngles()]
-      mdl.add anglesToShow  
+      mdl1.add anglesToShow  
       temp1=_.reduce(someAngles[0..showSomeAngles()],mapToNames,{})
       pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)
 
-  mdl.remove facesToShow if facesToShow
+  mdl1.remove facesToShow if facesToShow
   if pageState.showFaces
-    facesToShow = showYinYan  G.Faces
-    mdl.add facesToShow 
+    facesToShow = showFaces  G.Faces
+    mdl1.add facesToShow 
     #mdl.add showCentroid G.Faces
    
-  mdl.remove dotsToShow if dotsToShow
+  mdl1.remove cliquesToShow if cliquesToShow
+  cliquesToShow = showClique  cliqueToShow if cliqueToShow
+  mdl1.add cliquesToShow 
+   
+  mdl1.remove yinYanToShow if yinYanToShow
+  if pageState.showYinYan
+    yinYanToShow = showYinYan  G.Faces
+    mdl1.add yinYanToShow 
+    mdl1.add showCentroid G.Faces
+   
+  mdl1.remove dotsToShow if dotsToShow
   if pageState.vertex
     dotsToShow = showPoints pointsToShow
     #dotsToShow.translate 220,180 
-    mdl.add dotsToShow
+    mdl1.add dotsToShow
   
-  mdl.remove labels if labels
+  mdl1.remove labels if labels
   if pageState.labels
     labels = showPointNames pointsToShow
     console.log "LABELS",pointsToShow
     #labels.translate 235,180
-    mdl.add labels
+    mdl1.add labels
+  
+  movedTriangle = moveTriangle "#OoO>#fpz>#zfP",seen.P() 
+  mdl2.add movedTriangle
 
-  logo = mdl.append()
-
-  # Render it!
-  logo.add seen.Shapes.text("Groucho:"+Groucho, {font : '20px Roboto', cullBackfaces : false, anchor : 'center'}).rotz(toRad Groucho).translate 100,10
-  logo.add seen.Shapes.text("Chico:"+Chico, {font : '20px Roboto', cullBackfaces : false, anchor : 'center'}).rotz(toRad Chico).translate 200,20
-  logo.add seen.Shapes.text("Harpo:"+Harpo, {font : '20px Roboto', cullBackfaces : false, anchor : 'center'}).rotz(toRad Harpo).translate 230,110
-  logo.add seen.Shapes.text("Stan:"+Stan, {font : '20px Roboto', cullBackfaces : false, anchor : 'center'}).rotz(toRad Stan).translate 140,160
-  logo.add seen.Shapes.text("Babe:"+Babe, {font : '20px Roboto', cullBackfaces : false, anchor : 'center'}).rotz(toRad Babe).translate 75,98
-  logo.scale 0.4
-  logo.translate 370,-70
-  mdl.remove logo
 
   scene1.flushCache()
   scene2.flushCache()
@@ -581,6 +639,12 @@ makeScene= ()->
 
 
 <div class="container" on:load={ updateShapesWanted() }>
+  <a class="button" on:click={()=>makeScene(pageState,pageState.showFaces=!pageState.showFaces)} href="#">
+    {#if (pageState.showFaces) } Hide {:else} Show {/if} faces</a>
+  - -
+  <a class="button" on:click={()=>makeScene(pageState,pageState.showYinYan=!pageState.showYinYan)} href="#">
+    {#if (pageState.showYinYan) } Hide {:else} Show {/if} YinYan</a>
+  - -
   <a class="button" on:click={()=>makeScene(pageState,pageState.vertex=!pageState.vertex)} href="#">
     {#if (pageState.vertex) } Hide {:else} Show {/if} points</a>
   - -
@@ -594,16 +658,19 @@ makeScene= ()->
 
 <div class="mini grid container" >
 <div >
+  <h5>Cliques</h5>
+  <Select items={ cliqueNames } multiple type="checkbox" on:input={showSomeCliques} inputStyles="box-sizing:border-box;"></Select>
+
   {#if (segmentNames.length > 0) }
   <h5>Segments?</h5>
   <Select items={ segmentNames } multiple on:input={makeSegments} inputStyles="box-sizing:border-box;"></Select>
   {/if}
 </div>
 <div>
-{#if angleNames.length > 1} 
+{#if segmentNames.length > 1} 
 <div>
   <h5>Angle?</h5>
-    <Select value="none" bind:this={uiSelectedAngle} id="Angles" type="checkbox" inputStyles="box-sizing:border-box;" items={angleNames} role="switch" on:input={makeAngles}></Select>
+    <Select value="none" bind:this={uiSelectedAngle} id="Angles" type="checkbox" inputStyles="box-sizing:border-box;" items={segmentNames} role="switch" on:input={makeAngles}></Select>
 </div>
 <div>
 <ColorPicker hex="#20406080"  on:input={setAngleColor} />

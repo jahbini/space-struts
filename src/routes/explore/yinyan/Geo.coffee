@@ -83,6 +83,23 @@ export class Geo
     M.saveThis ID, {ID,points,vetric}
     ID
 
+  movedTriangles = 1
+  moveSegment: (segmentName,seenBias) ->
+    segment = M.MM[segmentName].value
+    vetric = segment.vetric
+    points = [ segment.points[0].copy().add(seenBias),
+      segment.points[1].copy().add(seenBias) ] 
+    return points
+    
+  moveTriangle: (triangleID,seenBias) ->
+    triV = M.MM[triangleID].value
+    path=triV.path
+    segments = for seg in triV.segments
+      @moveSegment seg,seenBias
+    ID = triangleID+"--"+movedTriangles++
+    M.saveThis ID,{ID,segments,path}
+    segments
+
   ###
   # createSegments:
   # iterates through all the points (seen.P) created by createPoint
@@ -187,7 +204,7 @@ export class Geo
              "#ooo-#zfp-#Ooo-#Fpz-#fpz",    #Face C
              "#oOO-#zFP-#OOO-#FPz-#fPz",   #Face c
              "#Ooo-#Fpz-#OoO-#PzF-#Pzf",  # Face D
-             "#oOo-#fPz-#oOO-#pzF-#pzf"   # Face d
+             "#oOo-#fPz-#oOO-#pzF-#pzf",   # Face d
              "#ooo-#pzf-#oOo-#zFp-#zfp",   #Face E
              "#OoO-#PzF-#OOO-#zFP-#zfP",   #Face e
              "#ooO-#pzF-#oOO-#zFP-#zfP",    #Face F
