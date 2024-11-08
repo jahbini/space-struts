@@ -204,14 +204,13 @@ showFaces = (faces,color="#000000")->
   p
 
 fiboTriangles = []
-
 cliques= {}
 cliqueNames = []
+cnames = []
 
 createCliques = (faces) ->
+  debugger
   return [] unless fiboTriangles.length
-  cliques = {}
-  cnames = []
   cantidates = fiboTriangles.slice 0 
   for  masterTriangle in cantidates
     for s,idx in masterTriangle.value.segments
@@ -231,20 +230,13 @@ createCliques = (faces) ->
   cliqueNames = cnames.slice()
   return
 
-      
 splitName = (longName)->
   value = longName.split /-|<|>/
   return value
-
-moveTriangle = (tID,seenPoint)->
-  p = new seen.Model()
-  p.add wireframe (tID.split /-|<|>/),"#00f000", new seen.Material seen.C 40,60,80,30
-  p.translate seenPoint.x,seenPoint.y,seenPoint.z
-  p.scale defaultSize/5
-
 showYinYan = (faces) ->
   showClique=(segmentID)->
     triangles = cliques[segmentID]
+    console.log triangles
     for k,t of triangles
       p.add wireframe (k.split /-|>|</) ,"#0f0f80"
       p.add wireframe (t.split /-|<|>/) ,"#f0f000"
@@ -252,18 +244,15 @@ showYinYan = (faces) ->
     
   p=new seen.Model()
   return p unless faces.length
-  for s in faces
-    names = splitName s
-    itms = [...names,...names]
-    for i in [0..4]
-      fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+2]
-      fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+3]
-  createCliques faces
-  #showClique "#oOO-#zfP"
-  #showClique "#zFP-#zfP"
 
   p.scale defaultSize
   p
+
+moveTriangle = (tID,seenPoint)->
+  p = new seen.Model()
+  p.add wireframe (tID.split /-|<|>/),"#00f000", new seen.Material seen.C 40,60,80,30
+  p.translate seenPoint.x,seenPoint.y,seenPoint.z
+  p.scale defaultSize/5
       
 showClique=(segmentID)->
   debugger
@@ -417,6 +406,17 @@ onMount ->
     return
   else
     G=new Geo()
+
+    # create the fiboTriangles on each of the 12 faces
+    for sa in G.Faces
+      names = splitName sa
+      itms = [ ...names,...names]
+      for i in [0..4]
+        fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+2]
+        fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+3]
+
+    createCliques G.Faces
+
     mdl1 = seen.Models.default()
     mdl2 = seen.Models.default()
     mdl1.cullBackfaces = false
@@ -477,7 +477,7 @@ showSomeAngles=(event=null)->
 
 cliqueToShow = null
 showSomeCliques=(event)->
-  cliqueToShow = event.detail[0].label
+  cliqueToShow = if event.currentTarget.checked then event.currentTarget.name else null
   debugger
   makeScene()
 
@@ -585,7 +585,7 @@ makeScene= ()->
     #mdl.add showCentroid G.Faces
    
   mdl1.remove cliquesToShow if cliquesToShow
-  cliquesToShow = showClique  cliqueToShow if cliqueToShow
+  cliquesToShow = if cliqueToShow then showClique cliqueToShow else null
   mdl1.add cliquesToShow 
    
   mdl1.remove yinYanToShow if yinYanToShow
@@ -659,7 +659,12 @@ makeScene= ()->
 <div class="mini grid container" >
 <div >
   <h5>Cliques</h5>
-  <Select items={ cliqueNames } multiple type="checkbox" on:input={showSomeCliques} inputStyles="box-sizing:border-box;"></Select>
+  {#each cliqueNames as clique }
+  <label for={clique} >
+  <input name={ clique } multiple bind={clique} type="checkbox" on:input={showSomeCliques } />
+  {clique}
+  </label>
+  {/each}
 
   {#if (segmentNames.length > 0) }
   <h5>Segments?</h5>
