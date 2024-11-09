@@ -27,7 +27,7 @@ createFiboTriangles= (faces,G)->
     itms = [ ...names,...names]
     for i in [0..4]
       for j in [2..3]
-        all.push G.createTriangle itms[i],itms[i+1],itms[j]
+        all.push G.createTriangle itms[i],itms[i+1],itms[i+j]
   all.flat()
   #createCliques G.Faces
 cliques= {}
