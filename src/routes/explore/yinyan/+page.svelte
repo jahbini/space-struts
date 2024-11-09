@@ -233,15 +233,8 @@ createCliques = (faces) ->
 splitName = (longName)->
   value = longName.split /-|<|>/
   return value
+
 showYinYan = (faces) ->
-  showClique=(segmentID)->
-    triangles = cliques[segmentID]
-    console.log triangles
-    for k,t of triangles
-      p.add wireframe (k.split /-|>|</) ,"#0f0f80"
-      p.add wireframe (t.split /-|<|>/) ,"#f0f000"
-    p.add wireframe (segmentID.split /-|<|>/),"#ff0000"
-    
   p=new seen.Model()
   return p unless faces.length
 
@@ -254,6 +247,8 @@ moveTriangle = (tID,seenPoint)->
   p.translate seenPoint.x,seenPoint.y,seenPoint.z
   p.scale defaultSize/5
       
+# cliques are global structure with segments associated with all triangles
+# with one edge parallel to the segmentID
 showClique=(segmentID)->
   debugger
   p=new seen.Model()
@@ -406,16 +401,10 @@ onMount ->
     return
   else
     G=new Geo()
+    fiboTriangles= G.fiboTriangles
+    cliques = G.cliques
+    cliqueNames = G.cliqueNames
 
-    # create the fiboTriangles on each of the 12 faces
-    for sa in G.Faces
-      names = splitName sa
-      itms = [ ...names,...names]
-      for i in [0..4]
-        fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+2]
-        fiboTriangles.push G.createTriangle itms[i],itms[i+1],itms[i+3]
-
-    createCliques G.Faces
 
     mdl1 = seen.Models.default()
     mdl2 = seen.Models.default()

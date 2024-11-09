@@ -13,6 +13,50 @@ Phi= (1+Math.sqrt 5)/2
   waitFor: (aList,andDo)=> wait for updates to ANY of the aList and call andDo via promise
   notifyMe: (n,andDo)=>
 ###
+ 
+#convert a string like "#FPz-#Fpz-..." into an array of point names
+splitName = (longName)->
+  value = longName.split /-|<|>/
+  return value
+
+# create the fiboTriangles on each of the 12 faces
+createFiboTriangles= (faces,G)->
+  all=[]
+  for sa in faces
+    names = splitName sa
+    itms = [ ...names,...names]
+    for i in [0..4]
+      for j in [2..3]
+        all.push G.createTriangle itms[i],itms[i+1],itms[j]
+  all.flat()
+  #createCliques G.Faces
+cliques= {}
+cliqueNames = []
+cnames = []
+
+createCliques = (G) ->
+  debugger
+  return [] unless G.fiboTriangles.length
+  cantidates = G.fiboTriangles.slice 0
+  for  masterTriangle in cantidates
+    for s,idx in masterTriangle.value.segments
+      sV = (M.theLowdown s).value.vetric
+      sVmS = sV.magnitudeSquared()
+      cliques[s] = {"#{masterTriangle.value.ID}": s }
+      for cantidateTriangle in cantidates
+        for cc in cantidateTriangle.value.segments
+          cV=(M.theLowdown cc).value.vetric
+          zz=sV.copy().cross cV
+          cVmS = cV.magnitudeSquared()
+          lDiff = Math.abs cVmS-sVmS
+          if lDiff < 0.1  and zz.magnitudeSquared() < 0.1
+            cliques[s][cantidateTriangle.value.ID]=cc
+  cnames = for s of cliques
+    s
+  cliqueNames = cnames.slice()
+  return {cliques,cliqueNames}
+
+
 export class Geo
   square = "#ffz-#Ffz-#FFz-#fFz"
   pentagon = "#zFP-#OOO-#PzF-#OoO-#zfP"
@@ -154,7 +198,6 @@ export class Geo
       ID: ID
       path:[p1,p2,p3]
       segments:[s1,s2,s3]
-   
   createAngles: (points, segments)->
     biVectors = {}
     for i in points
@@ -213,7 +256,10 @@ export class Geo
     {faceNames,facePaths} = @createSegments _.mapObject Melements, (item,key)->item.value
     @faceNames = faceNames
     @facePaths = facePaths
-     
+    # create the fiboTriangles on each of the 12 faces
+    debugger
+    @fiboTriangles=createFiboTriangles @Faces,this
+    {@cliques,@cliqueNames} = createCliques @
  
 
 
