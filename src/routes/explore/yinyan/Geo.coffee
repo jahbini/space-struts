@@ -35,7 +35,6 @@ cliqueNames = []
 cnames = []
 
 createCliques = (G) ->
-  debugger
   return [] unless G.fiboTriangles.length
   cantidates = G.fiboTriangles.slice 0
   for  masterTriangle in cantidates
@@ -128,12 +127,17 @@ export class Geo
     ID
 
   movedTriangles = 1
+  itemsConstructed=0
+  
   moveSegment: (segmentName,seenBias) ->
     segment = M.MM[segmentName].value
     vetric = segment.vetric
-    points = [ segment.points[0].copy().add(seenBias),
+    path = [ segment.points[0].copy().add(seenBias),
       segment.points[1].copy().add(seenBias) ] 
-    return points
+    ID=segmentName+"X"+itemsConstructed++
+    M.saveThis ID, {ID, path,vetric}
+    debugger
+    return ID
     
   moveTriangle: (triangleID,seenBias) ->
     triV = M.MM[triangleID].value
@@ -141,7 +145,7 @@ export class Geo
     segments = for seg in triV.segments
       @moveSegment seg,seenBias
     ID = triangleID+"--"+movedTriangles++
-    M.saveThis ID,{ID,segments,path}
+    M.saveThis ID, {ID, segments,path}
     segments
 
   ###
@@ -198,6 +202,10 @@ export class Geo
       ID: ID
       path:[p1,p2,p3]
       segments:[s1,s2,s3]
+
+  # createAngles takes points, and segments .  it returns the angle that the segment makes from the point.
+  # all the open triangles that are inspected are sorted by angle magnitude
+  # the magnitudes are sorted and converted into groups of angles
   createAngles: (points, segments)->
     biVectors = {}
     for i in points
@@ -257,7 +265,6 @@ export class Geo
     @faceNames = faceNames
     @facePaths = facePaths
     # create the fiboTriangles on each of the 12 faces
-    debugger
     @fiboTriangles=createFiboTriangles @Faces,this
     {@cliques,@cliqueNames} = createCliques @
  

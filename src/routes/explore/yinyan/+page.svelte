@@ -17,6 +17,10 @@ duh=  duh.split /, ?/ if 'string' == typeof duh
 useShapes = ("#{shape}": shape for shape in duh) || {}
 
 G={Polyhedra:[]}
+# C is the creation, and is a series of triangles segments
+# it is created with a single segment as a starting point
+C={}
+
 svgSize=200
 defaultSize=48
 context1="undefined"
@@ -36,6 +40,9 @@ linesToShow=null
 segmentsActive={}
 segmentsByMagnitude=[]
 segmentNames=[]
+cliqueTriangles=[]
+cliqueTrianglesToShow=null
+# cliqueTriangles are used to show the coords for all the triangles in the clique
 
 uiSelectedAngle=null
 anglesToShow=null
@@ -47,6 +54,7 @@ selected={}
 scene1=null
 scene2=null
 xform=null
+openSegments = []
 
 pageState=
   vertex: true
@@ -58,6 +66,7 @@ pageState=
   showFaces: false
   showYinYan: true
   cliquesToShow: {}
+  openSegments:[]
 
 ###
 # the Memo is an object used by Geo with keys of the forms:
@@ -208,28 +217,6 @@ cliques= {}
 cliqueNames = []
 cnames = []
 
-createCliques = (faces) ->
-  debugger
-  return [] unless fiboTriangles.length
-  cantidates = fiboTriangles.slice 0 
-  for  masterTriangle in cantidates
-    for s,idx in masterTriangle.value.segments
-      sV = (M.theLowdown s).value.vetric
-      sVmS = sV.magnitudeSquared()
-      cliques[s] = {"#{masterTriangle.value.ID}": s } 
-      for cantidateTriangle in cantidates
-        for cc in cantidateTriangle.value.segments
-          cV=(M.theLowdown cc).value.vetric
-          zz=sV.copy().cross cV
-          cVmS = cV.magnitudeSquared()
-          lDiff = Math.abs cVmS-sVmS
-          if lDiff < 0.1  and zz.magnitudeSquared() < 0.1
-            cliques[s][cantidateTriangle.value.ID]=cc
-  cnames = for s of cliques
-    s
-  cliqueNames = cnames.slice()
-  return
-
 splitName = (longName)->
   value = longName.split /-|<|>/
   return value
@@ -250,13 +237,24 @@ moveTriangle = (tID,seenPoint)->
 # cliques are global structure with segments associated with all triangles
 # with one edge parallel to the segmentID
 showClique=(segmentID)->
-  debugger
+  return null unless segmentID?.match /^#.../
+  cliqueTriangles = []
+  segmentID = (segmentID.split 'X')[0]
   p=new seen.Model()
   triangles = cliques[segmentID]
   for k,t of triangles
+    cliqueTriangles.push k
     p.add wireframe (k.split /-|>|</) ,"#0f0f80"
     p.add wireframe (t.split /-|<|>/) ,"#f0f000"
   p.add wireframe (segmentID.split /-|<|>/),"#ff0000"
+  p.scale defaultSize
+  p
+
+showCliqueTriangle=(ID)->
+  debugger
+  return null unless splitID= ID?.split /-|<|>/
+  p=new seen.Model()
+  p.add wireframe splitID,"#0f0f80"
   p.scale defaultSize
   p
 
@@ -336,7 +334,7 @@ initializeContext= ()->
   dragger.on('drag.rotate', (e) ->
     xform = seen.Quaternion.xyToTransform(e.offsetRelative...)
     mdl1.transform(xform)
-    #mdl2.transform(xform)
+    mdl2.transform(xform)
     context1.render()
     context2.render()
   )
@@ -413,7 +411,7 @@ onMount ->
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize true
-    updateShapesWanted()
+    updateShapesWanted("Dodecahedron1")
   
 setSvgSize=(big=true)->
   if big
@@ -429,11 +427,11 @@ setSvgSize=(big=true)->
 # updateShapesWanted
 # called from user interaction, and recalculates permissable vertices
 ###
-updateShapesWanted = (event) ->
+updateShapesWanted = (shape) ->
   pageState.useShapes={}
   pointsFromShapes= []
   pageState.segmentMagnitudes = []
-  pointsFromShapes=pointsToShow.concat G.Polyhedra["Dodecahedron1"]
+  pointsFromShapes=pointsToShow.concat G.Polyhedra[shape]
   
 
   {segmentNames,segmentsByMagnitude} = G.createSegments pointsFromShapes
@@ -451,6 +449,7 @@ updateShapesWanted = (event) ->
     showTriangles: false
     showFaces: false
     showYinYan: true
+    openSegments: pageState.openSegments
 
   makeScene()
   context1.render()
@@ -465,9 +464,14 @@ showSomeAngles=(event=null)->
   makeScene()
 
 cliqueToShow = null
+cliqueTriangleToShow = null
+
+showSomeCliqueTriangles=(event)->
+  cliqueTriangleToShow = if event.currentTarget.checked then event.currentTarget.name else null
+  makeScene()
+
 showSomeCliques=(event)->
   cliqueToShow = if event.currentTarget.checked then event.currentTarget.name else null
-  debugger
   makeScene()
 
 makeAngles= (event)->
@@ -476,23 +480,6 @@ makeAngles= (event)->
   anglesActive={}
   pageState.angleMagnitude=event.detail?.value 
   pageState.showTriangles=true
-  makeScene()
-
-makeSegments= (event)->
-  # clear out the ui for any angle since the segment pool changed
-  uiSelectedAngle.handleClear() if uiSelectedAngle
-  howManyAngles=1
-  if event.detail?
-    for request in event.detail
-     pageState.segmentMagnitudes[request.value]=request.value
-  else
-     pageState.segmentMagnitudes={}
-  pageState.showTriangles=false
-  someAngles = []
-  angleText=[]
-  anglesActive={}
-  segmentsActive={}
-  pageState.angleMagnitude=""
   makeScene()
 
 setAngleColor=(event)->
@@ -539,34 +526,6 @@ makeScene= ()->
   else
     pointsToShow = pointsFromShapes
     
-    
-
-  mdl1.remove anglesToShow if anglesToShow
-  if recalculateAngles
-    anglesToShow={}
-    anglesActive={}
-    someAngles = []
-    {angleNames, anglesByMagnitude} =  G.createAngles pointsToShow, someLines 
-  if pageState.angleMagnitude == ""
-    mdl1.add linesToShow if linesToShow
-  else
-    mapToNames= (t,a)->
-      x=a.ID.split /[-|<|>]/
-      debugger if x.length<3
-      t[x[0]] =true
-      t[x[1]] =true
-      t[x[2]] =true
-      t 
-    key=pageState.angleMagnitude
-    angleText=[ key ]
-    anglesActive[ key ]=true
-    someAngles =  anglesByMagnitude[key] || []
-    if someAngles?.length 
-      anglesToShow = showVectors someAngles[0..showSomeAngles()]
-      mdl1.add anglesToShow  
-      temp1=_.reduce(someAngles[0..showSomeAngles()],mapToNames,{})
-      pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)
-
   mdl1.remove facesToShow if facesToShow
   if pageState.showFaces
     facesToShow = showFaces  G.Faces
@@ -574,8 +533,14 @@ makeScene= ()->
     #mdl.add showCentroid G.Faces
    
   mdl1.remove cliquesToShow if cliquesToShow
-  cliquesToShow = if cliqueToShow then showClique cliqueToShow else null
+  cliquesToShow = showClique cliqueToShow
   mdl1.add cliquesToShow 
+   
+  mdl1.remove cliqueTrianglesToShow if cliqueTrianglesToShow
+  mdl2.remove cliqueTrianglesToShow if cliqueTrianglesToShow
+  cliqueTrianglesToShow = showCliqueTriangle cliqueTriangleToShow
+  mdl1.add cliqueTrianglesToShow 
+  mdl2.add cliqueTrianglesToShow
    
   mdl1.remove yinYanToShow if yinYanToShow
   if pageState.showYinYan
@@ -596,8 +561,14 @@ makeScene= ()->
     #labels.translate 235,180
     mdl1.add labels
   
-  movedTriangle = moveTriangle "#OoO>#fpz>#zfP",seen.P() 
-  mdl2.add movedTriangle
+  #movedTriangle = moveTriangle "#OoO>#fpz>#zfP",seen.P(0.1,0.2,0.3) 
+  if pageState.openSegments.length == 0
+    pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P(0.2,0.3,0.4)
+  for segment in pageState.openSegments  
+    temp = M.MM[segment]
+    mdl2.add showSegments [temp.value],"#8F50FF"
+  openSegments = pageState.openSegments
+  #mdl2.add movedTriangle
 
 
   scene1.flushCache()
@@ -627,7 +598,7 @@ makeScene= ()->
 </div>
 
 
-<div class="container" on:load={ updateShapesWanted() }>
+<div class="container" on:load={ updateShapesWanted("Dodecahedron1") }>
   <a class="button" on:click={()=>makeScene(pageState,pageState.showFaces=!pageState.showFaces)} href="#">
     {#if (pageState.showFaces) } Hide {:else} Show {/if} faces</a>
   - -
@@ -648,19 +619,28 @@ makeScene= ()->
 <div class="mini grid container" >
 <div >
   <h5>Cliques</h5>
-  {#each cliqueNames as clique }
+  {@debug }
+  {#each openSegments as clique }
   <label for={clique} >
   <input name={ clique } multiple bind={clique} type="checkbox" on:input={showSomeCliques } />
   {clique}
   </label>
   {/each}
 
-  {#if (segmentNames.length > 0) }
-  <h5>Segments?</h5>
-  <Select items={ segmentNames } multiple on:input={makeSegments} inputStyles="box-sizing:border-box;"></Select>
-  {/if}
 </div>
 <div>
+  <h6>Triangles</h6>
+  <fieldset>
+  {@debug cliqueTriangles}
+  {#each cliqueTriangles as triName }
+  <label for={triName} >
+  <input name={triName}  type="radio" on:input={showSomeCliqueTriangles } />
+  {triName}
+  </label>
+  
+  {/each}
+  </fieldset>
+
 {#if segmentNames.length > 1} 
 <div>
   <h5>Angle?</h5>
