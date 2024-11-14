@@ -467,7 +467,7 @@ cliqueToShow = null
 cliqueTriangleToShow = null
 
 showSomeCliqueTriangles=(event)->
-  cliqueTriangleToShow = if event.currentTarget.checked then event.currentTarget.name else null
+  cliqueTriangleToShow = if event.currentTarget.checked then event.currentTarget.value else null
   makeScene()
 
 showSomeCliques=(event)->
@@ -634,7 +634,7 @@ makeScene= ()->
   {@debug cliqueTriangles}
   {#each cliqueTriangles as triName }
   <label for={triName} >
-  <input name={triName}  type="radio" on:input={showSomeCliqueTriangles } />
+  <input name="clique" value={triName}  type="radio" on:input={showSomeCliqueTriangles } />
   {triName}
   </label>
   
