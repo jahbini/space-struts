@@ -114,6 +114,9 @@ export class Geo
   # the resulting seenpoints are stored into the Memo as an array
   # with attributes ID, d for magnitude (to 3 digits) 
   #
+  # the vetric is used to detect parallel segments to create cliques
+  # midPoint is used to translate any clique element to a cannonical position
+  # for further translation in 3space. it is the midpoint of the segment.
   ###
   createSegment: (ptxt1,ptxt2)->
     (t=ptxt1; ptxt1=ptxt2; ptxt2=t) if ptxt2<ptxt1
@@ -123,7 +126,8 @@ export class Geo
     p2=@createSeenPoint ptxt2
     points = [p1,p2]
     vetric=p1.copy().subtract(p2)
-    M.saveThis ID, {ID,points,vetric}
+    midPoint=p1.copy().add(p2).divide 2
+    M.saveThis ID, {ID,points,vetric,midPoint}
     ID
 
   movedTriangles = 1
@@ -135,8 +139,7 @@ export class Geo
     path = [ segment.points[0].copy().add(seenBias),
       segment.points[1].copy().add(seenBias) ] 
     ID=segmentName+"X"+itemsConstructed++
-    M.saveThis ID, {ID, path,vetric}
-    debugger
+    M.saveThis ID, {ID, seenBias,path,vetric}
     return ID
     
   moveTriangle: (triangleID,seenBias) ->
@@ -145,7 +148,7 @@ export class Geo
     segments = for seg in triV.segments
       @moveSegment seg,seenBias
     ID = triangleID+"--"+movedTriangles++
-    M.saveThis ID, {ID, segments,path}
+    M.saveThis ID, {ID,seenBias, segments,path}
     segments
 
   ###

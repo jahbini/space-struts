@@ -142,8 +142,11 @@ wireframe = (points,color = "#000000",fill=null)->
       G.createSeenPoint s
   p=seen.Shapes.path pointLowdown
   p.cullBackfaces = false
-  m= new seen.Material new seen.Colors.hex color
-  m.a=0xff
+  if color.constructor?.name == "Material"
+    m= color
+  else
+    m= new seen.Material new seen.Colors.hex color
+    m.a=0xff
   p.stroke m
   p.surfaces[0].fillMaterial = fill
   p.surfaces[0]["stroke-width"]=1
@@ -228,11 +231,18 @@ showYinYan = (faces) ->
   p.scale defaultSize
   p
 
-moveTriangle = (tID,seenPoint)->
+moveTriangle = (sID,tID,seenPoint)->
+  triangle = M.MM[tID].value
   p = new seen.Model()
   p.add wireframe (tID.split /-|<|>/),"#00f000", new seen.Material seen.C 40,60,80,30
+  debugger
+  offsetSegment = cliques[sID][tID]
+  sMidPoint = M.MM[ sID].value.midPoint
+  tMidPoint = M.MM[offsetSegment].value.midPoint
+  p.translate -tMidPoint.x,-tMidPoint.y,-tMidPoint.z
+  p.translate sMidPoint.x,sMidPoint.y,sMidPoint.z
   p.translate seenPoint.x,seenPoint.y,seenPoint.z
-  p.scale defaultSize/5
+  p.scale defaultSize
       
 # cliques are global structure with segments associated with all triangles
 # with one edge parallel to the segmentID
@@ -244,14 +254,13 @@ showClique=(segmentID)->
   triangles = cliques[segmentID]
   for k,t of triangles
     cliqueTriangles.push k
-    p.add wireframe (k.split /-|>|</) ,"#0f0f80"
-    p.add wireframe (t.split /-|<|>/) ,"#f0f000"
+    p.add wireframe (k.split /-|>|</) ,new seen.Material seen.C 100,100,100,40
+    p.add wireframe (t.split /-|<|>/) ,"#00ff00"
   p.add wireframe (segmentID.split /-|<|>/),"#ff0000"
   p.scale defaultSize
   p
 
 showCliqueTriangle=(ID)->
-  debugger
   return null unless splitID= ID?.split /-|<|>/
   p=new seen.Model()
   p.add wireframe splitID,"#0f0f80"
@@ -463,15 +472,23 @@ showSomeAngles=(event=null)->
   howManyAngles = event.target?.value
   makeScene()
 
-cliqueToShow = null
-cliqueTriangleToShow = null
+activeClique = null
+activeCliqueTriangle = null
+
+#cliqueBait is the segmentID with the proper offset for the selected
+# triangle to line up with the cliqueID
+cliqueBait = null 
 
 showSomeCliqueTriangles=(event)->
-  cliqueTriangleToShow = if event.currentTarget.checked then event.currentTarget.value else null
+  activeCliqueTriangle = if event.currentTarget.checked then event.currentTarget.value else null
+  activeClique = (activeClique.split 'X')[0]
+  cliqueBait = cliques[activeClique][activeCliqueTriangle] if activeCliqueTriangle
   makeScene()
 
-showSomeCliques=(event)->
-  cliqueToShow = if event.currentTarget.checked then event.currentTarget.name else null
+showCliqueInSegments=(event)->
+  activeClique = if event.currentTarget.checked then event.currentTarget.value else null
+  noCliqueTriangle = document.getElementById "clearTriangles"
+  noCliqueTriangle.checked = true
   makeScene()
 
 makeAngles= (event)->
@@ -501,6 +518,7 @@ makeScene= ()->
   # pointsFromShapes and form the names and value  lists
   # for the segments or triangles
   ### 
+  scene2.model =  mdl2 = seen.Models.default()
   mdl1.remove linesToShow if linesToShow
   linesToShow = {}
   # first calculate all the segments from the whole list of points
@@ -531,23 +549,6 @@ makeScene= ()->
     facesToShow = showFaces  G.Faces
     mdl1.add facesToShow 
     #mdl.add showCentroid G.Faces
-   
-  mdl1.remove cliquesToShow if cliquesToShow
-  cliquesToShow = showClique cliqueToShow
-  mdl1.add cliquesToShow 
-   
-  mdl1.remove cliqueTrianglesToShow if cliqueTrianglesToShow
-  mdl2.remove cliqueTrianglesToShow if cliqueTrianglesToShow
-  cliqueTrianglesToShow = showCliqueTriangle cliqueTriangleToShow
-  mdl1.add cliqueTrianglesToShow 
-  mdl2.add cliqueTrianglesToShow
-   
-  mdl1.remove yinYanToShow if yinYanToShow
-  if pageState.showYinYan
-    yinYanToShow = showYinYan  G.Faces
-    mdl1.add yinYanToShow 
-    mdl1.add showCentroid G.Faces
-   
   mdl1.remove dotsToShow if dotsToShow
   if pageState.vertex
     dotsToShow = showPoints pointsToShow
@@ -557,13 +558,29 @@ makeScene= ()->
   mdl1.remove labels if labels
   if pageState.labels
     labels = showPointNames pointsToShow
-    console.log "LABELS",pointsToShow
-    #labels.translate 235,180
     mdl1.add labels
   
+   
+  mdl1.remove cliquesToShow if cliquesToShow
+  cliquesToShow = showClique activeClique
+  mdl1.add cliquesToShow 
+   
+  mdl1.remove cliqueTrianglesToShow if cliqueTrianglesToShow
+  cliqueTrianglesToShow = showCliqueTriangle activeCliqueTriangle
+  mdl1.add cliqueTrianglesToShow 
+  if activeClique && activeCliqueTriangle
+    mdl2.add moveTriangle activeClique,activeCliqueTriangle,seen.P(0.1,0.2,0.3) if activeCliqueTriangle
+   
+  mdl1.remove yinYanToShow if yinYanToShow
+  if pageState.showYinYan
+    yinYanToShow = showYinYan  G.Faces
+    mdl1.add yinYanToShow 
+    mdl1.add showCentroid G.Faces
+   
   #movedTriangle = moveTriangle "#OoO>#fpz>#zfP",seen.P(0.1,0.2,0.3) 
   if pageState.openSegments.length == 0
-    pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P(0.2,0.3,0.4)
+    pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P(0.1,0.2,0.3)
+    pageState.openSegments.push G.moveSegment "#Ooo-#zfp",seen.P(0.1,0.2,0.3)
   for segment in pageState.openSegments  
     temp = M.MM[segment]
     mdl2.add showSegments [temp.value],"#8F50FF"
@@ -618,12 +635,11 @@ makeScene= ()->
 
 <div class="mini grid container" >
 <div >
-  <h5>Cliques</h5>
-  {@debug }
-  {#each openSegments as clique }
-  <label for={clique} >
-  <input name={ clique } multiple bind={clique} type="checkbox" on:input={showSomeCliques } />
-  {clique}
+  <h5>Open Segments</h5>
+  {#each openSegments as segment }
+  <label for={segment} >
+  <input name="openSegments" value={ segment } bind={segment} type="radio" on:input={showCliqueInSegments } />
+  {segment}
   </label>
   {/each}
 
@@ -631,7 +647,10 @@ makeScene= ()->
 <div>
   <h6>Triangles</h6>
   <fieldset>
-  {@debug cliqueTriangles}
+  <label for="none" >
+  <input id="clearTriangles" name="clique" value="none" checked  type="radio" />
+  None
+  </label>
   {#each cliqueTriangles as triName }
   <label for={triName} >
   <input name="clique" value={triName}  type="radio" on:input={showSomeCliqueTriangles } />
