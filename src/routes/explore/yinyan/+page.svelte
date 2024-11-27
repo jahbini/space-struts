@@ -10,7 +10,6 @@ import { Geo, M } from './Geo.coffee'
 import ColorPicker from 'svelte-awesome-color-picker';
 
 
-items = ['One', 'Two', 'Three'];
 duh=($page.url.searchParams.get 'useShapes') || []
 duh=  duh.split /, ?/ if 'string' == typeof duh
 
@@ -27,7 +26,6 @@ context1="undefined"
 context2=null
 dotsToShow=null
 facesToShow=null
-yinYanToShow=null
 cliquesToShow=null
 labels=null
 pointName = {}
@@ -64,9 +62,10 @@ pageState=
   magnitude: false
   useShapes: useShapes 
   showFaces: false
-  showYinYan: true
   cliquesToShow: {}
   openSegments:[]
+  activeClique: null
+  activeCliqueTriangle: null
 
 ###
 # the Memo is an object used by Geo with keys of the forms:
@@ -133,13 +132,10 @@ pointFrame = (points,color = "#000000",fill=null)->
   p.surfaces[0]["stroke-width"]=1
   p
 
-wireframe = (points,color = "#000000",fill=null)->
+
+wireframe = (points,color = "#000000",fill=null,seenBias=null)->
   debugger unless points[points.length-1]
-  pointLowdown = for s in points
-    if "Point" == s.constructor.name
-      s
-    else
-      G.createSeenPoint s
+  pointLowdown = G.normalizeFrame points,seenBias
   p=seen.Shapes.path pointLowdown
   p.cullBackfaces = false
   if color.constructor?.name == "Material"
@@ -156,27 +152,20 @@ rgbObj = r:50,g:50,b:200,a:0.2
 
 materialfiller= null
 
-filledAngle = (points)->
-  p=seen.Shapes.path points
-  p.cullBackfaces = false
-  m= seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
-  m= new seen.Material m
-  #p.stroke m
-  p.surfaces[0].fillMaterial = materialfiller
-  p.surfaces[0]["stroke-width"]=0
-  p
-
 showSegments = (segments,color="#000000")->
   p=new seen.Model()
   return p unless segments.length
   for s in segments
-    p.add wireframe s.path, color if s
+    ps=G.normalizeFrame s.path
+    p.add wireframe ps, color if s
   p.scale defaultSize
   p
 
-makeColorFromID = (id)->
+hexColorFromID = (id)->
+    col= id.match(/(f|F|p|P|z){3}/)
+    return "#000000" unless col
     hueman = '#'
-    for hueStrength in id[1...]
+    for hueStrength in col[0]
       switch hueStrength
         when 'z' then hueman += '60'
         when 'f' then hueman += '90'
@@ -185,9 +174,13 @@ makeColorFromID = (id)->
         when 'P' then hueman += '40'
         when 'o' then hueman += '30'
         when 'O' then hueman += '70'
+    hueman
+
+makeColorFromID = (id)->
+    hueman= hexColorFromID id
     faceColor = seen.Colors.hex hueman
-    faceColor.a = 40
-    faceColor
+    faceColor.a = 155
+    new seen.Material faceColor
   
 showCentroid = (faces,color="#000000")->
   p=new seen.Model()
@@ -206,77 +199,63 @@ showCentroid = (faces,color="#000000")->
   p.scale defaultSize
   p
 
-showFaces = (faces,color="#000000")->
-  p=new seen.Model()
-  return p unless faces.length
-  for s in faces
-    items= G.formPointsFrom s,s
-    p.add wireframe items, color, new seen.Material makeColorFromID items[1].ID
-  p.scale defaultSize
-  p
-
 fiboTriangles = []
-cliques= {}
-cliqueNames = []
 cnames = []
 
 splitName = (longName)->
   value = longName.split /-|<|>/
   return value
 
-showYinYan = (faces) ->
-  p=new seen.Model()
-  return p unless faces.length
+useTriangle=(event)->
+  console.log event
+  for seg in G.moveTriangle pageState.activeClique,pageState.activeCliqueTriangle,seen.P()
+    pageState.openSegments.push seg
+  pageState.activeClique=null
+  pageState.activeCliqueTriangle=null
+  makeScene()
 
-  p.scale defaultSize
-  p
-
-moveTriangle = (sID,tID,seenPoint)->
+# display the active cantidate triangle.  The triangle's three sides
+# will become base segments for more segments if the triangle is accepted by the UI.
+displayTriangle = (sID,tID,seenPoint)->
   triangle = M.MM[tID].value
   p = new seen.Model()
-  p.add wireframe (tID.split /-|<|>/),"#00f000", new seen.Material seen.C 40,60,80,30
+  ps=G.normalizeFrame (tID.split /-|<|>/)
   debugger
-  offsetSegment = cliques[sID][tID]
-  sMidPoint = M.MM[ sID].value.midPoint
+  nickName = (sID.split 'X')[0]
+  offsetSegment = G.cliques[nickName][tID]
+  sMidPoint = M.MM[ nickName].value.midPoint
   tMidPoint = M.MM[offsetSegment].value.midPoint
-  p.translate -tMidPoint.x,-tMidPoint.y,-tMidPoint.z
-  p.translate sMidPoint.x,sMidPoint.y,sMidPoint.z
-  p.translate seenPoint.x,seenPoint.y,seenPoint.z
+  ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(sMidPoint).add(seenPoint) )
+  p.add wireframe ps,"#00f000", makeColorFromID tID
   p.scale defaultSize
       
-# cliques are global structure with segments associated with all triangles
+# G.cliques are global structure with segments associated with all triangles
 # with one edge parallel to the segmentID
 showClique=(segmentID)->
   return null unless segmentID?.match /^#.../
   cliqueTriangles = []
   segmentID = (segmentID.split 'X')[0]
   p=new seen.Model()
-  triangles = cliques[segmentID]
+  triangles = G.cliques[segmentID]
   for k,t of triangles
     cliqueTriangles.push k
-    p.add wireframe (k.split /-|>|</) ,new seen.Material seen.C 100,100,100,40
-    p.add wireframe (t.split /-|<|>/) ,"#00ff00"
-  p.add wireframe (segmentID.split /-|<|>/),"#ff0000"
+    ps=G.normalizeFrame (k.split /-|<|>/)
+    p.add wireframe ps ,new seen.Material seen.C 100,100,100,40
+    ps=G.normalizeFrame (t.split /-|<|>/)
+    p.add wireframe ps ,"#00ff00"
+  ps=G.normalizeFrame (segmentID.split /-|<|>/)
+  p.add wireframe ps,"#ff0000"
   p.scale defaultSize
   p
 
 showCliqueTriangle=(ID)->
   return null unless splitID= ID?.split /-|<|>/
   p=new seen.Model()
-  p.add wireframe splitID,"#0f0f80"
+  ps=G.normalizeFrame splitID
+  p.add wireframe ps,"#0f0f80", makeColorFromID ID
   p.scale defaultSize
   p
 
-showVectors = (segments)->
-  p=new seen.Model()
-  return p unless segments.length
-  for s in segments
-    continue unless s
-    p.add filledAngle [s.path[0],s.path[1],s.path[2],s.path[0]]
-
-  p.scale defaultSize
-  p
-  
 ###+
 # descr: generate the vertices as tetrahedrons from seen's model mdl
 # param: mdl seenjs model to attach this graphic
@@ -289,6 +268,15 @@ showPoints = (points)->
     glyf.scale 5
     glyf.translate defaultSize*point.x,defaultSize*point.y,defaultSize*point.z
     p.add glyf
+  p
+
+showFaces = (faces,color="#000000")->
+  p=new seen.Model()
+  return p unless faces.length
+  for s in faces
+    items= G.formPointsFrom s,s
+    p.add wireframe items, color, makeColorFromID items[1].ID
+  p.scale defaultSize
   p
 
 showPointNames = (points)->
@@ -324,9 +312,9 @@ initializeContext= ()->
     scene2.camera.translate -200,200,-300
     #scene2.camera.roty 0.05
   else 
-    scene1.camera.rotx Math.PI/Math.PI
+    #scene1.camera.rotx Math.PI/Math.PI
     scene1.camera.translate 0,-10,0
-    scene2.camera.translate 0,0,-100
+    scene2.camera.translate 0,-10,0
     #scene2.camera.roty 0.55
 
   console.log "xform",xform if xform?
@@ -409,8 +397,6 @@ onMount ->
   else
     G=new Geo()
     fiboTriangles= G.fiboTriangles
-    cliques = G.cliques
-    cliqueNames = G.cliqueNames
 
 
     mdl1 = seen.Models.default()
@@ -457,8 +443,9 @@ updateShapesWanted = (shape) ->
     useShapes: pageState.useShapes
     showTriangles: false
     showFaces: false
-    showYinYan: true
     openSegments: pageState.openSegments
+    activeClique: null
+    activeCliqueTriangle: null
 
   makeScene()
   context1.render()
@@ -472,23 +459,21 @@ showSomeAngles=(event=null)->
   howManyAngles = event.target?.value
   makeScene()
 
-activeClique = null
-activeCliqueTriangle = null
 
 #cliqueBait is the segmentID with the proper offset for the selected
 # triangle to line up with the cliqueID
 cliqueBait = null 
 
 showSomeCliqueTriangles=(event)->
-  activeCliqueTriangle = if event.currentTarget.checked then event.currentTarget.value else null
-  activeClique = (activeClique.split 'X')[0]
-  cliqueBait = cliques[activeClique][activeCliqueTriangle] if activeCliqueTriangle
+  pageState.activeCliqueTriangle = if event.currentTarget.checked then event.currentTarget.value else null
+  nickName = (pageState.activeClique.split 'X')[0]
+  cliqueBait = G.cliques[nickName]?[pageState.activeCliqueTriangle]
   makeScene()
 
 showCliqueInSegments=(event)->
-  activeClique = if event.currentTarget.checked then event.currentTarget.value else null
+  pageState.activeClique = if event.currentTarget.checked then event.currentTarget.value else null
   noCliqueTriangle = document.getElementById "clearTriangles"
-  noCliqueTriangle.checked = true
+  noCliqueTriangle.checked = false
   makeScene()
 
 makeAngles= (event)->
@@ -562,22 +547,17 @@ makeScene= ()->
   
    
   mdl1.remove cliquesToShow if cliquesToShow
-  cliquesToShow = showClique activeClique
+  cliquesToShow = showClique pageState.activeClique
   mdl1.add cliquesToShow 
    
   mdl1.remove cliqueTrianglesToShow if cliqueTrianglesToShow
-  cliqueTrianglesToShow = showCliqueTriangle activeCliqueTriangle
+  cliqueTrianglesToShow = showCliqueTriangle pageState.activeCliqueTriangle
   mdl1.add cliqueTrianglesToShow 
-  if activeClique && activeCliqueTriangle
-    mdl2.add moveTriangle activeClique,activeCliqueTriangle,seen.P(0.1,0.2,0.3) if activeCliqueTriangle
+  if pageState.activeClique && pageState.activeCliqueTriangle
+    mdl2.add displayTriangle pageState.activeClique,pageState.activeCliqueTriangle,seen.P(0.1,0.2,0.3) 
    
-  mdl1.remove yinYanToShow if yinYanToShow
-  if pageState.showYinYan
-    yinYanToShow = showYinYan  G.Faces
-    mdl1.add yinYanToShow 
-    mdl1.add showCentroid G.Faces
-   
-  #movedTriangle = moveTriangle "#OoO>#fpz>#zfP",seen.P(0.1,0.2,0.3) 
+  #  mdl1.add showCentroid G.Faces
+  #movedTriangle = displayTriangle "#OoO>#fpz>#zfP",seen.P(0.1,0.2,0.3) 
   if pageState.openSegments.length == 0
     pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P(0.1,0.2,0.3)
     pageState.openSegments.push G.moveSegment "#Ooo-#zfp",seen.P(0.1,0.2,0.3)
@@ -593,7 +573,6 @@ makeScene= ()->
 
   context1.render()
   context2.render()
-  items=_.keys(G.Polyhedra)
   
 
 </script>
@@ -619,9 +598,6 @@ makeScene= ()->
   <a class="button" on:click={()=>makeScene(pageState,pageState.showFaces=!pageState.showFaces)} href="#">
     {#if (pageState.showFaces) } Hide {:else} Show {/if} faces</a>
   - -
-  <a class="button" on:click={()=>makeScene(pageState,pageState.showYinYan=!pageState.showYinYan)} href="#">
-    {#if (pageState.showYinYan) } Hide {:else} Show {/if} YinYan</a>
-  - -
   <a class="button" on:click={()=>makeScene(pageState,pageState.vertex=!pageState.vertex)} href="#">
     {#if (pageState.vertex) } Hide {:else} Show {/if} points</a>
   - -
@@ -629,7 +605,6 @@ makeScene= ()->
     {#if (pageState.labels) } Hide {:else} Show {/if} labels</a>
       <a class="button" on:click={snapshot('seen-svg2',scene2)}>Save Right Image</a>
       <a class="button" on:click={snapshot('seen-svg1',scene1)}>Save Left Image</a>
-      <a class="button" on:click={setSvgSize(true)}>make Big Pix</a>
 
 </div>
 
@@ -637,24 +612,29 @@ makeScene= ()->
 <div >
   <h5>Open Segments</h5>
   {#each openSegments as segment }
-  <label for={segment} >
-  <input name="openSegments" value={ segment } bind={segment} type="radio" on:input={showCliqueInSegments } />
-  {segment}
+  <label style="color:{hexColorFromID(segment)}" for={segment} >
+  <small><input name="openSegments" value={ segment } bind={segment} type="radio" on:input={showCliqueInSegments } />
+  {segment}</small>
   </label>
   {/each}
 
 </div>
 <div>
   <h6>Triangles</h6>
+  <label for="useTriangle" >
+  <input name="clique" value="useTriangle" on:input={useTriangle}  type="checkbox" />
+  Use This Triangle 
+  </label>
   <fieldset>
   <label for="none" >
   <input id="clearTriangles" name="clique" value="none" checked  type="radio" />
   None
   </label>
   {#each cliqueTriangles as triName }
-  <label for={triName} >
+  <label for={triName} style="color:{hexColorFromID(triName)}" >
+  <small>
   <input name="clique" value={triName}  type="radio" on:input={showSomeCliqueTriangles } />
-  {triName}
+  {triName}</small>
   </label>
   
   {/each}

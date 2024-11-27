@@ -138,17 +138,33 @@ export class Geo
     vetric = segment.vetric
     path = [ segment.points[0].copy().add(seenBias),
       segment.points[1].copy().add(seenBias) ] 
+    midPoint=path[0].copy().add(path[1]).divide 2
     ID=segmentName+"X"+itemsConstructed++
     M.saveThis ID, {ID, seenBias,path,vetric}
     return ID
     
-  moveTriangle: (triangleID,seenBias) ->
-    triV = M.MM[triangleID].value
-    path=triV.path
-    segments = for seg in triV.segments
-      @moveSegment seg,seenBias
-    ID = triangleID+"--"+movedTriangles++
-    M.saveThis ID, {ID,seenBias, segments,path}
+  normalizeFrame: (points,bias=null)->
+    bias=seen.P() unless bias?.constructor?.name == "Point"
+    for s in points
+      if "Point" == s.constructor.name
+        bias.copy().add s
+      else
+        bias.copy().add @createSeenPoint s
+
+  moveTriangle: (sID,tID,seenPoint) ->
+    triangle = M.MM[tID].value
+    debugger
+    path=@normalizeFrame (tID.split /-|<|>/)
+    nickName = (sID.split 'X')[0]
+    offsetSegment = @cliques[nickName][tID]
+    tMidPoint = M.MM[offsetSegment].value.midPoint
+    sMidPoint = M.MM[ nickName].value.midPoint
+    path = path.map( (p) -> p.copy().subtract(tMidPoint).add(sMidPoint).add(seenPoint) )
+    segments = for seg in triangle.segments
+      console.log seg,path[0],path[1],path[2]
+      @moveSegment seg,path[1]
+    ID = tID+"--"+movedTriangles++
+    M.saveThis ID, {ID,seenPoint, segments,path}
     segments
 
   ###
