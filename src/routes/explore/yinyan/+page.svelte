@@ -512,7 +512,8 @@ makeScene= ()->
   # pointsFromShapes and form the names and value  lists
   # for the segments or triangles
   ### 
-  scene2.model =  mdl2 = seen.Models.default()
+  # remove all children from build up structure, but keep it's transform matrix
+  mdl2.children=[]
   mdl1.remove linesToShow if linesToShow
   linesToShow = {}
   # first calculate all the segments from the whole list of points
@@ -588,6 +589,7 @@ makeScene= ()->
   scene2.flushCache()
 
   # re-align the views if the transform has shifted
+  console.log "xform!",xform if xform?
   mdl1.transform xform if xform
   mdl2.transform xform if xform
   # show the images
