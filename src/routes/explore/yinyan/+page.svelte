@@ -52,7 +52,6 @@ selected={}
 scene1=null
 scene2=null
 xform=null
-openSegments = []
 
 pageState=
   vertex: true
@@ -66,6 +65,7 @@ pageState=
   openSegments:[]
   activeClique: null
   activeCliqueTriangle: null
+  structure: []
 
 ###
 # the Memo is an object used by Geo with keys of the forms:
@@ -207,25 +207,26 @@ splitName = (longName)->
   return value
 
 useTriangle=(event)->
-  console.log event
-  for seg in G.moveTriangle pageState.activeClique,pageState.activeCliqueTriangle,seen.P()
+  triangle = G.moveTriangle pageState.activeClique,pageState.activeCliqueTriangle
+  for seg in triangle.segments
     pageState.openSegments.push seg
   pageState.activeClique=null
   pageState.activeCliqueTriangle=null
+  pageState.structure.push triangle
+  clearCliqueInSegments()
   makeScene()
 
 # display the active cantidate triangle.  The triangle's three sides
 # will become base segments for more segments if the triangle is accepted by the UI.
-displayTriangle = (sID,tID,seenPoint)->
+displayTriangle = (sID,tID)->
   triangle = M.MM[tID].value
+  segment=M.MM[sID].value
   p = new seen.Model()
   ps=G.normalizeFrame (tID.split /-|<|>/)
-  debugger
   nickName = (sID.split 'X')[0]
   offsetSegment = G.cliques[nickName][tID]
-  sMidPoint = M.MM[ nickName].value.midPoint
   tMidPoint = M.MM[offsetSegment].value.midPoint
-  ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(sMidPoint).add(seenPoint) )
+  ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
   p.add wireframe ps,"#00f000", makeColorFromID tID
   p.scale defaultSize
       
@@ -398,14 +399,13 @@ onMount ->
     G=new Geo()
     fiboTriangles= G.fiboTriangles
 
-
     mdl1 = seen.Models.default()
     mdl2 = seen.Models.default()
     mdl1.cullBackfaces = false
     mdl2.cullBackfaces = false
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
-    setSvgSize true
+    setSvgSize false
     updateShapesWanted("Dodecahedron1")
   
 setSvgSize=(big=true)->
@@ -414,7 +414,7 @@ setSvgSize=(big=true)->
     defaultSize=98
   else
     svgSize=200
-    defaultSize=48
+    defaultSize=58
   initializeContext()
   makeScene()
 
@@ -446,6 +446,7 @@ updateShapesWanted = (shape) ->
     openSegments: pageState.openSegments
     activeClique: null
     activeCliqueTriangle: null
+    structure: pageState.structure
 
   makeScene()
   context1.render()
@@ -460,21 +461,29 @@ showSomeAngles=(event=null)->
   makeScene()
 
 
-#cliqueBait is the segmentID with the proper offset for the selected
-# triangle to line up with the cliqueID
-cliqueBait = null 
 
 showSomeCliqueTriangles=(event)->
   pageState.activeCliqueTriangle = if event.currentTarget.checked then event.currentTarget.value else null
-  nickName = (pageState.activeClique.split 'X')[0]
-  cliqueBait = G.cliques[nickName]?[pageState.activeCliqueTriangle]
+  makeScene()
+
+clearSomeCliqueTriangles=()->
+  pageState.activeCliqueTriangle=null
+  debugger
+  cliqueTriangles=[]
   makeScene()
 
 showCliqueInSegments=(event)->
   pageState.activeClique = if event.currentTarget.checked then event.currentTarget.value else null
+  pageState.activeCliqueTriangle=null
   noCliqueTriangle = document.getElementById "clearTriangles"
   noCliqueTriangle.checked = false
   makeScene()
+
+clearCliqueInSegments=()->
+  cliqueTriangles = []
+  pageState.activeClique=null
+  pageState.activeCliqueTriangle=null
+  makeScene() 
 
 makeAngles= (event)->
   howManyAngles=1
@@ -551,26 +560,37 @@ makeScene= ()->
   mdl1.add cliquesToShow 
    
   mdl1.remove cliqueTrianglesToShow if cliqueTrianglesToShow
-  cliqueTrianglesToShow = showCliqueTriangle pageState.activeCliqueTriangle
-  mdl1.add cliqueTrianglesToShow 
-  if pageState.activeClique && pageState.activeCliqueTriangle
-    mdl2.add displayTriangle pageState.activeClique,pageState.activeCliqueTriangle,seen.P(0.1,0.2,0.3) 
+  if pageState.activeCliqueTriangle && pageState.activeClique
+    cliqueTrianglesToShow = showCliqueTriangle pageState.activeCliqueTriangle
+    mdl1.add cliqueTrianglesToShow 
+    if pageState.activeClique && pageState.activeCliqueTriangle
+      mdl2.add displayTriangle pageState.activeClique,pageState.activeCliqueTriangle
    
   #  mdl1.add showCentroid G.Faces
-  #movedTriangle = displayTriangle "#OoO>#fpz>#zfP",seen.P(0.1,0.2,0.3) 
+  ###
+  # show the complete structure on mdl2
+  ###
+  for t in pageState.structure
+    mdl2.add wireframe t.path,"#333333"
+  #
   if pageState.openSegments.length == 0
-    pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P(0.1,0.2,0.3)
-    pageState.openSegments.push G.moveSegment "#Ooo-#zfp",seen.P(0.1,0.2,0.3)
+    pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P()
+    #pageState.openSegments.push G.moveSegment "#Ooo-#zfp",seen.P()
   for segment in pageState.openSegments  
     temp = M.MM[segment]
     mdl2.add showSegments [temp.value],"#8F50FF"
-  openSegments = pageState.openSegments
+  for triangle in pageState.structure
+    mdl2.add wireframe triangle.path, "#10e010"
   #mdl2.add movedTriangle
 
 
   scene1.flushCache()
   scene2.flushCache()
 
+  # re-align the views if the transform has shifted
+  mdl1.transform xform if xform
+  mdl2.transform xform if xform
+  # show the images
   context1.render()
   context2.render()
   
@@ -611,7 +631,9 @@ makeScene= ()->
 <div class="mini grid container" >
 <div >
   <h5>Open Segments</h5>
-  {#each openSegments as segment }
+  <small><input name="openSegments" value={ null } bind={null} type="radio" on:input={clearCliqueInSegments } />
+  none</small>
+  {#each pageState.openSegments as segment }
   <label style="color:{hexColorFromID(segment)}" for={segment} >
   <small><input name="openSegments" value={ segment } bind={segment} type="radio" on:input={showCliqueInSegments } />
   {segment}</small>
@@ -621,13 +643,12 @@ makeScene= ()->
 </div>
 <div>
   <h6>Triangles</h6>
-  <label for="useTriangle" >
-  <input name="clique" value="useTriangle" on:input={useTriangle}  type="checkbox" />
-  Use This Triangle 
-  </label>
+  {#if (pageState.activeCliqueTriangle ) } 
+  <a class="button"  on:click={useTriangle} href="#" > Use This Triangle </a>
+   {/if}
   <fieldset>
   <label for="none" >
-  <input id="clearTriangles" name="clique" value="none" checked  type="radio" />
+  <input id="clearTriangles" name="clique" value="none" checked on:input={clearSomeCliqueTriangles}  type="radio" />
   None
   </label>
   {#each cliqueTriangles as triName }

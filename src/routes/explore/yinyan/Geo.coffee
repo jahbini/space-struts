@@ -133,14 +133,18 @@ export class Geo
   movedTriangles = 1
   itemsConstructed=0
   
-  moveSegment: (segmentName,seenBias) ->
+  moveSegment: (segmentName,seenDestination) ->
     segment = M.MM[segmentName].value
+    midPoint =segment.midPoint
     vetric = segment.vetric
-    path = [ segment.points[0].copy().add(seenBias),
-      segment.points[1].copy().add(seenBias) ] 
+    if seenDestination.constructor.name == "Point"
+      path = [ segment.points[0].copy().subtract(midPoint).add(seenDestination), 
+        segment.points[1].copy().subtract(midPoint).add(seenDestination) ] 
+    else
+      path = seenDestination
     midPoint=path[0].copy().add(path[1]).divide 2
     ID=segmentName+"X"+itemsConstructed++
-    M.saveThis ID, {ID, seenBias,path,vetric}
+    M.saveThis ID, {ID, seenDestination,path,midPoint,vetric}
     return ID
     
   normalizeFrame: (points,bias=null)->
@@ -151,21 +155,23 @@ export class Geo
       else
         bias.copy().add @createSeenPoint s
 
-  moveTriangle: (sID,tID,seenPoint) ->
+  moveTriangle: (sID,tID) ->
     triangle = M.MM[tID].value
-    debugger
+    segment=M.MM[sID].value
     path=@normalizeFrame (tID.split /-|<|>/)
     nickName = (sID.split 'X')[0]
     offsetSegment = @cliques[nickName][tID]
     tMidPoint = M.MM[offsetSegment].value.midPoint
     sMidPoint = M.MM[ nickName].value.midPoint
-    path = path.map( (p) -> p.copy().subtract(tMidPoint).add(sMidPoint).add(seenPoint) )
-    segments = for seg in triangle.segments
-      console.log seg,path[0],path[1],path[2]
-      @moveSegment seg,path[1]
+    path = path.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
+    debugger
+    s1=@moveSegment triangle.segments[0],[path[0],path[1]]
+    s2=@moveSegment triangle.segments[1],[path[1],path[2]]
+    s3=@moveSegment triangle.segments[2],[path[0],path[2]]
+    segments= [s1,s2,s3]
     ID = tID+"--"+movedTriangles++
-    M.saveThis ID, {ID,seenPoint, segments,path}
-    segments
+    {value}=M.saveThis ID, {ID, segments,path}
+    value
 
   ###
   # createSegments:
