@@ -22,14 +22,14 @@ splitName = (longName)->
 # create the fiboTriangles on each of the 12 faces
 createFiboTriangles= (faces,G)->
   all=[]
-  for sa in faces
+  for sa,facts of faces
     names = splitName sa
     itms = [ ...names,...names]
     for i in [0..4]
       for j in [2..3]
         all.push G.createTriangle itms[i],itms[i+1],itms[i+j]
   all.flat()
-  #createCliques G.Faces
+
 cliques= {}
 cliqueNames = []
 cnames = []
@@ -45,6 +45,7 @@ createCliques = (G) ->
       for cantidateTriangle in cantidates
         for cc in cantidateTriangle.value.segments
           cV=(M.theLowdown cc).value.vetric
+          # cross product detects parallel segments
           zz=sV.copy().cross cV
           cVmS = cV.magnitudeSquared()
           lDiff = Math.abs cVmS-sVmS
@@ -133,7 +134,7 @@ export class Geo
   movedTriangles = 1
   itemsConstructed=0
   
-  moveSegment: (segmentName,seenDestination) ->
+  moveSegment: (segmentName,seenDestination,sID=null) ->
     segment = M.MM[segmentName].value
     midPoint =segment.midPoint
     vetric = segment.vetric
@@ -143,8 +144,19 @@ export class Geo
     else
       path = seenDestination
     midPoint=path[0].copy().add(path[1]).divide 2
-    ID=segmentName+"X"+itemsConstructed++
-    M.saveThis ID, {ID, seenDestination,path,midPoint,vetric}
+    if sID
+      debugger
+      unlessSegment = M.MM[sID].value
+      residual = unlessSegment.midPoint.copy().subtract(midPoint).magnitudeSquared()
+      if residual > 0.1
+        ID=segmentName+"X"+itemsConstructed++
+        M.saveThis ID, {ID, seenDestination,path,midPoint,vetric}
+      else
+        ID=null
+    else
+      ID=segmentName+"X"+itemsConstructed++
+      M.saveThis ID, {ID, seenDestination,path,midPoint,vetric}
+    
     return ID
     
   normalizeFrame: (points,bias=null)->
@@ -164,11 +176,13 @@ export class Geo
     tMidPoint = M.MM[offsetSegment].value.midPoint
     sMidPoint = M.MM[ nickName].value.midPoint
     path = path.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-    debugger
-    s1=@moveSegment triangle.segments[0],[path[0],path[1]]
-    s2=@moveSegment triangle.segments[1],[path[1],path[2]]
-    s3=@moveSegment triangle.segments[2],[path[0],path[2]]
-    segments= [s1,s2,s3]
+    s1=@moveSegment triangle.segments[0],[path[0],path[1]],sID
+    s2=@moveSegment triangle.segments[1],[path[1],path[2]],sID
+    s3=@moveSegment triangle.segments[2],[path[0],path[2]],sID
+    segments=[]
+    segments.push s1 if s1
+    segments.push s2 if s2
+    segments.push s3 if s3
     ID = tID+"--"+movedTriangles++
     {value}=M.saveThis ID, {ID, segments,path}
     value
@@ -272,20 +286,21 @@ export class Geo
       @createSegments _.mapObject Melements, (item,key)->item.value
     @segmentNames = segmentNames
     @segmentsByMagnitude = segmentsByMagnitude
-    @Faces = [
-             "#ooO-#zfP-#OoO-#Fpz-#fpz",  # Face A
-             "#oOo-#zFp-#OOo-#FPz-#fPz",   # Face a
-             "#ooo-#fpz-#ooO-#pzF-#pzf",   #Face B
-             "#OOo-#FPz-#OOO-#PzF-#Pzf",   #Face b
-             "#ooo-#zfp-#Ooo-#Fpz-#fpz",    #Face C
-             "#oOO-#zFP-#OOO-#FPz-#fPz",   #Face c
-             "#Ooo-#Fpz-#OoO-#PzF-#Pzf",  # Face D
-             "#oOo-#fPz-#oOO-#pzF-#pzf",   # Face d
-             "#ooo-#pzf-#oOo-#zFp-#zfp",   #Face E
-             "#OoO-#PzF-#OOO-#zFP-#zfP",   #Face e
-             "#ooO-#pzF-#oOO-#zFP-#zfP",    #Face F
-             "#Ooo-#Pzf-#OOo-#zFp-#zfp",  #Face f
-           ]
+    @Faces = {
+             "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
+             "#oOo-#zFp-#OOo-#FPz-#fPz": name: "Face a"
+             "#ooo-#fpz-#ooO-#pzF-#pzf": name: "Face B"
+             "#OOo-#FPz-#OOO-#PzF-#Pzf": name: "Face b"
+             "#ooo-#zfp-#Ooo-#Fpz-#fpz": name: "Face C"
+             "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
+             "#Ooo-#Fpz-#OoO-#PzF-#Pzf": name: "Face D"
+             "#oOo-#fPz-#oOO-#pzF-#pzf": name: "Face d"
+             "#ooo-#pzf-#oOo-#zFp-#zfp": name: "Face E"
+             "#OoO-#PzF-#OOO-#zFP-#zfP": name: "Face e"
+             "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
+             "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
+           }
+    debugger
     {faceNames,facePaths} = @createSegments _.mapObject Melements, (item,key)->item.value
     @faceNames = faceNames
     @facePaths = facePaths

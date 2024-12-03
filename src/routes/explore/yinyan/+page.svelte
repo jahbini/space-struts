@@ -39,7 +39,7 @@ segmentsActive={}
 segmentsByMagnitude=[]
 segmentNames=[]
 cliqueTriangles=[]
-cliqueTrianglesToShow=null
+cliqueTriangleToShow=null
 # cliqueTriangles are used to show the coords for all the triangles in the clique
 
 uiSelectedAngle=null
@@ -214,7 +214,6 @@ useTriangle=(event)->
   pageState.activeCliqueTriangle=null
   pageState.structure.push triangle
   clearCliqueInSegments()
-  makeScene()
 
 # display the active cantidate triangle.  The triangle's three sides
 # will become base segments for more segments if the triangle is accepted by the UI.
@@ -228,6 +227,13 @@ displayTriangle = (sID,tID)->
   tMidPoint = M.MM[offsetSegment].value.midPoint
   ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
   p.add wireframe ps,"#00f000", makeColorFromID tID
+  triangles = G.cliques[nickName]
+  for k,t of triangles
+    offsetSegment = G.cliques[nickName][k]
+    tMidPoint = M.MM[offsetSegment].value.midPoint
+    ps=G.normalizeFrame (k.split /-|<|>/)
+    ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
+    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID k
   p.scale defaultSize
       
 # G.cliques are global structure with segments associated with all triangles
@@ -245,7 +251,9 @@ showClique=(segmentID)->
     ps=G.normalizeFrame (t.split /-|<|>/)
     p.add wireframe ps ,"#00ff00"
   ps=G.normalizeFrame (segmentID.split /-|<|>/)
-  p.add wireframe ps,"#ff0000"
+  highLight= wireframe ps,"#000000"
+  highLight.surfaces[0]["stroke-width"]=4
+  p.add highLight
   p.scale defaultSize
   p
 
@@ -476,7 +484,7 @@ showCliqueInSegments=(event)->
   pageState.activeClique = if event.currentTarget.checked then event.currentTarget.value else null
   pageState.activeCliqueTriangle=null
   noCliqueTriangle = document.getElementById "clearTriangles"
-  noCliqueTriangle.checked = false
+  noCliqueTriangle.checked = true
   makeScene()
 
 clearCliqueInSegments=()->
@@ -557,15 +565,15 @@ makeScene= ()->
   
    
   mdl1.remove cliquesToShow if cliquesToShow
-  cliquesToShow = showClique pageState.activeClique
-  mdl1.add cliquesToShow 
+  if pageState.activeClique
+    cliquesToShow = showClique pageState.activeClique
+    mdl1.add cliquesToShow 
    
-  mdl1.remove cliqueTrianglesToShow if cliqueTrianglesToShow
+  mdl1.remove cliqueTriangleToShow if cliqueTriangleToShow
   if pageState.activeCliqueTriangle && pageState.activeClique
-    cliqueTrianglesToShow = showCliqueTriangle pageState.activeCliqueTriangle
-    mdl1.add cliqueTrianglesToShow 
-    if pageState.activeClique && pageState.activeCliqueTriangle
-      mdl2.add displayTriangle pageState.activeClique,pageState.activeCliqueTriangle
+    cliqueTriangleToShow = showCliqueTriangle pageState.activeCliqueTriangle
+    mdl1.add cliqueTriangleToShow 
+    mdl2.add displayTriangle pageState.activeClique,pageState.activeCliqueTriangle
    
   #  mdl1.add showCentroid G.Faces
   ###
@@ -584,12 +592,9 @@ makeScene= ()->
     mdl2.add wireframe triangle.path, "#10e010"
   #mdl2.add movedTriangle
 
-
   scene1.flushCache()
   scene2.flushCache()
-
   # re-align the views if the transform has shifted
-  console.log "xform!",xform if xform?
   mdl1.transform xform if xform
   mdl2.transform xform if xform
   # show the images
@@ -604,10 +609,10 @@ makeScene= ()->
 <div class="pageContainer">
 <div>
   <figure style="float:left; margin: 0 0 0 0">
-    <canvas width={svgSize+"px"} style="background:white" height={svgSize+"px"} id="seen-canvas1"></canvas>
+    <canvas width={svgSize+"px"} style="background:#b6b6b6" height={svgSize+"px"} id="seen-canvas1"></canvas>
   </figure>
   <figure style="margin: 0 0 0 0">
-    <canvas width={svgSize+"px"} style="background:white" height={svgSize+"px"} id="seen-canvas2"></canvas>
+    <canvas width={svgSize+"px"} style="background:#b6b6b6" height={svgSize+"px"} id="seen-canvas2"></canvas>
   </figure>
   <div id="SVGstuff" class="hidden" >
     <svg width="400" height="400" id="seen-svg1" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
