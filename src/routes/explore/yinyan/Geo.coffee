@@ -22,12 +22,12 @@ splitName = (longName)->
 # create the fiboTriangles on each of the 12 faces
 createFiboTriangles= (faces,G)->
   all=[]
-  for sa,facts of faces
+  for sa,face of faces
     names = splitName sa
     itms = [ ...names,...names]
     for i in [0..4]
       for j in [2..3]
-        all.push G.createTriangle itms[i],itms[i+1],itms[i+j]
+        all.push G.createTriangle itms[i],itms[i+1],itms[i+j],sa
   all.flat()
 
 cliques= {}
@@ -145,7 +145,6 @@ export class Geo
       path = seenDestination
     midPoint=path[0].copy().add(path[1]).divide 2
     if sID
-      debugger
       unlessSegment = M.MM[sID].value
       residual = unlessSegment.midPoint.copy().subtract(midPoint).magnitudeSquared()
       if residual > 0.1
@@ -228,7 +227,7 @@ export class Geo
     angleDeg = Math.acos(raw) * 180 / Math.PI;
     angleDeg = angleDeg.toFixed 3
     
-  createTriangle: ( p1,p2,p3)->
+  createTriangle: ( p1,p2,p3,face)->
     key = [p1,p2,p3].sort()
     p1=key[0]
     p2=key[1]
@@ -241,6 +240,7 @@ export class Geo
       ID: ID
       path:[p1,p2,p3]
       segments:[s1,s2,s3]
+      face: face
 
   # createAngles takes points, and segments .  it returns the angle that the segment makes from the point.
   # all the open triangles that are inspected are sorted by angle magnitude
@@ -300,7 +300,6 @@ export class Geo
              "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
              "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
            }
-    debugger
     {faceNames,facePaths} = @createSegments _.mapObject Melements, (item,key)->item.value
     @faceNames = faceNames
     @facePaths = facePaths

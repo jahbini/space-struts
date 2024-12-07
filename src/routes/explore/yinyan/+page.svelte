@@ -20,10 +20,9 @@ G={Polyhedra:[]}
 # it is created with a single segment as a starting point
 C={}
 
-svgSize=200
+svgSize=600
 defaultSize=48
 context1="undefined"
-context2=null
 dotsToShow=null
 facesToShow=null
 cliquesToShow=null
@@ -54,13 +53,13 @@ scene2=null
 xform=null
 
 pageState=
-  vertex: true
-  labels: true
+  vertex: false
+  labels: false
   segmentMagnitudes: {}
   angleMagnitude: ""  #a string value of format 999.999 0-360
   magnitude: false
   useShapes: useShapes 
-  showFaces: false
+  showFaces: true
   cliquesToShow: {}
   openSegments:[]
   activeClique: null
@@ -122,7 +121,6 @@ fromTo = (a,t,l)->
   a.copy().add To t,l
 
 pointFrame = (points,color = "#000000",fill=null)->
-  debugger unless points[points.length-1]
   p=seen.Shapes.path ...points
   p.cullBackfaces = false
   m= new seen.Material new seen.Colors.hex color
@@ -134,7 +132,6 @@ pointFrame = (points,color = "#000000",fill=null)->
 
 
 wireframe = (points,color = "#000000",fill=null,seenBias=null)->
-  debugger unless points[points.length-1]
   pointLowdown = G.normalizeFrame points,seenBias
   p=seen.Shapes.path pointLowdown
   p.cullBackfaces = false
@@ -176,10 +173,10 @@ hexColorFromID = (id)->
         when 'O' then hueman += '70'
     hueman
 
-makeColorFromID = (id)->
+makeColorFromID = (id,transparency=64)->
     hueman= hexColorFromID id
     faceColor = seen.Colors.hex hueman
-    faceColor.a = 155
+    faceColor.a = transparency
     new seen.Material faceColor
   
 showCentroid = (faces,color="#000000")->
@@ -226,14 +223,15 @@ displayTriangle = (sID,tID)->
   offsetSegment = G.cliques[nickName][tID]
   tMidPoint = M.MM[offsetSegment].value.midPoint
   ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-  p.add wireframe ps,"#00f000", makeColorFromID tID
+  p.add wireframe ps,"#00f000", makeColorFromID triangle.face,255
   triangles = G.cliques[nickName]
   for k,t of triangles
     offsetSegment = G.cliques[nickName][k]
     tMidPoint = M.MM[offsetSegment].value.midPoint
+    kFace = M.MM[k].value.face
     ps=G.normalizeFrame (k.split /-|<|>/)
     ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID k
+    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,20
   p.scale defaultSize
       
 # G.cliques are global structure with segments associated with all triangles
@@ -259,9 +257,11 @@ showClique=(segmentID)->
 
 showCliqueTriangle=(ID)->
   return null unless splitID= ID?.split /-|<|>/
+  nickName = (ID.split 'X')[0]
+  faceID=M.MM[ID].value.face
   p=new seen.Model()
   ps=G.normalizeFrame splitID
-  p.add wireframe ps,"#0f0f80", makeColorFromID ID
+  p.add wireframe ps,"#0f0f80", makeColorFromID faceID
   p.scale defaultSize
   p
 
@@ -280,9 +280,9 @@ showPoints = (points)->
   p
 
 showFaces = (faces,color="#000000")->
+  debugger
   p=new seen.Model()
-  return p unless faces.length
-  for s in faces
+  for s of faces
     items= G.formPointsFrom s,s
     p.add wireframe items, color, makeColorFromID items[1].ID
   p.scale defaultSize
@@ -332,9 +332,7 @@ initializeContext= ()->
 
   # Create render context into seen- canvas or svg
   context1 = seen.Context('seen-canvas1', scene1)
-  context2 = seen.Context('seen-canvas2', scene2)
   setTimeout context1.render,1
-  setTimeout context2.render,1
 
   dragger = new seen.Drag('seen-canvas1', {inertia : true})
   dragger.on('drag.rotate', (e) ->
@@ -342,7 +340,6 @@ initializeContext= ()->
     mdl1.transform(xform)
     mdl2.transform(xform)
     context1.render()
-    context2.render()
   )
 
   ###
@@ -359,17 +356,7 @@ initializeContext= ()->
       )
     .start()
   
-  frame2=context2.animate()
-    .onBefore((t, dt) -> 
-      anglesToShow?.rotx(rx).roty(ry).rotz(rz) if anglesToShow?.rotx
-      linesToShow?.rotx(rx).roty(ry).rotz(rz) if linesToShow?.rotx
-      dotsToShow?.rotx(rx).roty(ry).rotz(rz) if dotsToShow?.rotx
-      labels?.rotx(rx).roty(ry).rotz(rz) if labels?.rotx
-      )
-    .start()
-  
   context1.render()
-  context2.render()
   ###
 
 downloadBlob=(name,text)->
@@ -411,10 +398,11 @@ onMount ->
     mdl2 = seen.Models.default()
     mdl1.cullBackfaces = false
     mdl2.cullBackfaces = false
+    mdl2= mdl1
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
-    setSvgSize false
-    updateShapesWanted("Dodecahedron1")
+    setSvgSize true
+    updateShapesWanted("Dodecahedron2")
   
 setSvgSize=(big=true)->
   if big
@@ -450,7 +438,7 @@ updateShapesWanted = (shape) ->
     angleMagnitude: ""
     useShapes: pageState.useShapes
     showTriangles: false
-    showFaces: false
+    showFaces: pageState.showFaces
     openSegments: pageState.openSegments
     activeClique: null
     activeCliqueTriangle: null
@@ -458,7 +446,6 @@ updateShapesWanted = (shape) ->
 
   makeScene()
   context1.render()
-  context2.render()
 
 recalculateAngles=true
 howManyAngles = 5
@@ -471,17 +458,16 @@ showSomeAngles=(event=null)->
 
 
 showSomeCliqueTriangles=(event)->
-  pageState.activeCliqueTriangle = if event.currentTarget.checked then event.currentTarget.value else null
+  pageState.activeCliqueTriangle =  event.currentTarget.innerText
   makeScene()
 
 clearSomeCliqueTriangles=()->
   pageState.activeCliqueTriangle=null
-  debugger
   cliqueTriangles=[]
   makeScene()
 
 showCliqueInSegments=(event)->
-  pageState.activeClique = if event.currentTarget.checked then event.currentTarget.value else null
+  pageState.activeClique = event.currentTarget.innerText
   pageState.activeCliqueTriangle=null
   noCliqueTriangle = document.getElementById "clearTriangles"
   noCliqueTriangle.checked = true
@@ -506,6 +492,16 @@ setAngleColor=(event)->
   rgbObj= event.detail.rgb
   materialfiller= new seen.Material seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
   makeScene()
+
+highlightCliqueSegment=(sID)->
+  debugger
+  p = new seen.Model()
+  ps=M.MM[sID].value.path
+  highLight= wireframe ps,"#000000"
+  highLight.surfaces[0]["stroke-width"]=4
+  p.add highLight
+  p.scale defaultSize
+  p
 
 
 makeScene= ()->
@@ -551,7 +547,8 @@ makeScene= ()->
   if pageState.showFaces
     facesToShow = showFaces  G.Faces
     mdl1.add facesToShow 
-    #mdl.add showCentroid G.Faces
+    mdl1.add showCentroid G.Faces
+
   mdl1.remove dotsToShow if dotsToShow
   if pageState.vertex
     dotsToShow = showPoints pointsToShow
@@ -568,7 +565,8 @@ makeScene= ()->
   if pageState.activeClique
     cliquesToShow = showClique pageState.activeClique
     mdl1.add cliquesToShow 
-   
+    mdl2.add highlightCliqueSegment pageState.activeClique
+
   mdl1.remove cliqueTriangleToShow if cliqueTriangleToShow
   if pageState.activeCliqueTriangle && pageState.activeClique
     cliqueTriangleToShow = showCliqueTriangle pageState.activeCliqueTriangle
@@ -579,17 +577,15 @@ makeScene= ()->
   ###
   # show the complete structure on mdl2
   ###
-  for t in pageState.structure
-    mdl2.add wireframe t.path,"#333333"
-  #
   if pageState.openSegments.length == 0
     pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P()
     #pageState.openSegments.push G.moveSegment "#Ooo-#zfp",seen.P()
   for segment in pageState.openSegments  
     temp = M.MM[segment]
     mdl2.add showSegments [temp.value],"#8F50FF"
-  for triangle in pageState.structure
-    mdl2.add wireframe triangle.path, "#10e010"
+  for t in pageState.structure
+    mdl2.add (wireframe t.path,"#333333",makeColorFromID t.ID,200).scale defaultSize
+  #
   #mdl2.add movedTriangle
 
   scene1.flushCache()
@@ -599,21 +595,22 @@ makeScene= ()->
   mdl2.transform xform if xform
   # show the images
   context1.render()
-  context2.render()
   
 
 </script>
 <svelte:head>
   <title>Star</title>
 </svelte:head>
-<div class="pageContainer">
+<div class="pageContainer grid">
 <div>
   <figure style="float:left; margin: 0 0 0 0">
     <canvas width={svgSize+"px"} style="background:#b6b6b6" height={svgSize+"px"} id="seen-canvas1"></canvas>
   </figure>
+  <!---
   <figure style="margin: 0 0 0 0">
     <canvas width={svgSize+"px"} style="background:#b6b6b6" height={svgSize+"px"} id="seen-canvas2"></canvas>
   </figure>
+  --->
   <div id="SVGstuff" class="hidden" >
     <svg width="400" height="400" id="seen-svg1" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
     <svg width="400" height="400" id="seen-svg2" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.0" ></svg>
@@ -621,6 +618,7 @@ makeScene= ()->
 </div>
 
 
+<div class="mini grid container" >
 <div class="container" on:load={ updateShapesWanted("Dodecahedron1") }>
   <a class="button" on:click={()=>makeScene(pageState,pageState.showFaces=!pageState.showFaces)} href="#">
     {#if (pageState.showFaces) } Hide {:else} Show {/if} faces</a>
@@ -635,15 +633,14 @@ makeScene= ()->
 
 </div>
 
-<div class="mini grid container" >
 <div >
   <h5>Open Segments</h5>
-  <small><input name="openSegments" value={ null } bind={null} type="radio" on:input={clearCliqueInSegments } />
-  none</small>
+  <small><a class="button" name="openSegments" value={ null } bind={null} on:click={clearCliqueInSegments } >
+  none</a></small>
   {#each pageState.openSegments as segment }
   <label style="color:{hexColorFromID(segment)}" for={segment} >
-  <small><input name="openSegments" value={ segment } bind={segment} type="radio" on:input={showCliqueInSegments } />
-  {segment}</small>
+  <small><a class="button" name="openSegments" value={ segment } bind={segment} on:click={showCliqueInSegments } >
+  {segment}</a></small>
   </label>
   {/each}
 
@@ -654,16 +651,16 @@ makeScene= ()->
   <a class="button"  on:click={useTriangle} href="#" > Use This Triangle </a>
    {/if}
   <fieldset>
-  <label for="none" >
-  <input id="clearTriangles" name="clique" value="none" checked on:input={clearSomeCliqueTriangles}  type="radio" />
+  <a class="button"  id="clearTriangles" name="clique" value="none" checked on:click={clearSomeCliqueTriangles}  >
   None
-  </label>
+  </a>
   {#each cliqueTriangles as triName }
-  <label for={triName} style="color:{hexColorFromID(triName)}" >
   <small>
-  <input name="clique" value={triName}  type="radio" on:input={showSomeCliqueTriangles } />
-  {triName}</small>
+  <a class="button"  name="clique" value={triName}  on:click={showSomeCliqueTriangles } >
+  <label for={triName} style="color:{hexColorFromID(M.MM[triName].value.face)}" >
+  {triName}
   </label>
+  </a></small>
   
   {/each}
   </fieldset>
