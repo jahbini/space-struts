@@ -173,6 +173,9 @@ hexColorFromID = (id)->
         when 'O' then hueman += '70'
     hueman
 
+makeColorFromFace = (fID,transparency=64)->
+    makeColorFromID items[1].ID
+
 makeColorFromID = (id,transparency=64)->
     hueman= hexColorFromID id
     faceColor = seen.Colors.hex hueman
@@ -231,7 +234,7 @@ displayTriangle = (sID,tID)->
     kFace = M.MM[k].value.face
     ps=G.normalizeFrame (k.split /-|<|>/)
     ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,20
+    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,100
   p.scale defaultSize
       
 # G.cliques are global structure with segments associated with all triangles
@@ -249,8 +252,8 @@ showClique=(segmentID)->
     ps=G.normalizeFrame (t.split /-|<|>/)
     p.add wireframe ps ,"#00ff00"
   ps=G.normalizeFrame (segmentID.split /-|<|>/)
-  highLight= wireframe ps,"#000000"
-  highLight.surfaces[0]["stroke-width"]=4
+  highLight= wireframe ps,"#ffffff"
+  highLight.surfaces[0]["stroke-width"]=6
   p.add highLight
   p.scale defaultSize
   p
@@ -261,7 +264,7 @@ showCliqueTriangle=(ID)->
   faceID=M.MM[ID].value.face
   p=new seen.Model()
   ps=G.normalizeFrame splitID
-  p.add wireframe ps,"#0f0f80", makeColorFromID faceID
+  p.add wireframe ps,"#0f0f80", makeColorFromID faceID,250
   p.scale defaultSize
   p
 
@@ -280,7 +283,6 @@ showPoints = (points)->
   p
 
 showFaces = (faces,color="#000000")->
-  debugger
   p=new seen.Model()
   for s of faces
     items= G.formPointsFrom s,s
@@ -402,7 +404,7 @@ onMount ->
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize true
-    updateShapesWanted("Dodecahedron2")
+    updateShapesWanted("Dodecahedron1")
   
 setSvgSize=(big=true)->
   if big
@@ -494,10 +496,9 @@ setAngleColor=(event)->
   makeScene()
 
 highlightCliqueSegment=(sID)->
-  debugger
   p = new seen.Model()
   ps=M.MM[sID].value.path
-  highLight= wireframe ps,"#000000"
+  highLight= wireframe ps,"#ffffff"
   highLight.surfaces[0]["stroke-width"]=4
   p.add highLight
   p.scale defaultSize
@@ -584,7 +585,7 @@ makeScene= ()->
     temp = M.MM[segment]
     mdl2.add showSegments [temp.value],"#8F50FF"
   for t in pageState.structure
-    mdl2.add (wireframe t.path,"#333333",makeColorFromID t.ID,200).scale defaultSize
+    mdl2.add (wireframe t.path,"#000000",makeColorFromID t.face,200).scale defaultSize
   #
   #mdl2.add movedTriangle
 

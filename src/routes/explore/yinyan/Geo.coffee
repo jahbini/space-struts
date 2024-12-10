@@ -183,7 +183,8 @@ export class Geo
     segments.push s2 if s2
     segments.push s3 if s3
     ID = tID+"--"+movedTriangles++
-    {value}=M.saveThis ID, {ID, segments,path}
+    face = triangle.face
+    {value}=M.saveThis ID, {ID, face, segments,path}
     value
 
   ###
@@ -205,8 +206,8 @@ export class Geo
           theSegments[tag]= M.MM[tag]
     segmentsByMagnitude=_.chain(theSegments)
       .map (v)->v.value
-      .sortBy 'd'
-      .groupBy('d')
+      .sortBy 'vetric'
+      .groupBy('vetric')
     keySort=(k,v)-> +v < +k
     segmentNames= segmentsByMagnitude.keys().sort(keySort).value()
     segmentsByMagnitude = segmentsByMagnitude.value()
@@ -281,9 +282,11 @@ export class Geo
       Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
       Dodecahedron2: @formPointsFrom dodecahedron2, "dodecahedron"
 
-    Melements=  _(M.MM).filter (item,key)-> key.match /^#...$/
+    Melements=  _(M.MM).filter (item,key)-> 
+      key.match /^#...$/
+    debugger
     {segmentNames,segmentsByMagnitude} =
-      @createSegments _.mapObject Melements, (item,key)->item.value
+      @createSegments _.map Melements, (item,key)->item.value
     @segmentNames = segmentNames
     @segmentsByMagnitude = segmentsByMagnitude
     @Faces = {
@@ -300,7 +303,7 @@ export class Geo
              "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
              "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
            }
-    {faceNames,facePaths} = @createSegments _.mapObject Melements, (item,key)->item.value
+    {faceNames,facePaths} = @createSegments _.map Melements, (item,key)->item.value
     @faceNames = faceNames
     @facePaths = facePaths
     # create the fiboTriangles on each of the 12 faces
