@@ -174,7 +174,8 @@ hexColorFromID = (id)->
     hueman
 
 makeColorFromFace = (fID,transparency=64)->
-    makeColorFromID items[1].ID
+    items= G.formPointsFrom fID
+    makeColorFromID fID
 
 makeColorFromID = (id,transparency=64)->
     hueman= hexColorFromID id
@@ -226,7 +227,7 @@ displayTriangle = (sID,tID)->
   offsetSegment = G.cliques[nickName][tID]
   tMidPoint = M.MM[offsetSegment].value.midPoint
   ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-  p.add wireframe ps,"#00f000", makeColorFromID triangle.face,255
+  p.add wireframe ps,"#00f000", makeColorFromID triangle.face,220
   triangles = G.cliques[nickName]
   for k,t of triangles
     offsetSegment = G.cliques[nickName][k]
@@ -234,7 +235,7 @@ displayTriangle = (sID,tID)->
     kFace = M.MM[k].value.face
     ps=G.normalizeFrame (k.split /-|<|>/)
     ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,100
+    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,64
   p.scale defaultSize
       
 # G.cliques are global structure with segments associated with all triangles
@@ -264,7 +265,7 @@ showCliqueTriangle=(ID)->
   faceID=M.MM[ID].value.face
   p=new seen.Model()
   ps=G.normalizeFrame splitID
-  p.add wireframe ps,"#0f0f80", makeColorFromID faceID,250
+  p.add wireframe ps,"#0f0f80", makeColorFromID faceID,200
   p.scale defaultSize
   p
 
@@ -658,7 +659,7 @@ makeScene= ()->
   {#each cliqueTriangles as triName }
   <small>
   <a class="button"  name="clique" value={triName}  on:click={showSomeCliqueTriangles } >
-  <label for={triName} style="color:{hexColorFromID(M.MM[triName].value.face)}" >
+  <label for={triName} style="color:{hexColorFromID(M.MM[triName].value.face.split('-')[1])}" >
   {triName}
   </label>
   </a></small>
