@@ -54,7 +54,7 @@ xform=null
 
 pageState=
   vertex: false
-  labels: false
+  labels: true
   segmentMagnitudes: {}
   angleMagnitude: ""  #a string value of format 999.999 0-360
   magnitude: false
@@ -406,6 +406,7 @@ onMount ->
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize true
     updateShapesWanted("Dodecahedron1")
+    updateShapesWanted("Dodecahedron2")
   
 setSvgSize=(big=true)->
   if big
@@ -580,8 +581,8 @@ makeScene= ()->
   # show the complete structure on mdl2
   ###
   if pageState.openSegments.length == 0
-    pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P()
-    #pageState.openSegments.push G.moveSegment "#Ooo-#zfp",seen.P()
+    #pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P()
+    pageState.openSegments.push G.moveSegment "#Ooo-#zpf",seen.P()
   for segment in pageState.openSegments  
     temp = M.MM[segment]
     mdl2.add showSegments [temp.value],"#8F50FF"

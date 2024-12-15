@@ -290,6 +290,33 @@ export class Geo
     @segmentNames = segmentNames
     @segmentsByMagnitude = segmentsByMagnitude
     @Faces = {
+             "#ooo-#fzp-#oOo-#pFz-#pfz": name: "Dod2 Face E"
+             "#ooo-#pzf-#oOo-#zFp-#zfp": name: "Face E"
+             "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
+             "#ooO-#zpF-#OoO-#FzP-#fzP": name: "Dod2 Face A"
+             "#oOo-#zFp-#OOo-#FPz-#fPz": name: "Face a"
+             "#oOo-#zPf-#OOo-#Fzp-#fzp": name: "Dod2 Face a"
+             "#ooo-#fpz-#ooO-#pzF-#pzf": name: "Face B"
+             "#ooo-#pfz-#ooO-#zpF-#zpf": name: "Dod2 Face B"
+             "#OOo-#PFz-#OOO-#zPF-#zPf": name: "Dod2 Face b"
+             "#OOo-#FPz-#OOO-#PzF-#Pzf": name: "Face b"
+             "#ooo-#zfp-#Ooo-#Fpz-#fpz": name: "Face C"
+             "#ooo-#zpf-#Ooo-#Fzp-#fzp": name: "Dod2 Face C"
+             "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
+             "#oOO-#zPF-#OOO-#FzP-#fzP": name: "Dod2 Face c"
+             "#Ooo-#Fpz-#OoO-#PzF-#Pzf": name: "Face D"
+             "#Ooo-#Pfz-#OoO-#zpF-#zpf": name: "Dod2 Face D"
+             "#oOo-#fPz-#oOO-#pzF-#pzf": name: "Face d"
+             "#oOo-#pFz-#oOO-#zPF-#zPf": name: "Dod2 Face d"
+             "#OoO-#PzF-#OOO-#zFP-#zfP": name: "Face e"
+             "#OoO-#FzP-#OOO-#PFz-#Pfz": name: "Dod2 Face e"
+             "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
+             "#ooO-#fzP-#oOO-#pFz-#pfz": name: "Dod2 Face F"
+             "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
+             "#Ooo-#Fzp-#OOo-#PFz-#Pfz": name: "Dod2 Face f"
+
+           }
+    @Faces2 = {
              "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
              "#oOo-#zFp-#OOo-#FPz-#fPz": name: "Face a"
              "#ooo-#fpz-#ooO-#pzF-#pzf": name: "Face B"
