@@ -6,6 +6,20 @@ export M = new Memo()
 fe= (Math.sqrt(5)-1)/2.0
 Phi= (1+Math.sqrt 5)/2
 
+#  "Z": 0
+decode = 
+  "z": 0
+  "O": 1
+  "o": -1
+  "f": -1/Phi
+  "F": 1/Phi
+  "G": Phi+1/Phi
+  "g": -Phi-1/Phi
+  "H": 1-1/Phi
+  "h": -1+1/Phi
+  "p": -Phi
+  "P": Phi
+
 ###
   Memo API
   saveThis: (key, value)->
@@ -24,8 +38,11 @@ createFiboTriangles= (faces,G)->
   all=[]
   for sa,face of faces
     names = splitName sa
+    if names.length == 3
+      all.push [ G.createTriangle names[0],names[1],names[2], sa ] 
+      continue
     itms = [ ...names,...names]
-    for i in [0..4]
+    for i in [0..names.length+1 ]
       for j in [2..3]
         all.push G.createTriangle itms[i],itms[i+1],itms[i+j],sa
   all.flat()
@@ -69,16 +86,14 @@ export class Geo
   dodecahedron1="#ooo-#ooO-#oOo-#oOO-#Ooo-#OoO-#OOo-#OOO-#zfp-#zFp-#zfP-#zFP-#pzf-#Pzf-#pzF-#PzF-#fpz-#Fpz-#fPz-#FPz"
   dodecahedron2="#ooo-#oOo-#ooO-#oOO-#Ooo-#OOo-#OoO-#OOO-#zpf-#zpF-#zPf-#zPF-#fzp-#fzP-#Fzp-#FzP-#pfz-#pFz-#Pfz-#PFz"
 
-
-  #  "Z": 0
-  decode = 
-    "z": 0
-    "O": 1
-    "o": -1
-    "f": -1/Phi
-    "F": 1/Phi
-    "p": -Phi
-    "P": Phi
+  tetrahedron1Faces = {
+    "#ooo-#zzz-#oOO": face: "0"
+    "#ooo-#zzz-#OOo": face: "1"
+    "#ooo-#zzz-#OoO": face: "2"
+    "#OoO-#zzz-#OOo": face: "3"
+    "#OoO-#zzz-#oOO": face: "4"
+    "#OOo-#zzz-#oOO": face: "5"
+    }
   ###+
   # param: ptxt encoding of essential points above text
   # returns new seen.P decorated with ID: ptxt
@@ -282,42 +297,71 @@ export class Geo
       Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
       Dodecahedron2: @formPointsFrom dodecahedron2, "dodecahedron"
 
-    Melements=  _(M.MM).filter (item,key)-> 
-      key.match /^#...$/
     debugger
-    {segmentNames,segmentsByMagnitude} =
-      @createSegments _.map Melements, (item,key)->item.value
-    @segmentNames = segmentNames
-    @segmentsByMagnitude = segmentsByMagnitude
-    @Faces = {
-             "#ooo-#fzp-#oOo-#pFz-#pfz": name: "Dod2 Face E"
-             "#ooo-#pzf-#oOo-#zFp-#zfp": name: "Face E"
-             "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
-             "#ooO-#zpF-#OoO-#FzP-#fzP": name: "Dod2 Face A"
-             "#oOo-#zFp-#OOo-#FPz-#fPz": name: "Face a"
-             "#oOo-#zPf-#OOo-#Fzp-#fzp": name: "Dod2 Face a"
-             "#ooo-#fpz-#ooO-#pzF-#pzf": name: "Face B"
-             "#ooo-#pfz-#ooO-#zpF-#zpf": name: "Dod2 Face B"
-             "#OOo-#PFz-#OOO-#zPF-#zPf": name: "Dod2 Face b"
-             "#OOo-#FPz-#OOO-#PzF-#Pzf": name: "Face b"
-             "#ooo-#zfp-#Ooo-#Fpz-#fpz": name: "Face C"
-             "#ooo-#zpf-#Ooo-#Fzp-#fzp": name: "Dod2 Face C"
-             "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
-             "#oOO-#zPF-#OOO-#FzP-#fzP": name: "Dod2 Face c"
-             "#Ooo-#Fpz-#OoO-#PzF-#Pzf": name: "Face D"
-             "#Ooo-#Pfz-#OoO-#zpF-#zpf": name: "Dod2 Face D"
-             "#oOo-#fPz-#oOO-#pzF-#pzf": name: "Face d"
-             "#oOo-#pFz-#oOO-#zPF-#zPf": name: "Dod2 Face d"
-             "#OoO-#PzF-#OOO-#zFP-#zfP": name: "Face e"
-             "#OoO-#FzP-#OOO-#PFz-#Pfz": name: "Dod2 Face e"
-             "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
-             "#ooO-#fzP-#oOO-#pFz-#pfz": name: "Dod2 Face F"
-             "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
-             "#Ooo-#Fzp-#OOo-#PFz-#Pfz": name: "Dod2 Face f"
-
-           }
     @Faces2 = {
+           ###
+           "#ooo-#fzp-#oOo-#pFz-#pfz": name: "Dod2 Face E"
+           "#ooo-#pzf-#oOo-#zFp-#zfp": name: "Face E"
+           "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
+           "#ooO-#zpF-#OoO-#FzP-#fzP": name: "Dod2 Face A"
+           "#oOo-#zFp-#OOo-#FPz-#fPz": name: "Face a"
+           "#oOo-#zPf-#OOo-#Fzp-#fzp": name: "Dod2 Face a"
+           "#ooo-#fpz-#ooO-#pzF-#pzf": name: "Face B"
+           "#ooo-#pfz-#ooO-#zpF-#zpf": name: "Dod2 Face B"
+           "#OOo-#PFz-#OOO-#zPF-#zPf": name: "Dod2 Face b"
+           "#OOo-#FPz-#OOO-#PzF-#Pzf": name: "Face b"
+           "#ooo-#zfp-#Ooo-#Fpz-#fpz": name: "Face C"
+           "#ooo-#zpf-#Ooo-#Fzp-#fzp": name: "Dod2 Face C"
+           "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
+           "#oOO-#zPF-#OOO-#FzP-#fzP": name: "Dod2 Face c"
+           "#Ooo-#Fpz-#OoO-#PzF-#Pzf": name: "Face D"
+           "#Ooo-#Pfz-#OoO-#zpF-#zpf": name: "Dod2 Face D"
+           "#oOo-#fPz-#oOO-#pzF-#pzf": name: "Face d"
+           "#oOo-#pFz-#oOO-#zPF-#zPf": name: "Dod2 Face d"
+           "#OoO-#PzF-#OOO-#zFP-#zfP": name: "Face e"
+           "#OoO-#FzP-#OOO-#PFz-#Pfz": name: "Dod2 Face e"
+           "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
+           "#ooO-#fzP-#oOO-#pFz-#pfz": name: "Dod2 Face F"
+           "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
+           "#Ooo-#Fzp-#OOo-#PFz-#Pfz": name: "Dod2 Face f"
+           ###
+           "#fff-#zzz-#fFF": name: "0"
+           "#fff-#zzz-#FFf": name: "1"
+           "#fff-#zzz-#FfF": name: "2"
+           "#FfF-#zzz-#FFf": name: "3"
+           "#FfF-#zzz-#fFF": name: "4"
+           "#FFf-#zzz-#fFF": name: "5"
+           "#GGG-#zzz-#fFF": name: "0"
+           "#GGG-#zzz-#FFf": name: "1"
+           "#GGG-#zzz-#FfF": name: "2"
+           ###
+           "#FFF-#zzz-#Fff": name: "Tet 0"
+           "#FFF-#zzz-#ffF": name: "Tet 1"
+           "#FFF-#zzz-#fFf": name: "Tet 2"
+           "#fFf-#zzz-#ffF": name: "Tet 3"
+           "#fFf-#zzz-#Fff": name: "Tet 4"
+           "#ffF-#zzz-#Fff": name: "Tet 5"
+           ###
+           }
+    @Faces = {
+             "#ooO-#zfP-#oOO": name: "XX"
+             "#OOO-#zfP-#zFP": name: "XX"
+             "#oOO-#zfP-#zFP": name: "XX"
+             "#OoO-#zfP-#OOO": name: "XX"
+             "#OoO-#zfP-#ooO": name: "XX"
+             "#OoO-#zfP-#ooO": name: "XX"
+             "#oOO-#zFP-#OOO": name: "hut"
+
+             "#ooO-#fzH-#oOO": name: "XX"
+             "#OOO-#fzH-#FzH": name: "XX"
+             "#oOO-#fzH-#OOO": name: "XX"
+             "#OoO-#FzH-#OOO": name: "XX"
+             "#OoO-#fzH-#ooO": name: "XX"
+             "#OoO-#FzH-#fzH": name: "hut"
+             ###
              "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
+             "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
+             "#OoO-#zfP-#zFP-#OOO": name: "XX"
              "#oOo-#zFp-#OOo-#FPz-#fPz": name: "Face a"
              "#ooo-#fpz-#ooO-#pzF-#pzf": name: "Face B"
              "#OOo-#FPz-#OOO-#PzF-#Pzf": name: "Face b"
@@ -329,8 +373,9 @@ export class Geo
              "#OoO-#PzF-#OOO-#zFP-#zfP": name: "Face e"
              "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
              "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
+             ###
            }
-    {faceNames,facePaths} = @createSegments _.map Melements, (item,key)->item.value
+    {faceNames,facePaths} = @createSegments _.mapObject @Faces, (item,key)->key
     @faceNames = faceNames
     @facePaths = facePaths
     # create the fiboTriangles on each of the 12 faces

@@ -235,7 +235,7 @@ displayTriangle = (sID,tID)->
     kFace = M.MM[k].value.face
     ps=G.normalizeFrame (k.split /-|<|>/)
     ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,64
+    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,20
   p.scale defaultSize
       
 # G.cliques are global structure with segments associated with all triangles
@@ -248,10 +248,13 @@ showClique=(segmentID)->
   triangles = G.cliques[segmentID]
   for k,t of triangles
     cliqueTriangles.push k
+  ###
+  for k,t of triangles
     ps=G.normalizeFrame (k.split /-|<|>/)
     p.add wireframe ps ,new seen.Material seen.C 100,100,100,40
     ps=G.normalizeFrame (t.split /-|<|>/)
     p.add wireframe ps ,"#00ff00"
+  ###
   ps=G.normalizeFrame (segmentID.split /-|<|>/)
   highLight= wireframe ps,"#ffffff"
   highLight.surfaces[0]["stroke-width"]=6
@@ -406,7 +409,7 @@ onMount ->
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize true
     updateShapesWanted("Dodecahedron1")
-    updateShapesWanted("Dodecahedron2")
+    updateShapesWanted("#ooO-#zhf-#OoO-#Fpz-#fpz")
   
 setSvgSize=(big=true)->
   if big
@@ -463,6 +466,7 @@ showSomeAngles=(event=null)->
 
 showSomeCliqueTriangles=(event)->
   pageState.activeCliqueTriangle =  event.currentTarget.innerText
+  debugger
   makeScene()
 
 clearSomeCliqueTriangles=()->
@@ -501,7 +505,7 @@ highlightCliqueSegment=(sID)->
   p = new seen.Model()
   ps=M.MM[sID].value.path
   highLight= wireframe ps,"#ffffff"
-  highLight.surfaces[0]["stroke-width"]=4
+  highLight.surfaces[0]["stroke-width"]=8
   p.add highLight
   p.scale defaultSize
   p
@@ -581,8 +585,10 @@ makeScene= ()->
   # show the complete structure on mdl2
   ###
   if pageState.openSegments.length == 0
+    debugger
+    pageState.openSegments.push G.moveSegment G.cliqueNames[4],seen.P()
     #pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P()
-    pageState.openSegments.push G.moveSegment "#Ooo-#zpf",seen.P()
+    #pageState.openSegments.push G.moveSegment "#oOO-#oOo",seen.P()
   for segment in pageState.openSegments  
     temp = M.MM[segment]
     mdl2.add showSegments [temp.value],"#8F50FF"
