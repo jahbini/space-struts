@@ -409,7 +409,7 @@ onMount ->
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize true
     updateShapesWanted("Dodecahedron1")
-    updateShapesWanted("#ooO-#zhf-#OoO-#Fpz-#fpz")
+    updateShapesWanted("Dodecahedron2")
   
 setSvgSize=(big=true)->
   if big

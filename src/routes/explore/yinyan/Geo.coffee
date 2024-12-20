@@ -344,21 +344,145 @@ export class Geo
            ###
            }
     @Faces = {
-             "#ooO-#zfP-#oOO": name: "XX"
-             "#OOO-#zfP-#zFP": name: "XX"
-             "#oOO-#zfP-#zFP": name: "XX"
-             "#OoO-#zfP-#OOO": name: "XX"
-             "#OoO-#zfP-#ooO": name: "XX"
-             "#OoO-#zfP-#ooO": name: "XX"
-             "#oOO-#zFP-#OOO": name: "hut"
+# #oOO - #ooO -#ooo - #oOo
+# #OOo - #OOO - #OoO - #Ooo
 
-             "#ooO-#fzH-#oOO": name: "XX"
-             "#OOO-#fzH-#FzH": name: "XX"
-             "#oOO-#fzH-#OOO": name: "XX"
-             "#OoO-#FzH-#OOO": name: "XX"
-             "#OoO-#fzH-#ooO": name: "XX"
-             "#OoO-#FzH-#fzH": name: "hut"
+             "#ooO-#OoO-#fzP": name: "lala"
+             "#oOO-#OOO-#fzP": name: "lala"
+             "#OoO-#FzP-#fzP": name: "Hut p"
+             "#OOO-#FzP-#fzP": name: "Hut p"
+             "#OOO-#FzP-#OoO": name: "Hut p"
+             "#OOO-#fzP-#OoO": name: "Hut p"
+
+             "#ooO-#FzP-#fzP": name: "Hut p"
+             "#oOO-#FzP-#fzP": name: "Hut p"
+             "#Ooo-#FzP-#fzP": name: "Hut p"
+             "#oOO-#FzP-#ooO": name: "Hut p"
+             "#oOO-#fzP-#ooO": name: "Hut p"
+             "#OOO-#FzP-#oOO": name: "Hut p"
+             "#OoO-#fzP-#ooO": name: "Hut p"
+             
+
+             "#OoO-#zFH-#zfH": name: "Hut p"
+             "#OOO-#zFH-#zfH": name: "Hut p"
+             "#OOO-#zFH-#OoO": name: "Hut p"
+             "#OOO-#zfH-#OoO": name: "Hut p"
+
+             "#ooO-#zFH-#zfH": name: "Hut p"
+             "#oOO-#zFH-#zfH": name: "Hut p"
+             "#oOO-#zFH-#ooO": name: "Hut p"
+             "#oOO-#zfH-#ooO": name: "Hut p"
+             "#OOO-#zFH-#oOO": name: "Hut p"
+             "#OoO-#zfH-#ooO": name: "Hut p"
+             
+
+
+
+             "#oOo-#fHz-#oOO": name: "Hut h"
+             "#OOO-#fHz-#FHz": name: "Hut h"
+             "#OOo-#FHz-#OOO": name: "Hut h"
+             "#OOo-#fHz-#oOo": name: "Hut h"
+             "#OOo-#FHz-#fHz": name: "Hut h"
+             "#oOO-#zHF-#OOO": name: "bla bla"
+
+             "#OOo-#zPf-#oOO": name: "Hut p"
+             "#oOO-#zPf-#OOO": name: "hut P"
+             "#oOo-#zPf-#oOO": name: "Hut p"
+             "#OOO-#zPf-#zPF": name: "Hut p"
+             "#oOO-#zPf-#zPF": name: "Hut p"
+             "#OOo-#zPf-#OOO": name: "Hut p"
+             "#OOo-#zPf-#oOo": name: "Hut p"
+             "#oOO-#zPF-#OOO": name: "bla bla"
+
+             "#oOo-#fHz-#oOO": name: "Hut h"
+             "#OOO-#fHz-#FHz": name: "Hut h"
+             "#oOO-#fHz-#OOO": name: "Hut h"
+             "#OOo-#FHz-#OOO": name: "Hut h"
+             "#OOo-#fHz-#oOo": name: "Hut h"
+             "#OOo-#FHz-#fHz": name: "Hut h"
+
+             "#ooo-#zpf-#ooO": name: "Hut p"
+             "#OoO-#zpf-#zpF": name: "Hut p"
+             "#ooO-#zpf-#zpF": name: "Hut p"
+             "#Ooo-#zpf-#OoO": name: "Hut p"
+             "#Ooo-#zpf-#ooo": name: "Hut p"
+             "#Ooo-#zpf-#ooo": name: "Hut p"
+             "#ooO-#zpF-#OoO": name: "hut P"
+
+             "#ooo-#fhz-#ooO": name: "Hut h"
+             "#OoO-#fhz-#Fhz": name: "Hut h"
+             "#ooO-#fhz-#OoO": name: "Hut h"
+             "#Ooo-#Fhz-#OoO": name: "Hut h"
+             "#Ooo-#fhz-#ooo": name: "Hut h"
+             "#Ooo-#Fhz-#fhz": name: "Hut h"
+
+             "#ooo-#fzp-#oOo": name: "Hut P"
+             "#OOo-#fzp-#Fzp": name: "Hut P"
+             "#oOo-#fzp-#Fzp": name: "Hut P"
+             "#Ooo-#Fzp-#OOo": name: "Hut P"
+             "#Ooo-#fzp-#ooo": name: "Hut P"
+             "#Ooo-#fzp-#ooo": name: "Hut P"
+             "#oOo-#Fzp-#OOo": name: "Hut P"
+
+             "#oOo-#zfh-#zFh": name: "Hut H"
+             "#ooo-#zfh-#oOo": name: "Hut H"
+             "#oOo-#zFh-#OOo": name: "Hut H"
+             "#Ooo-#zFh-#OOo": name: "Hut H"
+             "#Ooo-#zfh-#ooo": name: "Hut H"
+             "#Ooo-#zFh-#zfh": name: "Hut H"
+
+
+             "#ooO-#fzP-#oOO": name: "Hut P"
+             "#OOO-#fzP-#FzP": name: "Hut P"
+             "#oOO-#fzP-#FzP": name: "Hut P"
+             "#OoO-#FzP-#OOO": name: "Hut P"
+             "#OoO-#fzP-#ooO": name: "Hut P"
+             "#OoO-#fzP-#ooO": name: "Hut P"
+             "#oOO-#FzP-#OOO": name: "Hut P"
+
+             "#oOO-#zfH-#zFH": name: "Hut H"
+             "#ooO-#zfH-#oOO": name: "Hut H"
+             "#oOO-#zFH-#OOO": name: "Hut H"
+             "#OoO-#zFH-#OOO": name: "Hut H"
+             "#OoO-#zfH-#ooO": name: "Hut H"
+             "#OoO-#zFH-#zfH": name: "Hut H"
+
+
+
+             "#oOO-#pFz-#ooO": name: "Hut Top"
+             "#oOo-#pFz-#ooo": name: "Hut Top"
+             "#ooO-#pfz-#ooo": name: "Hut Top"
+             "#oOo-#pfz-#pFz": name: "Hut Top"
+             "#pFz-#pfz-#ooo": name: "Hut Top"
+             "#pFz-#pfz-#oOO": name: "Hut Top"
+             "#pFz-#pfz-#ooO": name: "Hut Top"
+
+             "#oOO-#hzF-#ooO": name: "Hut Top"
+             "#oOo-#hzF-#ooo": name: "Hut Top"
+             "#ooO-#hzf-#ooo": name: "Hut Top"
+             "#oOo-#hzf-#hzF": name: "Hut Top"
+             "#hzF-#hzf-#ooo": name: "Hut Top"
+             "#hzF-#hzf-#oOO": name: "Hut Top"
+             "#hzF-#hzf-#ooO": name: "Hut Top"
+
+             "#OOO-#PFz-#OoO": name: "Hut Top"
+             "#OOo-#PFz-#Ooo": name: "Hut Top"
+             "#OoO-#Pfz-#Ooo": name: "Hut Top"
+             "#OOo-#Pfz-#PFz": name: "Hut Top"
+             "#PFz-#Pfz-#Ooo": name: "Hut Top"
+             "#PFz-#Pfz-#OOO": name: "Hut Top"
+             "#PFz-#Pfz-#OoO": name: "Hut Top"
+
+             "#OOO-#HzF-#OoO": name: "Hut Top"
+             "#OOo-#HzF-#Ooo": name: "Hut Top"
+             "#OoO-#Hzf-#Ooo": name: "Hut Top"
+             "#OOo-#Hzf-#HzF": name: "Hut Top"
+             "#HzF-#Hzf-#Ooo": name: "Hut Top"
+             "#HzF-#Hzf-#OOO": name: "Hut Top"
+             "#HzF-#Hzf-#OoO": name: "Hut Top"
+
              ###
+
              "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
              "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
              "#OoO-#zfP-#zFP-#OOO": name: "XX"
