@@ -32,27 +32,13 @@ decode =
 splitName = (longName)->
   value = longName.split /-|<|>/
   return value
-
-# create the fiboTriangles on each of the 12 faces
-createFiboTriangles= (faces,G)->
-  all=[]
-  for sa,face of faces
-    names = splitName sa
-    if names.length == 3
-      all.push [ G.createTriangle names[0],names[1],names[2], sa ] 
-      continue
-    itms = [ ...names,...names]
-    for i in [0..names.length+1 ]
-      for j in [2..3]
-        all.push G.createTriangle itms[i],itms[i+1],itms[i+j],sa
-  all.flat()
-
 cliques= {}
 cliqueNames = []
 cnames = []
 
 createCliques = (G) ->
   return [] unless G.fiboTriangles.length
+  debugger
   cantidates = G.fiboTriangles.slice 0
   for  masterTriangle in cantidates
     for s,idx in masterTriangle.value.segments
@@ -116,7 +102,7 @@ export class Geo
   # the originating shape name is used as a tag in the Memo
   ###
   formPointsFrom:(shape,shapeName="") ->
-    shapePoints = for i in shape.split '-'
+    shapePoints = for i in shape.split /-|>|</
       @createSeenPoint i,shapeName
     (M.saveThis shapeName,shapePoints).value
     
@@ -135,6 +121,9 @@ export class Geo
   # for further translation in 3space. it is the midpoint of the segment.
   ###
   createSegment: (ptxt1,ptxt2)->
+    if typeof ptxt1  == 'object'
+      ptxt2=ptxt1[1]
+      ptxt1=ptxt1[0]
     (t=ptxt1; ptxt1=ptxt2; ptxt2=t) if ptxt2<ptxt1
     ID= "#{ptxt1}-#{ptxt2}"
     return ID if M.MM[ID]
@@ -252,6 +241,8 @@ export class Geo
     s2= @createSegment p2,p3
     s3= @createSegment p1,p3
     ID= "#{p1}>#{p2}>#{p3}"
+    if ID== "#ooo>#pFz>#pfz"
+      debugger
     M.saveThis ID,
       ID: ID
       path:[p1,p2,p3]
@@ -266,7 +257,7 @@ export class Geo
     for i in points
       for j in segments
         continue unless j?.ID
-        [leg0,leg1]= j.ID.split "-"
+        [leg0,leg1]= j.ID.split /-|<|>/
         continue if  i.ID== leg0 || i.ID == leg1
         d = @angleBetween i.ID,leg0,leg1
         ID="#{i.ID}<#{leg0}-#{leg1}"
@@ -286,6 +277,103 @@ export class Geo
     anglesByMagnitude = anglesByMagnitude.value()
     {angleNames,anglesByMagnitude}
 
+
+  makeHut: (points,value,coordinateID,inner)-> #left top, right top, left bottom,right bottom
+    mapp=[0,1,2,0,1]
+    ex=mapp[coordinateID+1]
+    wy=mapp[coordinateID+2]
+    pt=[]
+    pt[coordinateID]=inner[0]
+    pt[ex]='F'
+    pt[wy]='z'
+    ptID= '#'+pt.join ''
+    pl=[]
+    pl[coordinateID]=inner[1]
+    pl[ex]='z'
+    pl[wy]='F'
+    plID= '#'+pl.join ''
+    pr=[]
+    pr[coordinateID]=inner[1]
+    pr[ex]='z'
+    pr[wy]='f'
+    prID= '#'+pr.join ''
+    pb=[]
+    pb[coordinateID]=inner[0]
+    pb[ex]='f'
+    pb[wy]='z'
+    pbID= '#'+pb.join ''
+
+    makeT = (p1,p2,p3,belongsTo="hut")=>
+      t1=@createTriangle p1,p2,p3,p3
+      @Faces[t1.value.ID]=p3
+
+    makeT points[0][0],points[0][1],ptID
+    makeT points[1][0],points[1][1],pbID
+    makeT points[0][0],ptID,pbID
+    makeT points[0][1],ptID,pbID
+    makeT points[1][0],ptID,pbID
+    makeT points[1][1],ptID,pbID
+    makeT points[0][0],points[1][0],pbID
+    makeT points[0][0],points[1][0],ptID
+    makeT points[0][1],points[1][1],pbID
+    makeT points[0][1],points[1][1],ptID
+
+
+    makeT points[0][0],points[1][0],plID
+    makeT points[0][1],points[1][1],prID
+    makeT points[0][0],plID,prID
+    makeT points[0][1],plID,prID
+    makeT points[1][0],plID,prID
+    makeT points[1][1],plID,prID
+    makeT points[0][0],points[1][0],plID
+    makeT points[0][0],points[1][0],prID
+    makeT points[0][1],points[1][1],plID
+    makeT points[0][1],points[1][1],prID
+
+
+  examineFaces:()->
+    ones="Oo"
+    inner="PH"
+    for x in ones
+      f0=for y in ones
+        for z in ones
+          "#"+x+y+z
+      @makeHut f0,x,0,inner
+      inner="ph"
+
+    inner="PH"
+    for y in ones
+      f0=for z in ones
+        for x in ones
+          "#"+x+y+z
+      @makeHut f0,y,1,inner
+      inner="ph"
+
+    inner="PH"
+    for z in ones
+      f0=for x in ones
+        for y in ones
+          "#"+x+y+z
+      @makeHut f0,z,2,inner
+      inner="ph"
+
+  ###
+  ###
+
+  # create the fiboTriangles on each of the 12 faces
+  createFiboTriangles: (faces)->
+    all=[]
+    for sa,face of faces
+      names = splitName sa
+      if names.length == 3
+        all.push [ @createTriangle names[0],names[1],names[2],face ] 
+        continue
+      itms = [ ...names,...names]
+      for i in [0..names.length+1 ]
+        for j in [2..3]
+          all.push @createTriangle itms[i],itms[i+1],itms[i+j],sa
+    all.flat()
+
   constructor:()->
     @Polyhedra = 
       Tetrahedron1: @formPointsFrom tetrahedron1, "tetrahedron"
@@ -297,218 +385,10 @@ export class Geo
       Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
       Dodecahedron2: @formPointsFrom dodecahedron2, "dodecahedron"
 
-    debugger
-    @Faces2 = {
-           ###
-           "#ooo-#fzp-#oOo-#pFz-#pfz": name: "Dod2 Face E"
-           "#ooo-#pzf-#oOo-#zFp-#zfp": name: "Face E"
-           "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
-           "#ooO-#zpF-#OoO-#FzP-#fzP": name: "Dod2 Face A"
-           "#oOo-#zFp-#OOo-#FPz-#fPz": name: "Face a"
-           "#oOo-#zPf-#OOo-#Fzp-#fzp": name: "Dod2 Face a"
-           "#ooo-#fpz-#ooO-#pzF-#pzf": name: "Face B"
-           "#ooo-#pfz-#ooO-#zpF-#zpf": name: "Dod2 Face B"
-           "#OOo-#PFz-#OOO-#zPF-#zPf": name: "Dod2 Face b"
-           "#OOo-#FPz-#OOO-#PzF-#Pzf": name: "Face b"
-           "#ooo-#zfp-#Ooo-#Fpz-#fpz": name: "Face C"
-           "#ooo-#zpf-#Ooo-#Fzp-#fzp": name: "Dod2 Face C"
-           "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
-           "#oOO-#zPF-#OOO-#FzP-#fzP": name: "Dod2 Face c"
-           "#Ooo-#Fpz-#OoO-#PzF-#Pzf": name: "Face D"
-           "#Ooo-#Pfz-#OoO-#zpF-#zpf": name: "Dod2 Face D"
-           "#oOo-#fPz-#oOO-#pzF-#pzf": name: "Face d"
-           "#oOo-#pFz-#oOO-#zPF-#zPf": name: "Dod2 Face d"
-           "#OoO-#PzF-#OOO-#zFP-#zfP": name: "Face e"
-           "#OoO-#FzP-#OOO-#PFz-#Pfz": name: "Dod2 Face e"
-           "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
-           "#ooO-#fzP-#oOO-#pFz-#pfz": name: "Dod2 Face F"
-           "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
-           "#Ooo-#Fzp-#OOo-#PFz-#Pfz": name: "Dod2 Face f"
-           ###
-           "#fff-#zzz-#fFF": name: "0"
-           "#fff-#zzz-#FFf": name: "1"
-           "#fff-#zzz-#FfF": name: "2"
-           "#FfF-#zzz-#FFf": name: "3"
-           "#FfF-#zzz-#fFF": name: "4"
-           "#FFf-#zzz-#fFF": name: "5"
-           "#GGG-#zzz-#fFF": name: "0"
-           "#GGG-#zzz-#FFf": name: "1"
-           "#GGG-#zzz-#FfF": name: "2"
-           ###
-           "#FFF-#zzz-#Fff": name: "Tet 0"
-           "#FFF-#zzz-#ffF": name: "Tet 1"
-           "#FFF-#zzz-#fFf": name: "Tet 2"
-           "#fFf-#zzz-#ffF": name: "Tet 3"
-           "#fFf-#zzz-#Fff": name: "Tet 4"
-           "#ffF-#zzz-#Fff": name: "Tet 5"
-           ###
-           }
-    @Faces = {
-# #oOO - #ooO -#ooo - #oOo
-# #OOo - #OOO - #OoO - #Ooo
-
-             "#ooO-#OoO-#fzP": name: "lala"
-             "#oOO-#OOO-#fzP": name: "lala"
-             "#OoO-#FzP-#fzP": name: "Hut p"
-             "#OOO-#FzP-#fzP": name: "Hut p"
-             "#OOO-#FzP-#OoO": name: "Hut p"
-             "#OOO-#fzP-#OoO": name: "Hut p"
-
-             "#ooO-#FzP-#fzP": name: "Hut p"
-             "#oOO-#FzP-#fzP": name: "Hut p"
-             "#Ooo-#FzP-#fzP": name: "Hut p"
-             "#oOO-#FzP-#ooO": name: "Hut p"
-             "#oOO-#fzP-#ooO": name: "Hut p"
-             "#OOO-#FzP-#oOO": name: "Hut p"
-             "#OoO-#fzP-#ooO": name: "Hut p"
-             
-
-             "#OoO-#zFH-#zfH": name: "Hut p"
-             "#OOO-#zFH-#zfH": name: "Hut p"
-             "#OOO-#zFH-#OoO": name: "Hut p"
-             "#OOO-#zfH-#OoO": name: "Hut p"
-
-             "#ooO-#zFH-#zfH": name: "Hut p"
-             "#oOO-#zFH-#zfH": name: "Hut p"
-             "#oOO-#zFH-#ooO": name: "Hut p"
-             "#oOO-#zfH-#ooO": name: "Hut p"
-             "#OOO-#zFH-#oOO": name: "Hut p"
-             "#OoO-#zfH-#ooO": name: "Hut p"
-             
-
-
-
-             "#oOo-#fHz-#oOO": name: "Hut h"
-             "#OOO-#fHz-#FHz": name: "Hut h"
-             "#OOo-#FHz-#OOO": name: "Hut h"
-             "#OOo-#fHz-#oOo": name: "Hut h"
-             "#OOo-#FHz-#fHz": name: "Hut h"
-             "#oOO-#zHF-#OOO": name: "bla bla"
-
-             "#OOo-#zPf-#oOO": name: "Hut p"
-             "#oOO-#zPf-#OOO": name: "hut P"
-             "#oOo-#zPf-#oOO": name: "Hut p"
-             "#OOO-#zPf-#zPF": name: "Hut p"
-             "#oOO-#zPf-#zPF": name: "Hut p"
-             "#OOo-#zPf-#OOO": name: "Hut p"
-             "#OOo-#zPf-#oOo": name: "Hut p"
-             "#oOO-#zPF-#OOO": name: "bla bla"
-
-             "#oOo-#fHz-#oOO": name: "Hut h"
-             "#OOO-#fHz-#FHz": name: "Hut h"
-             "#oOO-#fHz-#OOO": name: "Hut h"
-             "#OOo-#FHz-#OOO": name: "Hut h"
-             "#OOo-#fHz-#oOo": name: "Hut h"
-             "#OOo-#FHz-#fHz": name: "Hut h"
-
-             "#ooo-#zpf-#ooO": name: "Hut p"
-             "#OoO-#zpf-#zpF": name: "Hut p"
-             "#ooO-#zpf-#zpF": name: "Hut p"
-             "#Ooo-#zpf-#OoO": name: "Hut p"
-             "#Ooo-#zpf-#ooo": name: "Hut p"
-             "#Ooo-#zpf-#ooo": name: "Hut p"
-             "#ooO-#zpF-#OoO": name: "hut P"
-
-             "#ooo-#fhz-#ooO": name: "Hut h"
-             "#OoO-#fhz-#Fhz": name: "Hut h"
-             "#ooO-#fhz-#OoO": name: "Hut h"
-             "#Ooo-#Fhz-#OoO": name: "Hut h"
-             "#Ooo-#fhz-#ooo": name: "Hut h"
-             "#Ooo-#Fhz-#fhz": name: "Hut h"
-
-             "#ooo-#fzp-#oOo": name: "Hut P"
-             "#OOo-#fzp-#Fzp": name: "Hut P"
-             "#oOo-#fzp-#Fzp": name: "Hut P"
-             "#Ooo-#Fzp-#OOo": name: "Hut P"
-             "#Ooo-#fzp-#ooo": name: "Hut P"
-             "#Ooo-#fzp-#ooo": name: "Hut P"
-             "#oOo-#Fzp-#OOo": name: "Hut P"
-
-             "#oOo-#zfh-#zFh": name: "Hut H"
-             "#ooo-#zfh-#oOo": name: "Hut H"
-             "#oOo-#zFh-#OOo": name: "Hut H"
-             "#Ooo-#zFh-#OOo": name: "Hut H"
-             "#Ooo-#zfh-#ooo": name: "Hut H"
-             "#Ooo-#zFh-#zfh": name: "Hut H"
-
-
-             "#ooO-#fzP-#oOO": name: "Hut P"
-             "#OOO-#fzP-#FzP": name: "Hut P"
-             "#oOO-#fzP-#FzP": name: "Hut P"
-             "#OoO-#FzP-#OOO": name: "Hut P"
-             "#OoO-#fzP-#ooO": name: "Hut P"
-             "#OoO-#fzP-#ooO": name: "Hut P"
-             "#oOO-#FzP-#OOO": name: "Hut P"
-
-             "#oOO-#zfH-#zFH": name: "Hut H"
-             "#ooO-#zfH-#oOO": name: "Hut H"
-             "#oOO-#zFH-#OOO": name: "Hut H"
-             "#OoO-#zFH-#OOO": name: "Hut H"
-             "#OoO-#zfH-#ooO": name: "Hut H"
-             "#OoO-#zFH-#zfH": name: "Hut H"
-
-
-
-             "#oOO-#pFz-#ooO": name: "Hut Top"
-             "#oOo-#pFz-#ooo": name: "Hut Top"
-             "#ooO-#pfz-#ooo": name: "Hut Top"
-             "#oOo-#pfz-#pFz": name: "Hut Top"
-             "#pFz-#pfz-#ooo": name: "Hut Top"
-             "#pFz-#pfz-#oOO": name: "Hut Top"
-             "#pFz-#pfz-#ooO": name: "Hut Top"
-
-             "#oOO-#hzF-#ooO": name: "Hut Top"
-             "#oOo-#hzF-#ooo": name: "Hut Top"
-             "#ooO-#hzf-#ooo": name: "Hut Top"
-             "#oOo-#hzf-#hzF": name: "Hut Top"
-             "#hzF-#hzf-#ooo": name: "Hut Top"
-             "#hzF-#hzf-#oOO": name: "Hut Top"
-             "#hzF-#hzf-#ooO": name: "Hut Top"
-
-             "#OOO-#PFz-#OoO": name: "Hut Top"
-             "#OOo-#PFz-#Ooo": name: "Hut Top"
-             "#OoO-#Pfz-#Ooo": name: "Hut Top"
-             "#OOo-#Pfz-#PFz": name: "Hut Top"
-             "#PFz-#Pfz-#Ooo": name: "Hut Top"
-             "#PFz-#Pfz-#OOO": name: "Hut Top"
-             "#PFz-#Pfz-#OoO": name: "Hut Top"
-
-             "#OOO-#HzF-#OoO": name: "Hut Top"
-             "#OOo-#HzF-#Ooo": name: "Hut Top"
-             "#OoO-#Hzf-#Ooo": name: "Hut Top"
-             "#OOo-#Hzf-#HzF": name: "Hut Top"
-             "#HzF-#Hzf-#Ooo": name: "Hut Top"
-             "#HzF-#Hzf-#OOO": name: "Hut Top"
-             "#HzF-#Hzf-#OoO": name: "Hut Top"
-
-             ###
-
-             "#ooO-#zfP-#OoO-#Fpz-#fpz": name: "Face A"
-             "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
-             "#OoO-#zfP-#zFP-#OOO": name: "XX"
-             "#oOo-#zFp-#OOo-#FPz-#fPz": name: "Face a"
-             "#ooo-#fpz-#ooO-#pzF-#pzf": name: "Face B"
-             "#OOo-#FPz-#OOO-#PzF-#Pzf": name: "Face b"
-             "#ooo-#zfp-#Ooo-#Fpz-#fpz": name: "Face C"
-             "#oOO-#zFP-#OOO-#FPz-#fPz": name: "Face c"
-             "#Ooo-#Fpz-#OoO-#PzF-#Pzf": name: "Face D"
-             "#oOo-#fPz-#oOO-#pzF-#pzf": name: "Face d"
-             "#ooo-#pzf-#oOo-#zFp-#zfp": name: "Face E"
-             "#OoO-#PzF-#OOO-#zFP-#zfP": name: "Face e"
-             "#ooO-#pzF-#oOO-#zFP-#zfP": name: "Face F"
-             "#Ooo-#Pzf-#OOo-#zFp-#zfp": name: "Face f"
-             ###
-           }
-    {faceNames,facePaths} = @createSegments _.mapObject @Faces, (item,key)->key
-    @faceNames = faceNames
-    @facePaths = facePaths
+    @Faces={}
+    @examineFaces()
     # create the fiboTriangles on each of the 12 faces
-    @fiboTriangles=createFiboTriangles @Faces,this
+    @fiboTriangles= @createFiboTriangles @Faces
     {@cliques,@cliqueNames} = createCliques @
- 
 
-
-
-
-
-
+     

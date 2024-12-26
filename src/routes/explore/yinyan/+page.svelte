@@ -173,11 +173,10 @@ hexColorFromID = (id)->
         when 'O' then hueman += '70'
     hueman
 
-makeColorFromFace = (fID,transparency=64)->
-    items= G.formPointsFrom fID
-    makeColorFromID fID
+makeColorFromFace = (fID,transparency=10)->
+    makeColorFromID fID,transparency
 
-makeColorFromID = (id,transparency=64)->
+makeColorFromID = (id,transparency=10)->
     hueman= hexColorFromID id
     faceColor = seen.Colors.hex hueman
     faceColor.a = transparency
@@ -188,7 +187,7 @@ showCentroid = (faces,color="#000000")->
   return p unless faces.length
   for s in faces
     centroid = seen.P 0,0,0
-    items= G.formPointsFrom s,s
+    items= G.formPointsFrom s
     for pp in items
       centroid.add pp
 
@@ -248,13 +247,11 @@ showClique=(segmentID)->
   triangles = G.cliques[segmentID]
   for k,t of triangles
     cliqueTriangles.push k
-  ###
   for k,t of triangles
     ps=G.normalizeFrame (k.split /-|<|>/)
     p.add wireframe ps ,new seen.Material seen.C 100,100,100,40
     ps=G.normalizeFrame (t.split /-|<|>/)
     p.add wireframe ps ,"#00ff00"
-  ###
   ps=G.normalizeFrame (segmentID.split /-|<|>/)
   highLight= wireframe ps,"#ffffff"
   highLight.surfaces[0]["stroke-width"]=6
@@ -289,7 +286,7 @@ showPoints = (points)->
 showFaces = (faces,color="#000000")->
   p=new seen.Model()
   for s of faces
-    items= G.formPointsFrom s,s
+    items= G.formPointsFrom s
     p.add wireframe items, color, makeColorFromID items[1].ID
   p.scale defaultSize
   p
@@ -554,7 +551,7 @@ makeScene= ()->
   if pageState.showFaces
     facesToShow = showFaces  G.Faces
     mdl1.add facesToShow 
-    mdl1.add showCentroid G.Faces
+    #mdl1.add showCentroid G.Faces
 
   mdl1.remove dotsToShow if dotsToShow
   if pageState.vertex
@@ -586,7 +583,7 @@ makeScene= ()->
   ###
   if pageState.openSegments.length == 0
     debugger
-    pageState.openSegments.push G.moveSegment G.cliqueNames[4],seen.P()
+    pageState.openSegments.push G.moveSegment G.cliqueNames[2],seen.P()
     #pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P()
     #pageState.openSegments.push G.moveSegment "#oOO-#oOo",seen.P()
   for segment in pageState.openSegments  
@@ -666,7 +663,7 @@ makeScene= ()->
   {#each cliqueTriangles as triName }
   <small>
   <a class="button"  name="clique" value={triName}  on:click={showSomeCliqueTriangles } >
-  <label for={triName} style="color:{hexColorFromID(M.MM[triName].value.face.split('-')[1])}" >
+  <label for={triName} style="color:green" >
   {triName}
   </label>
   </a></small>
