@@ -159,11 +159,14 @@ showSegments = (segments,color="#000000")->
   p
 
 hexColorFromID = (id)->
-    col= id.match(/(f|F|p|P|z){3}/)
+    col= id.match(/[f|F|p|P|z|H|h]{3}/)
+    console.log "HEX Color",col,id
     return "#000000" unless col
     hueman = '#'
     for hueStrength in col[0]
       switch hueStrength
+        when 'H' then hueman += 'B0'
+        when 'h' then hueman += '20'
         when 'z' then hueman += '60'
         when 'f' then hueman += '90'
         when 'F' then hueman += 'D0'
@@ -171,6 +174,7 @@ hexColorFromID = (id)->
         when 'P' then hueman += '40'
         when 'o' then hueman += '30'
         when 'O' then hueman += '70'
+    console.log "Hex color",hueman
     hueman
 
 makeColorFromFace = (fID,transparency=10)->
@@ -215,16 +219,26 @@ useTriangle=(event)->
   pageState.structure.push triangle
   clearCliqueInSegments()
 
+#    stripName(T,pageState.activeClique)
+
+stripName=(tID,sID)->
+  segParts=sID.split />|-|</g
+  return tID.split(/-|<|>/g).join('').replace(segParts[0],'').replace(segParts[1],'')
+
+
 # display the active cantidate triangle.  The triangle's three sides
 # will become base segments for more segments if the triangle is accepted by the UI.
 displayTriangle = (sID,tID)->
   triangle = M.MM[tID].value
   segment=M.MM[sID].value
   p = new seen.Model()
-  ps=G.normalizeFrame (tID.split /-|<|>/)
+  ps=G.normalizeFrame (tID.split /-|<|>/g)
   nickName = (sID.split 'X')[0]
   offsetSegment = G.cliques[nickName][tID]
   tMidPoint = M.MM[offsetSegment].value.midPoint
+  console.log "offsetSegment",offsetSegment
+  console.log "Triangle ID",tID
+  console.log "cliquePoint",stripName tID,offsetSegment
   ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
   p.add wireframe ps,"#00f000", makeColorFromID triangle.face,220
   triangles = G.cliques[nickName]
@@ -232,9 +246,9 @@ displayTriangle = (sID,tID)->
     offsetSegment = G.cliques[nickName][k]
     tMidPoint = M.MM[offsetSegment].value.midPoint
     kFace = M.MM[k].value.face
-    ps=G.normalizeFrame (k.split /-|<|>/)
+    ps=G.normalizeFrame (k.split /-|<|>/g)
     ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-    p.add wireframe ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,20
+    mdl1.add showPoints ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,20
   p.scale defaultSize
       
 # G.cliques are global structure with segments associated with all triangles
@@ -461,9 +475,8 @@ showSomeAngles=(event=null)->
 
 
 
-showSomeCliqueTriangles=(event)->
-  pageState.activeCliqueTriangle =  event.currentTarget.innerText
-  debugger
+showSomeCliqueTriangles=(triName)->
+  pageState.activeCliqueTriangle =  triName
   makeScene()
 
 clearSomeCliqueTriangles=()->
@@ -471,8 +484,9 @@ clearSomeCliqueTriangles=()->
   cliqueTriangles=[]
   makeScene()
 
-showCliqueInSegments=(event)->
-  pageState.activeClique = event.currentTarget.innerText
+showCliqueInSegments=(segment)->
+  pageState.activeClique = segment
+  debugger
   pageState.activeCliqueTriangle=null
   noCliqueTriangle = document.getElementById "clearTriangles"
   noCliqueTriangle.checked = true
@@ -582,7 +596,6 @@ makeScene= ()->
   # show the complete structure on mdl2
   ###
   if pageState.openSegments.length == 0
-    debugger
     pageState.openSegments.push G.moveSegment G.cliqueNames[2],seen.P()
     #pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P()
     #pageState.openSegments.push G.moveSegment "#oOO-#oOo",seen.P()
@@ -644,10 +657,9 @@ makeScene= ()->
   <small><a class="button" name="openSegments" value={ null } bind={null} on:click={clearCliqueInSegments } >
   none</a></small>
   {#each pageState.openSegments as segment }
-  <label style="color:{hexColorFromID(segment)}" for={segment} >
-  <small><a class="button" name="openSegments" value={ segment } bind={segment} on:click={showCliqueInSegments } >
+  {@debug segment}
+  <small><a class="button" style="color:{hexColorFromID(segment)}" name="openSegments" value={ segment } bind={segment} on:click={showCliqueInSegments(segment) } >
   {segment}</a></small>
-  </label>
   {/each}
 
 </div>
@@ -662,10 +674,8 @@ makeScene= ()->
   </a>
   {#each cliqueTriangles as triName }
   <small>
-  <a class="button"  name="clique" value={triName}  on:click={showSomeCliqueTriangles } >
-  <label for={triName} style="color:green" >
+  <a class="button"  name="clique" style="color:{hexColorFromID(triName)}" value={triName}  on:click={showSomeCliqueTriangles(triName) } >
   {triName}
-  </label>
   </a></small>
   
   {/each}

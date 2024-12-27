@@ -36,6 +36,11 @@ cliques= {}
 cliqueNames = []
 cnames = []
 
+stripName=(tID,sID)->
+  segParts=sID.split />|-|</
+  return tID.split('-').join('').replace(segParts[0],'').replace('segParts[1]','')
+  
+
 createCliques = (G) ->
   return [] unless G.fiboTriangles.length
   debugger
