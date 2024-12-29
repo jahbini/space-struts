@@ -36,14 +36,14 @@ cliques= {}
 cliqueNames = []
 cnames = []
 
-stripName=(tID,sID)->
-  segParts=sID.split />|-|</
-  return tID.split('-').join('').replace(segParts[0],'').replace('segParts[1]','')
+stripName=(sID,tID)->
+  segParts=sID.split />|-|</g
+  rValue=tID.split(/<|>|-/g).join('').replace(segParts[0],'').replace(segParts[1],'')
+  return rValue
   
 
 createCliques = (G) ->
   return [] unless G.fiboTriangles.length
-  debugger
   cantidates = G.fiboTriangles.slice 0
   for  masterTriangle in cantidates
     for s,idx in masterTriangle.value.segments
@@ -58,7 +58,7 @@ createCliques = (G) ->
           cVmS = cV.magnitudeSquared()
           lDiff = Math.abs cVmS-sVmS
           if lDiff < 0.1  and zz.magnitudeSquared() < 0.1
-            cliques[s][cantidateTriangle.value.ID]=cc
+            cliques[s][cantidateTriangle.value.ID]=[cc,stripName cc,cantidateTriangle.value.ID]
   cnames = for s of cliques
     s
   cliqueNames = cnames.slice()
@@ -91,7 +91,7 @@ export class Geo
   # side-effect: adds point to pointName map to this returned value
   ###
   createSeenPoint:  (ptxt,shapeName = "")->
-    return null if ! xyz=ptxt.match '#(.)(.)(.)$'
+    return null if ! xyz=ptxt.match '#(.)(.)(.)(X[0-9]+)?$'
     if null != p=(M.theLowdown ptxt).value
       p.shapeName[shapeName] = shapeName
       return (M.theLowdown ptxt).value
@@ -171,16 +171,21 @@ export class Geo
     bias=seen.P() unless bias?.constructor?.name == "Point"
     for s in points
       if "Point" == s.constructor.name
-        bias.copy().add s
+        r=bias.copy().add s
+        r.ID=s.ID
+        r
       else
-        bias.copy().add @createSeenPoint s
+        r=bias.copy().add @createSeenPoint s
+        r.ID=s
+        r
+        
 
   moveTriangle: (sID,tID) ->
     triangle = M.MM[tID].value
     segment=M.MM[sID].value
     path=@normalizeFrame (tID.split /-|<|>/)
     nickName = (sID.split 'X')[0]
-    offsetSegment = @cliques[nickName][tID]
+    offsetSegment = @cliques[nickName][tID][0]
     tMidPoint = M.MM[offsetSegment].value.midPoint
     sMidPoint = M.MM[ nickName].value.midPoint
     path = path.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
@@ -246,8 +251,6 @@ export class Geo
     s2= @createSegment p2,p3
     s3= @createSegment p1,p3
     ID= "#{p1}>#{p2}>#{p3}"
-    if ID== "#ooo>#pFz>#pfz"
-      debugger
     M.saveThis ID,
       ID: ID
       path:[p1,p2,p3]

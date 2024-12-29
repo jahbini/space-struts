@@ -54,12 +54,12 @@ xform=null
 
 pageState=
   vertex: false
-  labels: true
+  labels: false
   segmentMagnitudes: {}
   angleMagnitude: ""  #a string value of format 999.999 0-360
   magnitude: false
   useShapes: useShapes 
-  showFaces: true
+  showFaces: false
   cliquesToShow: {}
   openSegments:[]
   activeClique: null
@@ -159,7 +159,7 @@ showSegments = (segments,color="#000000")->
   p
 
 hexColorFromID = (id)->
-    col= id.match(/[f|F|p|P|z|H|h]{3}/)
+    col= id.match(/[f|F|p|P|z|H|h|O|o]{3}/)
     console.log "HEX Color",col,id
     return "#000000" unless col
     hueman = '#'
@@ -232,56 +232,51 @@ displayTriangle = (sID,tID)->
   triangle = M.MM[tID].value
   segment=M.MM[sID].value
   p = new seen.Model()
-  ps=G.normalizeFrame (tID.split /-|<|>/g)
+  ps=G.normalizeFrame (tID.split /-|<|>/g) 
   nickName = (sID.split 'X')[0]
-  offsetSegment = G.cliques[nickName][tID]
+  offsetSegment = G.cliques[nickName][tID][0]
+  cliquePoint = G.cliques[nickName][tID][1]
   tMidPoint = M.MM[offsetSegment].value.midPoint
-  console.log "offsetSegment",offsetSegment
-  console.log "Triangle ID",tID
-  console.log "cliquePoint",stripName tID,offsetSegment
+  # translate cantidate triangle to the active segment
   ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
   p.add wireframe ps,"#00f000", makeColorFromID triangle.face,220
-  triangles = G.cliques[nickName]
-  for k,t of triangles
-    offsetSegment = G.cliques[nickName][k]
-    tMidPoint = M.MM[offsetSegment].value.midPoint
-    kFace = M.MM[k].value.face
-    ps=G.normalizeFrame (k.split /-|<|>/g)
-    ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-    mdl1.add showPoints ps ,(new seen.Material seen.C 100,100,100,40), makeColorFromID kFace,20
   p.scale defaultSize
       
 # G.cliques are global structure with segments associated with all triangles
 # with one edge parallel to the segmentID
-showClique=(segmentID)->
-  return null unless segmentID?.match /^#.../
+showClique=(sID)->
+  return null unless sID?.match /^#.../
   cliqueTriangles = []
-  segmentID = (segmentID.split 'X')[0]
+  # the segment sID is parallel to the original nickname segment 
+  segment=M.MM[sID].value
+  nickName = (sID.split 'X')[0]
   p=new seen.Model()
-  triangles = G.cliques[segmentID]
+  # go through all the triangles of the clique
+  triangles = G.cliques[nickName]
   for k,t of triangles
-    cliqueTriangles.push k
-  for k,t of triangles
+    # k is "#xyz>#xyz>#xyz"
+    # t is [ segment parallel to nickName,  "#xxx" ] 
+    offsetSegment = t[0]
+    #push the triangle full name and "#xxx" out to the User Interface
+    cliqueTriangles.push [k,t[1] ]
+
+    #calculate the displacement needed from distance between midpoints
+    tMidPoint = M.MM[offsetSegment].value.midPoint
+
+    #put up a wireframe of the displaced triangle
     ps=G.normalizeFrame (k.split /-|<|>/)
+    ps = for poin in ps
+      xID=poin.ID
+      r=poin.copy().subtract(tMidPoint).add(segment.midPoint)
+      r.ID=xID
+      r
     p.add wireframe ps ,new seen.Material seen.C 100,100,100,40
-    ps=G.normalizeFrame (t.split /-|<|>/)
-    p.add wireframe ps ,"#00ff00"
-  ps=G.normalizeFrame (segmentID.split /-|<|>/)
-  highLight= wireframe ps,"#ffffff"
-  highLight.surfaces[0]["stroke-width"]=6
-  p.add highLight
+
+    mdl1.add showPoints ps 
+
   p.scale defaultSize
   p
 
-showCliqueTriangle=(ID)->
-  return null unless splitID= ID?.split /-|<|>/
-  nickName = (ID.split 'X')[0]
-  faceID=M.MM[ID].value.face
-  p=new seen.Model()
-  ps=G.normalizeFrame splitID
-  p.add wireframe ps,"#0f0f80", makeColorFromID faceID,200
-  p.scale defaultSize
-  p
 
 ###+
 # descr: generate the vertices as tetrahedrons from seen's model mdl
@@ -291,7 +286,10 @@ showPoints = (points)->
   p = new seen.Model()
   for point in points
     glyf=seen.Shapes.tetrahedron 1
+    debugger
     glyf.fill glyf.filler
+    if point.ID
+      glyf.fill makeColorFromID point.ID,220
     glyf.scale 5
     glyf.translate defaultSize*point.x,defaultSize*point.y,defaultSize*point.z
     p.add glyf
@@ -486,7 +484,6 @@ clearSomeCliqueTriangles=()->
 
 showCliqueInSegments=(segment)->
   pageState.activeClique = segment
-  debugger
   pageState.activeCliqueTriangle=null
   noCliqueTriangle = document.getElementById "clearTriangles"
   noCliqueTriangle.checked = true
@@ -587,11 +584,9 @@ makeScene= ()->
 
   mdl1.remove cliqueTriangleToShow if cliqueTriangleToShow
   if pageState.activeCliqueTriangle && pageState.activeClique
-    cliqueTriangleToShow = showCliqueTriangle pageState.activeCliqueTriangle
-    mdl1.add cliqueTriangleToShow 
+    #show the relocated activeCliqueTriangle
     mdl2.add displayTriangle pageState.activeClique,pageState.activeCliqueTriangle
    
-  #  mdl1.add showCentroid G.Faces
   ###
   # show the complete structure on mdl2
   ###
@@ -657,9 +652,10 @@ makeScene= ()->
   <small><a class="button" name="openSegments" value={ null } bind={null} on:click={clearCliqueInSegments } >
   none</a></small>
   {#each pageState.openSegments as segment }
-  {@debug segment}
+  <p>
   <small><a class="button" style="color:{hexColorFromID(segment)}" name="openSegments" value={ segment } bind={segment} on:click={showCliqueInSegments(segment) } >
   {segment}</a></small>
+  </p>
   {/each}
 
 </div>
@@ -673,10 +669,12 @@ makeScene= ()->
   None
   </a>
   {#each cliqueTriangles as triName }
+  <p>
   <small>
-  <a class="button"  name="clique" style="color:{hexColorFromID(triName)}" value={triName}  on:click={showSomeCliqueTriangles(triName) } >
-  {triName}
+  <a class="button"  name="clique" style="color:{hexColorFromID(triName[1])}" value={triName}  on:click={showSomeCliqueTriangles(triName[0]) } >
+  {triName[1]}
   </a></small>
+  </p>
   
   {/each}
   </fieldset>
@@ -722,6 +720,7 @@ Select {--font-size:small; float:right;}
   flex-wrap: wrap; 
   justify-content: center;
   }
+p { margin-bottom: 2px;}
 .hidden {
 position: absolute;
 left: -999px;
