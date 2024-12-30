@@ -315,28 +315,29 @@ export class Geo
       t1=@createTriangle p1,p2,p3,p3
       @Faces[t1.value.ID]=p3
 
-    makeT points[0][0],points[0][1],ptID
-    makeT points[1][0],points[1][1],pbID
     makeT points[0][0],ptID,pbID
     makeT points[0][1],ptID,pbID
     makeT points[1][0],ptID,pbID
     makeT points[1][1],ptID,pbID
-    makeT points[0][0],points[1][0],pbID
+    makeT points[0][0],points[0][1],ptID
+    makeT points[1][0],points[1][1],pbID
     makeT points[0][0],points[1][0],ptID
     makeT points[0][1],points[1][1],pbID
     makeT points[0][1],points[1][1],ptID
+    makeT points[0][0],points[1][0],pbID
 
-
-    makeT points[0][0],points[1][0],plID
-    makeT points[0][1],points[1][1],prID
     makeT points[0][0],plID,prID
     makeT points[0][1],plID,prID
     makeT points[1][0],plID,prID
     makeT points[1][1],plID,prID
+
     makeT points[0][0],points[1][0],plID
-    makeT points[0][0],points[1][0],prID
-    makeT points[0][1],points[1][1],plID
     makeT points[0][1],points[1][1],prID
+    makeT points[1][0],points[1][1],prID
+    makeT points[0][0],points[0][1],plID
+    makeT points[1][0],points[1][1],plID
+    makeT points[0][0],points[0][1],prID
+
 
 
   examineFaces:()->
