@@ -238,6 +238,8 @@ displayTriangle = (sID,tID)->
   cliquePoint = G.cliques[nickName][tID][1]
   tMidPoint = M.MM[offsetSegment].value.midPoint
   # translate cantidate triangle to the active segment
+  if pageState.showFaces
+    p.add wireframe ps,"#00f000", makeColorFromID triangle.face,50
   ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
   p.add wireframe ps,"#00f000", makeColorFromID triangle.face,220
   p.scale defaultSize
