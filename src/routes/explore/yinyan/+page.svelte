@@ -59,7 +59,7 @@ pageState=
   angleMagnitude: ""  #a string value of format 999.999 0-360
   magnitude: false
   useShapes: useShapes 
-  showFaces: false
+  showFaces: true
   cliquesToShow: {}
   openSegments:[]
   activeClique: null
@@ -180,7 +180,7 @@ hexColorFromID = (id)->
 makeColorFromFace = (fID,transparency=10)->
     makeColorFromID fID,transparency
 
-makeColorFromID = (id,transparency=10)->
+makeColorFromID = (id,transparency=60)->
     hueman= hexColorFromID id
     faceColor = seen.Colors.hex hueman
     faceColor.a = transparency
@@ -288,7 +288,6 @@ showPoints = (points)->
   p = new seen.Model()
   for point in points
     glyf=seen.Shapes.tetrahedron 1
-    debugger
     glyf.fill glyf.filler
     if point.ID
       glyf.fill makeColorFromID point.ID,220
@@ -419,8 +418,7 @@ onMount ->
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize true
-    updateShapesWanted("Dodecahedron1")
-    updateShapesWanted("Dodecahedron2")
+    updateShapesWanted("Pentatwist")
   
 setSvgSize=(big=true)->
   if big
@@ -635,7 +633,7 @@ makeScene= ()->
 
 
 <div class="mini grid container" >
-<div class="container" on:load={ updateShapesWanted("Dodecahedron1") }>
+<div class="container" on:load={ updateShapesWanted("Icosahedron1") }>
   <a class="button" on:click={()=>makeScene(pageState,pageState.showFaces=!pageState.showFaces)} href="#">
     {#if (pageState.showFaces) } Hide {:else} Show {/if} faces</a>
   - -

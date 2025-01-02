@@ -3,8 +3,19 @@ import _ from 'underscore'
 import * as seenModule from '$lib/seen.m.coffee'
 
 export M = new Memo()
+
 fe= (Math.sqrt(5)-1)/2.0
 Phi= (1+Math.sqrt 5)/2
+
+c1=(Math.sqrt(5)-1)/4.0
+menie= (Math.sqrt(5)-1)/4.0
+c2=(Math.sqrt(5)+1)/4.0
+enie= (Math.sqrt(5)+1)/4.0
+
+stan=(Math.sqrt(10.0+2.0*Math.sqrt(5)))/4.0
+laurel=(Math.sqrt(10.0-2.0*Math.sqrt(5)))/4.0
+
+
 
 #  "Z": 0
 decode = 
@@ -13,6 +24,14 @@ decode =
   "o": -1
   "f": -1/Phi
   "F": 1/Phi
+  "E": enie
+  "M": menie
+  "e": -enie
+  "m": -menie
+  "S": stan
+  "s": -stan
+  "L": laurel
+  "l": -laurel
   "G": Phi+1/Phi
   "g": -Phi-1/Phi
   "H": 1-1/Phi
@@ -77,6 +96,7 @@ export class Geo
   dodecahedron1="#ooo-#ooO-#oOo-#oOO-#Ooo-#OoO-#OOo-#OOO-#zfp-#zFp-#zfP-#zFP-#pzf-#Pzf-#pzF-#PzF-#fpz-#Fpz-#fPz-#FPz"
   dodecahedron2="#ooo-#oOo-#ooO-#oOO-#Ooo-#OOo-#OoO-#OOO-#zpf-#zpF-#zPf-#zPF-#fzp-#fzP-#Fzp-#FzP-#pfz-#pFz-#Pfz-#PFz"
 
+  pentatwist =  "#Ozz-#MSz-#eLz-#elz-#Msz-#ozz-#msz-#Elz-#ELz-#mSz"
   tetrahedron1Faces = {
     "#ooo-#zzz-#oOO": face: "0"
     "#ooo-#zzz-#OOo": face: "1"
@@ -243,6 +263,7 @@ export class Geo
     angleDeg = angleDeg.toFixed 3
     
   createTriangle: ( p1,p2,p3,face)->
+    debugger
     key = [p1,p2,p3].sort()
     p1=key[0]
     p2=key[1]
@@ -393,11 +414,95 @@ export class Geo
       Tetrahedron2: @formPointsFrom tetrahedron2, "tetrahedron"
       Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
       Dodecahedron2: @formPointsFrom dodecahedron2, "dodecahedron"
-
-    @Faces={}
+      Pentatwist: @formPointsFrom pentatwist,"PentaTwist"
+    @Faces = {}
     @examineFaces()
+    debugger
+    @Faces2=
+      "#fff-#zzz-#fFF": "#fzF"
+      "#fff-#zzz-#FFf": "#fzf"
+      "#fff-#zzz-#FfF": "#fFz"
+      "#FfF-#zzz-#FFf": "#FzF"
+      "#FfF-#zzz-#fFF": "#Fzf"
+      "#FFf-#zzz-#fFF": "#fFz"
+
+      "#FFF-#zzz-#Fff": "#zfF"
+      "#FFF-#zzz-#ffF": "#zff"
+      "#FFF-#zzz-#fFf": "#Ffz"
+      "#fFf-#zzz-#ffF": "#zFF"
+      "#fFf-#zzz-#Fff": "#zFf"
+      "#ffF-#zzz-#Fff": "#Ffz"
+
+
+    @Faces2= [
+     #dodecahedron
+     "#ooO-#zfP-#OoO-#Fpz-#fpz",  # Face A
+     "#oOo-#zFp-#OOo-#FPz-#fPz",   # Face a
+     "#ooo-#fpz-#ooO-#pzF-#pzf",   #Face B
+     "#OOo-#FPz-#OOO-#PzF-#Pzf",   #Face b
+     "#ooo-#zfp-#Ooo-#Fpz-#fpz",    #Face C
+     "#oOO-#zFP-#OOO-#FPz-#fPz",   #Face c
+     "#Ooo-#Fpz-#OoO-#PzF-#Pzf",  # Face D
+     "#oOo-#fPz-#oOO-#pzF-#pzf"   # Face d
+     "#ooo-#pzf-#oOo-#zFp-#zfp",   #Face E
+     "#OoO-#PzF-#OOO-#zFP-#zfP",   #Face e
+     "#ooO-#pzF-#oOO-#zFP-#zfP",    #Face F
+     "#Ooo-#Pzf-#OOo-#zFp-#zfp",  #Face f
+     #icosahedron
+     "#zOF-#FzO-#OFz",
+     "#zOF-#FzO-#fzO",
+     "#zoF-#FzO-#fzO",
+     "#zoF-#FzO-#Ofz",
+     "#FzO-#Ofz-#OFz",
+
+     "#zOF-#fzO-#oFz",
+     "#oFz-#zOF-#zOf",
+     "#oFz-#zOf-#fzo",
+     "#oFz-#ofz-#fzO",
+     "#oFz-#ofz-#fzo"
+     "#ofz-#fzO-#zoF"
+     "#zOF-#zOf-#OFz",
+     "#Fzo-#OFz-#Ofz"
+     "#Fzo-#OFz-#zOf"
+     "#zOf-#Fzo-#fzo"
+     "#zof-#zoF-#ofz"
+     "#zof-#ofz-#fzo"
+     "#zof-#fzo-#Fzo"
+     "#zof-#Fzo-#Ofz"
+     "#zof-#Ofz-#zoF"
+    ]
+    ###
+
+      c1=(Math.sqrt(5)-1)/4.0
+      menie= (Math.sqrt(5)-1)/4.0
+      c2=(Math.sqrt(5)+1)/4.0
+      enie= (Math.sqrt(5)+1)/4.0
+
+      s1=(Math.sqrt(10.0+2.0*Math.sqrt(5)) )/4.0
+      s2=(Math.sqrt(10.0-2.0*Math.sqrt(5)) )/4.0
+  "E": enie (c2)
+  "M": menie (c1)
+  "e": -enie (-c2)
+  "m": -menie (-c1)
+  "S": s1
+  "L": s2
+  "s": -s1
+  "l": -s2
+      stan=s1
+      laurel=s2
+
+    ###
+    @Faces3=[
+     "#Ozz-#MSz-#eLz-#elz-#Msz"  # Face A
+     "#ozz-#msz-#Elz-#ELz-#mSz"  # Face B
+     #"#zOz-#SMz-#Lez-#lez-#sMz"  # Face A
+    ]
+    @Faces={}
+    for i in @Faces3
+      @Faces[i]=i
+
     # create the fiboTriangles on each of the 12 faces
     @fiboTriangles= @createFiboTriangles @Faces
+    debugger
     {@cliques,@cliqueNames} = createCliques @
 
-     
