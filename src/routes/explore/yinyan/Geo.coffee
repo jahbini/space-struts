@@ -1,6 +1,7 @@
 import { Memo } from './memo.coffee'
 import _ from 'underscore'
 import * as seenModule from '$lib/seen.m.coffee'
+import {reflectPointAcrossPlane,rotatePointAroundLine} from './rotate.js'
 
 export M = new Memo()
 
@@ -39,6 +40,12 @@ decode =
   "p": -Phi
   "P": Phi
 
+#"#ooO-#zfP-#OoO-#Fpz-#fpz",  # Face A
+planeVertices = [
+    [decode['z'], decode['f'],decode['P']],
+    [decode['F'], decode['p'],decode['z']],
+    [decode['f'], decode['p'],decode['z']],
+  ]; #// Plane defined by a face of the dodecahedron
 ###
   Memo API
   saveThis: (key, value)->
@@ -96,7 +103,7 @@ export class Geo
   dodecahedron1="#ooo-#ooO-#oOo-#oOO-#Ooo-#OoO-#OOo-#OOO-#zfp-#zFp-#zfP-#zFP-#pzf-#Pzf-#pzF-#PzF-#fpz-#Fpz-#fPz-#FPz"
   dodecahedron2="#ooo-#oOo-#ooO-#oOO-#Ooo-#OOo-#OoO-#OOO-#zpf-#zpF-#zPf-#zPF-#fzp-#fzP-#Fzp-#FzP-#pfz-#pFz-#Pfz-#PFz"
 
-  pentatwist =  "#Ozz-#MSz-#eLz-#elz-#Msz-#ozz-#msz-#Elz-#ELz-#mSz"
+  pentatwist =  "#zOz-#SMz-#Lez-#lez-#sMz-#zoz-#smz-#lEz-#LEz-#mSz-#ooO-#zfP-#OoO-#Fpz-#fpz"  # Face A
   tetrahedron1Faces = {
     "#ooo-#zzz-#oOO": face: "0"
     "#ooo-#zzz-#OOo": face: "1"
@@ -111,11 +118,14 @@ export class Geo
   # side-effect: adds point to pointName map to this returned value
   ###
   createSeenPoint:  (ptxt,shapeName = "")->
-    return null if ! xyz=ptxt.match '#(.)(.)(.)(X[0-9]+)?$'
+    return null if ! xyz=ptxt.match '[@|#](.)(.)(.)(X[0-9]+)?$'
     if null != p=(M.theLowdown ptxt).value
       p.shapeName[shapeName] = shapeName
       return (M.theLowdown ptxt).value
     p = seen.P decode[xyz[1]],decode[xyz[2]],decode[xyz[3]]
+    if ptxt[0] == '@'
+      po= reflectPointAcrossPlane [p.x,p.y,p.z],planeVertices
+      p = seen.P po[0],po[1],po[2]
     p.d = p.magnitude().toFixed 3
     p.shapeName = { "#{shapeName}": shapeName }
     p.ID = ptxt
@@ -127,10 +137,17 @@ export class Geo
   # the originating shape name is used as a tag in the Memo
   ###
   formPointsFrom:(shape,shapeName="") ->
-    shapePoints = for i in shape.split /-|>|</
-      @createSeenPoint i,shapeName
-    (M.saveThis shapeName,shapePoints).value
-    
+    if typeof shape == "string"
+      shape = [ shape ]
+    else
+      debugger
+    p = []
+    for j in shape
+      for i in j.split /-|>|</
+        p.push @createSeenPoint i,shapeName
+    (M.saveThis shapeName,p).value
+    p
+
   getPointAt:(m)->
     return M.MM[m].value if M.MM[m]?
     null
@@ -263,7 +280,6 @@ export class Geo
     angleDeg = angleDeg.toFixed 3
     
   createTriangle: ( p1,p2,p3,face)->
-    debugger
     key = [p1,p2,p3].sort()
     p1=key[0]
     p2=key[1]
@@ -309,6 +325,7 @@ export class Geo
 
   makeHut: (points,value,coordinateID,inner)-> #left top, right top, left bottom,right bottom
     mapp=[0,1,2,0,1]
+    shiftInnerToOuter = true
     ex=mapp[coordinateID+1]
     wy=mapp[coordinateID+2]
     pt=[]
@@ -317,12 +334,18 @@ export class Geo
     pt[wy]='z'
     ptID= '#'+pt.join ''
     pl=[]
-    pl[coordinateID]=inner[1]
+    if shiftInnerToOuter
+      pl[coordinateID]=inner[0]  #JAH
+    else
+      pl[coordinateID]=inner[1]
     pl[ex]='z'
     pl[wy]='F'
     plID= '#'+pl.join ''
     pr=[]
-    pr[coordinateID]=inner[1]
+    if shiftInnerToOuter
+      pr[coordinateID]=inner[0]  #JAH
+    else
+      pr[coordinateID]=inner[1]
     pr[ex]='z'
     pr[wy]='f'
     prID= '#'+pr.join ''
@@ -351,7 +374,6 @@ export class Geo
     makeT points[0][1],plID,prID
     makeT points[1][0],plID,prID
     makeT points[1][1],plID,prID
-
     makeT points[0][0],points[1][0],plID
     makeT points[0][1],points[1][1],prID
     makeT points[1][0],points[1][1],prID
@@ -405,19 +427,7 @@ export class Geo
     all.flat()
 
   constructor:()->
-    @Polyhedra = 
-      Tetrahedron1: @formPointsFrom tetrahedron1, "tetrahedron"
-      Octahedron: @formPointsFrom octahedron,"octahedron"
-      Cube: @formPointsFrom cube,"cube"
-      Icosahedron1: @formPointsFrom icosahedron1, "icosahedron"
-      Dodecahedron1: @formPointsFrom dodecahedron1, "dodecahedron"
-      Tetrahedron2: @formPointsFrom tetrahedron2, "tetrahedron"
-      Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
-      Dodecahedron2: @formPointsFrom dodecahedron2, "dodecahedron"
-      Pentatwist: @formPointsFrom pentatwist,"PentaTwist"
     @Faces = {}
-    @examineFaces()
-    debugger
     @Faces2=
       "#fff-#zzz-#fFF": "#fzF"
       "#fff-#zzz-#FFf": "#fzf"
@@ -493,16 +503,52 @@ export class Geo
 
     ###
     @Faces3=[
-     "#Ozz-#MSz-#eLz-#elz-#Msz"  # Face A
-     "#ozz-#msz-#Elz-#ELz-#mSz"  # Face B
-     #"#zOz-#SMz-#Lez-#lez-#sMz"  # Face A
+
+     "#ooO-#zfP-#OoO-#Fpz-#fpz",  # Face A
+     "#oOo-#zFp-#OOo-#FPz-#fPz",   # Face a
+     "#ooo-#fpz-#ooO-#pzF-#pzf",   #Face B
+     "#OOo-#FPz-#OOO-#PzF-#Pzf",   #Face b
+     "#ooo-#zfp-#Ooo-#Fpz-#fpz",    #Face C
+     "#oOO-#zFP-#OOO-#FPz-#fPz",   #Face c
+     "#Ooo-#Fpz-#OoO-#PzF-#Pzf",  # Face D
+     "#oOo-#fPz-#oOO-#pzF-#pzf"   # Face d
+     "#ooo-#pzf-#oOo-#zFp-#zfp",   #Face E
+     "#OoO-#PzF-#OOO-#zFP-#zfP",   #Face e
+     "#ooO-#pzF-#oOO-#zFP-#zfP",    #Face F
+     "#Ooo-#Pzf-#OOo-#zFp-#zfp",  #Face f
+
+     "@ooO-@zfP-@OoO-@Fpz-@fpz",  # Face A
+     "@oOo-@zFp-@OOo-@FPz-@fPz",   # Face a
+     "@ooo-@fpz-@ooO-@pzF-@pzf",   #Face B
+     "@OOo-@FPz-@OOO-@PzF-@Pzf",   #Face b
+     "@ooo-@zfp-@Ooo-@Fpz-@fpz",    #Face C
+     "@oOO-@zFP-@OOO-@FPz-@fPz",   #Face c
+     "@Ooo-@Fpz-@OoO-@PzF-@Pzf",  # Face D
+     "@oOo-@fPz-@oOO-@pzF-@pzf"   # Face d
+     "@ooo-@pzf-@oOo-@zFp-@zfp",   #Face E
+     "@OoO-@PzF-@OOO-@zFP-@zfP",   #Face e
+     "@ooO-@pzF-@oOO-@zFP-@zfP",    #Face F
+     "@Ooo-@Pzf-@OOo-@zFp-@zfp",  #Face f
     ]
-    @Faces={}
+    #@Faces={}
     for i in @Faces3
       @Faces[i]=i
 
+    @Polyhedra = 
+      Tetrahedron1: @formPointsFrom tetrahedron1, "tetrahedron"
+      Octahedron: @formPointsFrom octahedron,"octahedron"
+      Cube: @formPointsFrom cube,"cube"
+      Icosahedron1: @formPointsFrom icosahedron1, "icosahedron"
+      Dodecahedron1: @formPointsFrom dodecahedron1, "dodecahedron"
+      Tetrahedron2: @formPointsFrom tetrahedron2, "tetrahedron"
+      Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
+      Dodecahedron2: @formPointsFrom dodecahedron2, "dodecahedron"
+      Pentatwist: @formPointsFrom @Faces3,"PentaTwist"
+
+    #@examineFaces()
     # create the fiboTriangles on each of the 12 faces
-    @fiboTriangles= @createFiboTriangles @Faces
     debugger
+    @fiboTriangles= @createFiboTriangles @Faces
     {@cliques,@cliqueNames} = createCliques @
+    console.log @cliques["#zoz-#smz"]
 

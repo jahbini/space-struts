@@ -160,11 +160,15 @@ showSegments = (segments,color="#000000")->
 
 hexColorFromID = (id)->
     col= id.match(/[f|F|p|P|z|H|h|O|o]{3}/)
-    console.log "HEX Color",col,id
+    #console.log "HEX Color",col,id
     return "#000000" unless col
     hueman = '#'
     for hueStrength in col[0]
       switch hueStrength
+        when 'S' then hueman += 'C0'
+        when 's' then hueman += '20'
+        when 'M' then hueman += 'E0'
+        when 'm' then hueman += '10'
         when 'H' then hueman += 'B0'
         when 'h' then hueman += '20'
         when 'z' then hueman += '60'
@@ -174,13 +178,13 @@ hexColorFromID = (id)->
         when 'P' then hueman += '40'
         when 'o' then hueman += '30'
         when 'O' then hueman += '70'
-    console.log "Hex color",hueman
+    #console.log "Hex color",hueman
     hueman
 
 makeColorFromFace = (fID,transparency=10)->
     makeColorFromID fID,transparency
 
-makeColorFromID = (id,transparency=60)->
+makeColorFromID = (id,transparency=10)->
     hueman= hexColorFromID id
     faceColor = seen.Colors.hex hueman
     faceColor.a = transparency
@@ -504,7 +508,6 @@ makeAngles= (event)->
   makeScene()
 
 setAngleColor=(event)->
-  console.log event.detail
   rgbObj= event.detail.rgb
   materialfiller= new seen.Material seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
   makeScene()
@@ -592,7 +595,7 @@ makeScene= ()->
   ###
   if pageState.openSegments.length == 0
     pageState.openSegments.push G.moveSegment G.cliqueNames[2],seen.P()
-    #pageState.openSegments.push G.moveSegment "#OoO-#fpz",seen.P()
+    #pageState.openSegments.push G.moveSegment "#zFP-#zfP",seen.P()
     #pageState.openSegments.push G.moveSegment "#oOO-#oOo",seen.P()
   for segment in pageState.openSegments  
     temp = M.MM[segment]
