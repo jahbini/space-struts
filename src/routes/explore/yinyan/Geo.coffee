@@ -55,9 +55,10 @@ planeVertices = [
 ###
  
 #convert a string like "#FPz-#Fpz-..." into an array of point names
-splitName = (longName)->
+splitIntoNames = (longName)->
   value = longName.split /-|<|>/
   return value
+
 cliques= {}
 cliqueNames = []
 cnames = []
@@ -73,18 +74,27 @@ createCliques = (G) ->
   cantidates = G.fiboTriangles.slice 0
   for  masterTriangle in cantidates
     for s,idx in masterTriangle.value.segments
+      usedPointNames = {}
       sV = (M.theLowdown s).value.vetric
       sVmS = sV.magnitudeSquared()
-      cliques[s] = {"#{masterTriangle.value.ID}": s }
+      cliques[s] = {"#{masterTriangle.value.ID}": {} }
+      if masterTriangle.value.ID == "OoO-#zFP"
+        debugger
       for cantidateTriangle in cantidates
         for cc in cantidateTriangle.value.segments
+          possiblePoint = stripName cc,cantidateTriangle.value.ID
+          #if we have already a triangle that reaches this point, skip this one 
+          if possiblePoint of usedPointNames
+            continue
           cV=(M.theLowdown cc).value.vetric
           # cross product detects parallel segments
           zz=sV.copy().cross cV
           cVmS = cV.magnitudeSquared()
           lDiff = Math.abs cVmS-sVmS
           if lDiff < 0.1  and zz.magnitudeSquared() < 0.1
-            cliques[s][cantidateTriangle.value.ID]=[cc,stripName cc,cantidateTriangle.value.ID]
+            cliques[s][cantidateTriangle.value.ID]=[cc,possiblePoint]
+            usedPointNames[possiblePoint] = true
+
   cnames = for s of cliques
     s
   cliqueNames = cnames.slice()
@@ -139,8 +149,8 @@ export class Geo
   formPointsFrom:(shape,shapeName="") ->
     if typeof shape == "string"
       shape = [ shape ]
-    else
-      debugger
+    #else
+      #debugger
     p = []
     for j in shape
       for i in j.split /-|>|</
@@ -416,9 +426,9 @@ export class Geo
   createFiboTriangles: (faces)->
     all=[]
     for sa,face of faces
-      names = splitName sa
+      names = splitIntoNames face
       if names.length == 3
-        all.push [ @createTriangle names[0],names[1],names[2],face ] 
+        all.push [ @createTriangle names[0],names[1],names[2],sa ] 
         continue
       itms = [ ...names,...names]
       for i in [0..names.length+1 ]
@@ -530,9 +540,12 @@ export class Geo
      "@ooO-@pzF-@oOO-@zFP-@zfP",    #Face F
      "@Ooo-@Pzf-@OOo-@zFp-@zfp",  #Face f
     ]
-    #@Faces={}
+    @Faces={}
+    faceName= (i)->
+      i=i.match /(.[oO]{3}).*(.[oO]{3})/
+      i[1]+"-"+i[2]
     for i in @Faces3
-      @Faces[i]=i
+      @Faces[ faceName i ]=i
 
     @Polyhedra = 
       Tetrahedron1: @formPointsFrom tetrahedron1, "tetrahedron"
@@ -543,11 +556,10 @@ export class Geo
       Tetrahedron2: @formPointsFrom tetrahedron2, "tetrahedron"
       Icosahedron2: @formPointsFrom icosahedron2, "icosahedron"
       Dodecahedron2: @formPointsFrom dodecahedron2, "dodecahedron"
-      Pentatwist: @formPointsFrom @Faces3,"PentaTwist"
+      DodecahedralPair: @formPointsFrom @Faces3,"dodecahedralPair"
 
     #@examineFaces()
     # create the fiboTriangles on each of the 12 faces
-    debugger
     @fiboTriangles= @createFiboTriangles @Faces
     {@cliques,@cliqueNames} = createCliques @
     console.log @cliques["#zoz-#smz"]

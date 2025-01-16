@@ -24,6 +24,7 @@ svgSize=600
 defaultSize=48
 context1="undefined"
 dotsToShow=null
+faceColors = {}
 facesToShow=null
 cliquesToShow=null
 labels=null
@@ -41,11 +42,6 @@ cliqueTriangles=[]
 cliqueTriangleToShow=null
 # cliqueTriangles are used to show the coords for all the triangles in the clique
 
-uiSelectedAngle=null
-anglesToShow=null
-anglesActive={}
-anglesByMagnitude=[]
-angleNames=[]
 
 selected={}
 scene1=null
@@ -55,11 +51,11 @@ xform=null
 pageState=
   vertex: false
   labels: false
-  segmentMagnitudes: {}
-  angleMagnitude: ""  #a string value of format 999.999 0-360
+  #segmentMagnitudes: {}
+  #angleMagnitude: ""  #a string value of format 999.999 0-360
   magnitude: false
   useShapes: useShapes 
-  showFaces: true
+  showFacesNow: true
   cliquesToShow: {}
   openSegments:[]
   activeClique: null
@@ -242,16 +238,15 @@ displayTriangle = (sID,tID)->
   cliquePoint = G.cliques[nickName][tID][1]
   tMidPoint = M.MM[offsetSegment].value.midPoint
   # translate cantidate triangle to the active segment
-  if pageState.showFaces
-    p.add wireframe ps,"#00f000", makeColorFromID triangle.face,50
+  if pageState.showFacesNow
+    p.add wireframe ps,"#00f000", makeFaceColor triangle.face,200
   ps = ps.map( (p) -> p.copy().subtract(tMidPoint).add(segment.midPoint) )
-  p.add wireframe ps,"#00f000", makeColorFromID triangle.face,220
+  p.add wireframe ps,"#00f000", makeFaceColor triangle.face,200
   p.scale defaultSize
       
 # G.cliques are global structure with segments associated with all triangles
 # with one edge parallel to the segmentID
 showClique=(sID)->
-  return null unless sID?.match /^#.../
   cliqueTriangles = []
   # the segment sID is parallel to the original nickname segment 
   segment=M.MM[sID].value
@@ -300,11 +295,31 @@ showPoints = (points)->
     p.add glyf
   p
 
+makeFaceColor = (sID,transparency=40)->
+  #faces are distinguished by the ordinals of the face square points
+  # these are strings matching #xxx-#xxx where x == "o" (-1) or "O" (1)
+  debugger
+  sCO = sID.replace /[#@-]/g,""
+  sCO ='0o'+sCO.replaceAll("o","1").replaceAll("O","7")
+  sCO = (17933*Number(sCO)).toString 16
+  sCO = "#"+sCO[0..5]
+  console.log "COLOR of Face",sID,sCO
+  faceColor = seen.Colors.hex sCO
+  faceColor.a = transparency
+  new seen.Material faceColor
+
+colorFaces = (faces,color="#000000")->
+  faceColors = {}
+  for s of faces
+    faceColors[s]= makeFaceColor s
+  faceColors
+
 showFaces = (faces,color="#000000")->
+  debugger
   p=new seen.Model()
   for s of faces
-    items= G.formPointsFrom s
-    p.add wireframe items, color, makeColorFromID items[1].ID
+    items= G.formPointsFrom faces[s]
+    p.add wireframe items, color, faceColors[s]
   p.scale defaultSize
   p
 
@@ -342,7 +357,7 @@ initializeContext= ()->
     #scene2.camera.roty 0.05
   else 
     #scene1.camera.rotx Math.PI/Math.PI
-    scene1.camera.translate 0,-10,0
+    scene1.camera.translate 0,-10,-500
     scene2.camera.translate 0,-10,0
     #scene2.camera.roty 0.55
 
@@ -412,6 +427,7 @@ onMount ->
     return
   else
     G=new Geo()
+    colorFaces G.Faces
     fiboTriangles= G.fiboTriangles
 
     mdl1 = seen.Models.default()
@@ -422,7 +438,7 @@ onMount ->
     materialfiller= new seen.Material seen.C 40,60,80,30
     glyf.filler = new seen.Material seen.C 0x4c,0xc4,0x88,0xff
     setSvgSize true
-    updateShapesWanted("Pentatwist")
+    updateShapesWanted("DodecahedralPair")
   
 setSvgSize=(big=true)->
   if big
@@ -439,41 +455,35 @@ setSvgSize=(big=true)->
 # called from user interaction, and recalculates permissable vertices
 ###
 updateShapesWanted = (shape) ->
+  console.log "Update Shapes",shape
   pageState.useShapes={}
   pointsFromShapes= []
   pageState.segmentMagnitudes = []
   pointsFromShapes=pointsToShow.concat G.Polyhedra[shape]
   
-
+  ###
   {segmentNames,segmentsByMagnitude} = G.createSegments pointsFromShapes
   # remove any segments that don't have a length of the shapes displayed
   for k of pageState.segmentMagnitudes
     pageState.segmentMagnitudes[k] = segmentsByMagnitude[k]?
+  ###
   
   pageState=
     vertex: pageState.vertex
     labels: pageState.labels
-    segmentMagnitudes: pageState.segmentMagnitudes
+    #segmentMagnitudes: pageState.segmentMagnitudes
     magnitude: pageState.magnitude
-    angleMagnitude: ""
+    #angleMagnitude: ""
     useShapes: pageState.useShapes
     showTriangles: false
-    showFaces: pageState.showFaces
+    showFacesNow: pageState.showFacesNow
     openSegments: pageState.openSegments
     activeClique: null
     activeCliqueTriangle: null
     structure: pageState.structure
-
+ 
   makeScene()
   context1.render()
-
-recalculateAngles=true
-howManyAngles = 5
-someAngles=0
-showSomeAngles=(event=null)->
-  return howManyAngles if !event
-  howManyAngles = event.target?.value
-  makeScene()
 
 
 
@@ -499,18 +509,6 @@ clearCliqueInSegments=()->
   pageState.activeCliqueTriangle=null
   makeScene() 
 
-makeAngles= (event)->
-  howManyAngles=1
-  angleText=[]
-  anglesActive={}
-  pageState.angleMagnitude=event.detail?.value 
-  pageState.showTriangles=true
-  makeScene()
-
-setAngleColor=(event)->
-  rgbObj= event.detail.rgb
-  materialfiller= new seen.Material seen.C rgbObj.r,rgbObj.g,rgbObj.b,rgbObj.a*255
-  makeScene()
 
 highlightCliqueSegment=(sID)->
   p = new seen.Model()
@@ -521,48 +519,24 @@ highlightCliqueSegment=(sID)->
   p.scale defaultSize
   p
 
+renderIt = ()->
+  context1.render()
 
 makeScene= ()->
-  
   ###
   # seen is now loaded and can be used.
   # computation for display will proceed.
-  ###
-
-  ###
-  # if we are forming segments or angles, we need to pprune the
-  # pointsFromShapes and form the names and value  lists
-  # for the segments or triangles
   ### 
+
   # remove all children from build up structure, but keep it's transform matrix
   mdl2.children=[]
   mdl1.remove linesToShow if linesToShow
   linesToShow = {}
   # first calculate all the segments from the whole list of points
   #
-  {segmentNames,segmentsByMagnitude} = G.createSegments pointsFromShapes
-  someLines = []
-  segmentsActive={}
-  someLines= for key,value of pageState.segmentMagnitudes
-    continue unless value
-    segmentsActive[key]=true
-    segmentsByMagnitude[key]
-  mapToNames= (t,a)->
-    x=a.ID.split /[-|<|>]/
-    t[x[0]] =true
-    t[x[1]] =true
-    t 
-  someLines=_.flatten someLines
-  if someLines?.length  && !pageState.showTriangles
-    linesToShow = showSegments someLines,"#AAAAAA"
-    #linesToShow.translate 220,180
-    temp1=_.reduce(someLines,mapToNames,{})
-    pointsToShow = _.map(temp1,(k,v)->G.getPointAt v)
-  else
-    pointsToShow = pointsFromShapes
-    
+  pointsToShow = pointsFromShapes
   mdl1.remove facesToShow if facesToShow
-  if pageState.showFaces
+  if pageState.showFacesNow
     facesToShow = showFaces  G.Faces
     mdl1.add facesToShow 
     #mdl1.add showCentroid G.Faces
@@ -601,7 +575,7 @@ makeScene= ()->
     temp = M.MM[segment]
     mdl2.add showSegments [temp.value],"#8F50FF"
   for t in pageState.structure
-    mdl2.add (wireframe t.path,"#000000",makeColorFromID t.face,200).scale defaultSize
+    mdl2.add (wireframe t.path,"#000000",makeFaceColor t.face,200).scale defaultSize
   #
   #mdl2.add movedTriangle
 
@@ -636,9 +610,9 @@ makeScene= ()->
 
 
 <div class="mini grid container" >
-<div class="container" on:load={ updateShapesWanted("Icosahedron1") }>
-  <a class="button" on:click={()=>makeScene(pageState,pageState.showFaces=!pageState.showFaces)} href="#">
-    {#if (pageState.showFaces) } Hide {:else} Show {/if} faces</a>
+<div class="container" on:load={ updateShapesWanted("DodecahedralPair") }>
+  <a class="button" on:click={()=>makeScene(pageState,pageState.showFacesNow=!pageState.showFacesNow)} href="#">
+    {#if (pageState.showFacesNow) } Hide {:else} Show {/if} faces</a>
   - -
   <a class="button" on:click={()=>makeScene(pageState,pageState.vertex=!pageState.vertex)} href="#">
     {#if (pageState.vertex) } Hide {:else} Show {/if} points</a>
@@ -682,18 +656,6 @@ makeScene= ()->
   {/each}
   </fieldset>
 
-{#if segmentNames.length > 1} 
-<div>
-  <h5>Angle?</h5>
-    <Select value="none" bind:this={uiSelectedAngle} id="Angles" type="checkbox" inputStyles="box-sizing:border-box;" items={segmentNames} role="switch" on:input={makeAngles}></Select>
-</div>
-<div>
-<ColorPicker hex="#20406080"  on:input={setAngleColor} />
-  <label for="range">How Many Triangles?
-    <input type="range" on:input={showSomeAngles} min="0" value=1 max="{someAngles.length}"  id="range" name="range">
-  </label>
-</div>
-{/if}
 </div>
 </div>
 
