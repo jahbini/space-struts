@@ -1,5 +1,3 @@
-version: "3.6"
-
 networks:
   iotstack_nw: # Exposed by your host.
     # external: true
@@ -43,17 +41,33 @@ networks:
   #   driver: hosts
 
 services:
+
+
+  celarien:
+    container_name: celarien
+    image: bamboojim/celarien:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - VIRTUAL_PORT=3000
+      - VIRTUAL_HOST=celarien.com
+      - LETSENCRYPT_HOST=celarien.com
+    volumes:
+      - ./volumes/space-struts:/app/build/client/images
+    networks:
+      - iotstack_nw_internal
+
   space-struts:
     container_name: space-struts
-    #image: daptin/dadadash
     image: bamboojim/space-struts:latest
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - VIRTUAL_PORT=3000
-      - VIRTUAL_HOST=daptin.bamboojim.com
-      - LETSENCRYPT_HOST=daptin.bamboojim.com
+      - VIRTUAL_HOST=spacestruts.com
+      - LETSENCRYPT_HOST=spacestruts.com
     volumes:
       - ./volumes/space-struts:/app/build/client/images
     networks:
