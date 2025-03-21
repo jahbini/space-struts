@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Six-Base Coordinate Visualization</title>
+    <script src="file:///Users/jahbini/development/space-struts/src/routes/explore/playground/seen.js"></script>
+    <style>
+        body { text-align: center; }
+        canvas { border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <h2>Six-Base Coordinate System Visualization</h2>
+    <div id="seen-canvas" style="width: 800px; height: 800px; margin: auto;"></div>
+
+    <script>
+        const phi = (1 + Math.sqrt(5)) / 2;
+        
+        const sixBases = [
+            [phi, 0, 1],
+            [phi, 0, -1],
+            [0, 1, phi],
+            [0, -1, phi],
+            [1, phi, 0],
+            [-1, phi, 0]
+        ];
+        
+        function sixBaseToCartesian(coords) {
+            let x = 0, y = 0, z = 0;
+            for (let i = 0; i < 6; i++) {
+                x += coords[i] * sixBases[i][0];
+                y += coords[i] * sixBases[i][1];
+                z += coords[i] * sixBases[i][2];
+            }
+            return new seen.Point(x, y, z);
+        }
+        
+        function generateEdges(maxJumps) {
+            let visited = new Set();
+            let queue = [[0, 0, 0, 0, 0, 0]];
+            visited.add(JSON.stringify(queue[0]));
+            let edges = [];
+            
+            for (let step = 0; step < maxJumps; step++) {
+                let newQueue = [];
+                for (let vertex of queue) {
+                    for (let i = 0; i < 6; i++) {
+                        let newVertex = [...vertex];
+                        newVertex[i] += 1;
+                        let vStr = JSON.stringify(newVertex);
+                        
+                        if (!visited.has(vStr)) {
+                            visited.add(vStr);
+                            newQueue.push(newVertex);
+                        }
+                        edges.push([sixBaseToCartesian(vertex), sixBaseToCartesian(newVertex)]);
+                    }
+                }
+                queue = newQueue;
+            }
+        
+            return edges;
+        }
+        
+        const edges = generateEdges(3);
+        
+        const scene = new seen.Scene({ model: new seen.Model(), viewport: seen.Viewports.center(800, 800) });
+        const group = scene.model.append();
+        
+        edges.forEach(edge => {
+            group.append().add(seen.Shapes.pipe(edge[0], edge[1]));
+        });
+        
+        //group.append().add(seen.Shapes.sphere(0.1)).translate(0, 0, 0).fill('#FF0000'); // Origin in red
+        
+        const context = seen.Context('seen-canvas', scene).render();
+        const animator = new seen.Animator().start();
+        
+        const dragger = new seen.Drag(scene, { inertia: true });
+        dragger.on('drag', () => context.render());
+    </script>
+</body>
+</html>
+
