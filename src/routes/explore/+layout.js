@@ -1,4 +1,4 @@
 /** {import('./$types').LayoutData}  */
 export function load() {
-  return { navPages: import.meta.glob("./*/+page.svelte"), navRoute: "explore" };
+  return { navPages: import.meta.glob("./*/+page.sv*"), navRoute: "explore" };
 }
