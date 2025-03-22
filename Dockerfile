@@ -14,6 +14,7 @@ COPY --from=builder /app/build build/
 COPY --from=builder /app/node_modules node_modules/
 COPY package.json .
 VOLUME /app/build/client/images/
+VOLUME /data
 RUN chown node  -R .
 EXPOSE 3000
 ENV NODE_ENV=production
