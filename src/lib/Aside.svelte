@@ -1,12 +1,9 @@
 <script>
-  export const identifier = "aside";
 </script>
 
-<template lang="pug">
-d.aside
-  button
-    a(href="mailto:gimobeamo@spacestruts.com?subject=I want to know more&") Contact Us
-</template>
+<div class="aside" >
+  <a role="button" href="mailto:gimobeamo@spacestruts.com?subject=I want to know more&">Contact Us</a>
+</div>
 
 <style>
   a {

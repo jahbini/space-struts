@@ -3,13 +3,13 @@
   export let image;
 </script>
 
-<container class="horizontal">
+<div class="container horizontal">
   <div class="photo">
     {heading}
     <img src={image} alt="slme" />
   </div>
-  <container><slot /></container>
-</container>
+  <div class="container"><slot /></div>
+</div>
 
 <style>
   img {
@@ -24,7 +24,7 @@
     min-width: 175px;
     max-width: 175px;
   }
-  container container {
+  .container .container {
     padding: 1em;
   }
 </style>

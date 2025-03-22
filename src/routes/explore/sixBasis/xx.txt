@@ -1,0 +1,362 @@
+---- Tube Hull Built from Discrete Building Blocks:
+Triangle 1 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.5804
+  Vertex 1: [0, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.340, 0.000)
+  Vertex 2: [1, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.551, 0.340)
+  Vertex 3: [1, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.210, 0.551)
+Triangle 2 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.4206
+  Vertex 1: [0, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.340, 0.000)
+  Vertex 2: [1, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.210, 0.551)
+  Vertex 3: [0, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.000, 0.210)
+Triangle 3 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.5804
+  Vertex 1: [0, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.000, 0.210)
+  Vertex 2: [1, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.210, 0.551)
+  Vertex 3: [1, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.130, 0.340)
+Triangle 4 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.6805
+  Vertex 1: [0, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.000, 0.210)
+  Vertex 2: [1, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.130, 0.340)
+  Vertex 3: [0, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.340, 0.000)
+Triangle 5 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.5804
+  Vertex 1: [0, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.340, 0.000)
+  Vertex 2: [1, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.130, 0.340)
+  Vertex 3: [1, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.210, 0.130)
+Triangle 6 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.4206
+  Vertex 1: [0, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.340, 0.000)
+  Vertex 2: [1, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.210, 0.130)
+  Vertex 3: [0, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.000, -0.210)
+Triangle 7 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.9536
+  Vertex 1: [0, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.000, -0.210)
+  Vertex 2: [1, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.210, 0.130)
+  Vertex 3: [1, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.551, 0.340)
+Triangle 8 [Type: ?]
+  Edge lengths: 0.9536, 0.4000, 0.6805
+  Vertex 1: [0, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.000, -0.210)
+  Vertex 2: [1, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.551, 0.340)
+  Vertex 3: [0, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.340, 0.000)
+Triangle 9 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.5804
+  Vertex 1: [1, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.551, 0.340)
+  Vertex 2: [2, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 0.681)
+  Vertex 3: [2, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 0.891)
+Triangle 10 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.4206
+  Vertex 1: [1, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.551, 0.340)
+  Vertex 2: [2, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 0.891)
+  Vertex 3: [1, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.210, 0.551)
+Triangle 11 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.5804
+  Vertex 1: [1, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.210, 0.551)
+  Vertex 2: [2, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 0.891)
+  Vertex 3: [2, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 0.681)
+Triangle 12 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.6805
+  Vertex 1: [1, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.210, 0.551)
+  Vertex 2: [2, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 0.681)
+  Vertex 3: [1, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.130, 0.340)
+Triangle 13 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.5804
+  Vertex 1: [1, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.130, 0.340)
+  Vertex 2: [2, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 0.681)
+  Vertex 3: [2, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 0.470)
+Triangle 14 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.4206
+  Vertex 1: [1, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, -0.130, 0.340)
+  Vertex 2: [2, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 0.470)
+  Vertex 3: [1, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.210, 0.130)
+Triangle 15 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.9536
+  Vertex 1: [1, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.210, 0.130)
+  Vertex 2: [2, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 0.470)
+  Vertex 3: [2, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 0.681)
+Triangle 16 [Type: ?]
+  Edge lengths: 0.9536, 0.4000, 0.6805
+  Vertex 1: [1, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.210, 0.130)
+  Vertex 2: [2, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 0.681)
+  Vertex 3: [1, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.551, 0.340)
+Triangle 17 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.5804
+  Vertex 1: [2, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 0.681)
+  Vertex 2: [3, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.971, 1.021)
+  Vertex 3: [3, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.631, 1.231)
+Triangle 18 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.4206
+  Vertex 1: [2, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 0.681)
+  Vertex 2: [3, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.631, 1.231)
+  Vertex 3: [2, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 0.891)
+Triangle 19 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.5804
+  Vertex 1: [2, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 0.891)
+  Vertex 2: [3, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.631, 1.231)
+  Vertex 3: [3, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.291, 1.021)
+Triangle 20 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.6805
+  Vertex 1: [2, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 0.891)
+  Vertex 2: [3, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.291, 1.021)
+  Vertex 3: [2, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 0.681)
+Triangle 21 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.5804
+  Vertex 1: [2, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 0.681)
+  Vertex 2: [3, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.291, 1.021)
+  Vertex 3: [3, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.631, 0.810)
+Triangle 22 [Type: ?]
+  Edge lengths: 0.5804, 0.4000, 0.4206
+  Vertex 1: [2, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 0.681)
+  Vertex 2: [3, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.631, 0.810)
+  Vertex 3: [2, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 0.470)
+Triangle 23 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.9536
+  Vertex 1: [2, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 0.470)
+  Vertex 2: [3, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.631, 0.810)
+  Vertex 3: [3, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.971, 1.021)
+Triangle 24 [Type: ?]
+  Edge lengths: 0.9536, 0.4000, 0.6805
+  Vertex 1: [2, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 0.470)
+  Vertex 2: [3, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.971, 1.021)
+  Vertex 3: [2, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 0.681)
+Triangle 25 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.7894
+  Vertex 1: [3, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.971, 1.021)
+  Vertex 2: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+  Vertex 3: [3, 1, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 1.571)
+Triangle 26 [Type: ?]
+  Edge lengths: 0.7894, 0.4000, 0.4206
+  Vertex 1: [3, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.971, 1.021)
+  Vertex 2: [3, 1, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 1.571)
+  Vertex 3: [3, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.631, 1.231)
+Triangle 27 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.7894
+  Vertex 1: [3, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.631, 1.231)
+  Vertex 2: [3, 1, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 1.571)
+  Vertex 3: [3, 1, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 1.361)
+Triangle 28 [Type: ?]
+  Edge lengths: 0.7894, 0.4000, 0.6805
+  Vertex 1: [3, 0, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.631, 1.231)
+  Vertex 2: [3, 1, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 1.361)
+  Vertex 3: [3, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.291, 1.021)
+Triangle 29 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.2251
+  Vertex 1: [3, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.291, 1.021)
+  Vertex 2: [3, 1, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 1.361)
+  Vertex 3: [3, 1, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 1.151)
+Triangle 30 [Type: ?]
+  Edge lengths: 0.2251, 0.4000, 0.4206
+  Vertex 1: [3, 0, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.291, 1.021)
+  Vertex 2: [3, 1, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 1.151)
+  Vertex 3: [3, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.631, 0.810)
+Triangle 31 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.7894
+  Vertex 1: [3, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.631, 0.810)
+  Vertex 2: [3, 1, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 1.151)
+  Vertex 3: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+Triangle 32 [Type: ?]
+  Edge lengths: 0.7894, 0.4000, 0.6805
+  Vertex 1: [3, 0, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.631, 0.810)
+  Vertex 2: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+  Vertex 3: [3, 0, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.971, 1.021)
+Triangle 33 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.4000
+  Vertex 1: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+  Vertex 2: [3, 1, 2, 0, 0, 0]  --> Cartesian: (0.421, 1.101, 1.361)
+  Vertex 3: [3, 1, 1, 0, 1, 0]  --> Cartesian: (0.551, 0.761, 1.571)
+Triangle 34 [Type: ?]
+  Edge lengths: 0.4000, 0.4000, 0.4206
+  Vertex 1: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+  Vertex 2: [3, 1, 1, 0, 1, 0]  --> Cartesian: (0.551, 0.761, 1.571)
+  Vertex 3: [3, 1, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 1.571)
+Triangle 35 [Type: G]
+  Edge lengths: 0.4000, 0.6805, 0.4000
+  Vertex 1: [3, 1, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 1.571)
+  Vertex 2: [3, 1, 1, 0, 1, 0]  --> Cartesian: (0.551, 0.761, 1.571)
+  Vertex 3: [3, 1, 0, 0, 0, 0]  --> Cartesian: (0.000, 0.421, 1.361)
+Triangle 36 [Type: G]
+  Edge lengths: 0.4000, 0.4000, 0.6805
+  Vertex 1: [3, 1, 0, 0, 1, 0]  --> Cartesian: (0.340, 0.421, 1.571)
+  Vertex 2: [3, 1, 0, 0, 0, 0]  --> Cartesian: (0.000, 0.421, 1.361)
+  Vertex 3: [3, 1, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 1.361)
+Triangle 37 [Type: T]
+  Edge lengths: 0.4000, 0.4206, 0.7168
+  Vertex 1: [3, 1, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 1.361)
+  Vertex 2: [3, 1, 0, 0, 0, 0]  --> Cartesian: (0.000, 0.421, 1.361)
+  Vertex 3: [3, 1, 1, 0, -1, 0]  --> Cartesian: (-0.130, 0.761, 1.151)
+Triangle 38 [Type: T]
+  Edge lengths: 0.7168, 0.4000, 0.4206
+  Vertex 1: [3, 1, -1, 0, 0, 0]  --> Cartesian: (-0.210, 0.080, 1.361)
+  Vertex 2: [3, 1, 1, 0, -1, 0]  --> Cartesian: (-0.130, 0.761, 1.151)
+  Vertex 3: [3, 1, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 1.151)
+Triangle 39 [Type: T]
+  Edge lengths: 0.4000, 0.6805, 1.0422
+  Vertex 1: [3, 1, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 1.151)
+  Vertex 2: [3, 1, 1, 0, -1, 0]  --> Cartesian: (-0.130, 0.761, 1.151)
+  Vertex 3: [3, 1, 2, 0, 0, 0]  --> Cartesian: (0.421, 1.101, 1.361)
+Triangle 40 [Type: T]
+  Edge lengths: 1.0422, 0.4000, 0.6805
+  Vertex 1: [3, 1, 0, 0, -1, 0]  --> Cartesian: (-0.340, 0.421, 1.151)
+  Vertex 2: [3, 1, 2, 0, 0, 0]  --> Cartesian: (0.421, 1.101, 1.361)
+  Vertex 3: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+Triangle 41 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.4000
+  Vertex 1: [3, 1, 2, 0, 0, 0]  --> Cartesian: (0.421, 1.101, 1.361)
+  Vertex 2: [3, 1, 3, 0, 0, 0]  --> Cartesian: (0.631, 1.441, 1.361)
+  Vertex 3: [3, 1, 2, 0, 1, 0]  --> Cartesian: (0.761, 1.101, 1.571)
+Triangle 42 [Type: ?]
+  Edge lengths: 0.4000, 0.4000, 0.4206
+  Vertex 1: [3, 1, 2, 0, 0, 0]  --> Cartesian: (0.421, 1.101, 1.361)
+  Vertex 2: [3, 1, 2, 0, 1, 0]  --> Cartesian: (0.761, 1.101, 1.571)
+  Vertex 3: [3, 1, 1, 0, 1, 0]  --> Cartesian: (0.551, 0.761, 1.571)
+Triangle 43 [Type: G]
+  Edge lengths: 0.4000, 0.6805, 0.4000
+  Vertex 1: [3, 1, 1, 0, 1, 0]  --> Cartesian: (0.551, 0.761, 1.571)
+  Vertex 2: [3, 1, 2, 0, 1, 0]  --> Cartesian: (0.761, 1.101, 1.571)
+  Vertex 3: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+Triangle 44 [Type: G]
+  Edge lengths: 0.4000, 0.4000, 0.6805
+  Vertex 1: [3, 1, 1, 0, 1, 0]  --> Cartesian: (0.551, 0.761, 1.571)
+  Vertex 2: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+  Vertex 3: [3, 1, 0, 0, 0, 0]  --> Cartesian: (0.000, 0.421, 1.361)
+Triangle 45 [Type: T]
+  Edge lengths: 0.4000, 0.4206, 0.7168
+  Vertex 1: [3, 1, 0, 0, 0, 0]  --> Cartesian: (0.000, 0.421, 1.361)
+  Vertex 2: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+  Vertex 3: [3, 1, 2, 0, -1, 0]  --> Cartesian: (0.080, 1.101, 1.151)
+Triangle 46 [Type: T]
+  Edge lengths: 0.7168, 0.4000, 0.4206
+  Vertex 1: [3, 1, 0, 0, 0, 0]  --> Cartesian: (0.000, 0.421, 1.361)
+  Vertex 2: [3, 1, 2, 0, -1, 0]  --> Cartesian: (0.080, 1.101, 1.151)
+  Vertex 3: [3, 1, 1, 0, -1, 0]  --> Cartesian: (-0.130, 0.761, 1.151)
+Triangle 47 [Type: T]
+  Edge lengths: 0.4000, 0.6805, 1.0422
+  Vertex 1: [3, 1, 1, 0, -1, 0]  --> Cartesian: (-0.130, 0.761, 1.151)
+  Vertex 2: [3, 1, 2, 0, -1, 0]  --> Cartesian: (0.080, 1.101, 1.151)
+  Vertex 3: [3, 1, 3, 0, 0, 0]  --> Cartesian: (0.631, 1.441, 1.361)
+Triangle 48 [Type: T]
+  Edge lengths: 1.0422, 0.4000, 0.6805
+  Vertex 1: [3, 1, 1, 0, -1, 0]  --> Cartesian: (-0.130, 0.761, 1.151)
+  Vertex 2: [3, 1, 3, 0, 0, 0]  --> Cartesian: (0.631, 1.441, 1.361)
+  Vertex 3: [3, 1, 2, 0, 0, 0]  --> Cartesian: (0.421, 1.101, 1.361)
+Triangle 49 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.2251
+  Vertex 1: [3, 1, 3, 0, 0, 0]  --> Cartesian: (0.631, 1.441, 1.361)
+  Vertex 2: [3, 1, 3, 1, 0, 0]  --> Cartesian: (0.421, 1.782, 1.361)
+  Vertex 3: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+Triangle 50 [Type: ?]
+  Edge lengths: 0.2251, 0.4000, 0.4206
+  Vertex 1: [3, 1, 3, 0, 0, 0]  --> Cartesian: (0.631, 1.441, 1.361)
+  Vertex 2: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+  Vertex 3: [3, 1, 2, 0, 1, 0]  --> Cartesian: (0.761, 1.101, 1.571)
+Triangle 51 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.7894
+  Vertex 1: [3, 1, 2, 0, 1, 0]  --> Cartesian: (0.761, 1.101, 1.571)
+  Vertex 2: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+  Vertex 3: [3, 1, 1, 1, 0, 0]  --> Cartesian: (0.000, 1.101, 1.361)
+Triangle 52 [Type: ?]
+  Edge lengths: 0.7894, 0.4000, 0.6805
+  Vertex 1: [3, 1, 2, 0, 1, 0]  --> Cartesian: (0.761, 1.101, 1.571)
+  Vertex 2: [3, 1, 1, 1, 0, 0]  --> Cartesian: (0.000, 1.101, 1.361)
+  Vertex 3: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+Triangle 53 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.7894
+  Vertex 1: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+  Vertex 2: [3, 1, 1, 1, 0, 0]  --> Cartesian: (0.000, 1.101, 1.361)
+  Vertex 3: [3, 1, 2, 1, -1, 0]  --> Cartesian: (-0.130, 1.441, 1.151)
+Triangle 54 [Type: ?]
+  Edge lengths: 0.7894, 0.4000, 0.4206
+  Vertex 1: [3, 1, 1, 0, 0, 0]  --> Cartesian: (0.210, 0.761, 1.361)
+  Vertex 2: [3, 1, 2, 1, -1, 0]  --> Cartesian: (-0.130, 1.441, 1.151)
+  Vertex 3: [3, 1, 2, 0, -1, 0]  --> Cartesian: (0.080, 1.101, 1.151)
+Triangle 55 [Type: ?]
+  Edge lengths: 0.4000, 0.6805, 0.7894
+  Vertex 1: [3, 1, 2, 0, -1, 0]  --> Cartesian: (0.080, 1.101, 1.151)
+  Vertex 2: [3, 1, 2, 1, -1, 0]  --> Cartesian: (-0.130, 1.441, 1.151)
+  Vertex 3: [3, 1, 3, 1, 0, 0]  --> Cartesian: (0.421, 1.782, 1.361)
+Triangle 56 [Type: ?]
+  Edge lengths: 0.7894, 0.4000, 0.6805
+  Vertex 1: [3, 1, 2, 0, -1, 0]  --> Cartesian: (0.080, 1.101, 1.151)
+  Vertex 2: [3, 1, 3, 1, 0, 0]  --> Cartesian: (0.421, 1.782, 1.361)
+  Vertex 3: [3, 1, 3, 0, 0, 0]  --> Cartesian: (0.631, 1.441, 1.361)
+Triangle 57 [Type: T]
+  Edge lengths: 0.4000, 0.4206, 0.7168
+  Vertex 1: [3, 1, 3, 1, 0, 0]  --> Cartesian: (0.421, 1.782, 1.361)
+  Vertex 2: [3, 1, 3, 1, 1, 0]  --> Cartesian: (0.761, 1.782, 1.571)
+  Vertex 3: [3, 1, 2, 1, 2, 0]  --> Cartesian: (0.891, 1.441, 1.782)
+Triangle 58 [Type: T]
+  Edge lengths: 0.7168, 0.4000, 0.4206
+  Vertex 1: [3, 1, 3, 1, 0, 0]  --> Cartesian: (0.421, 1.782, 1.361)
+  Vertex 2: [3, 1, 2, 1, 2, 0]  --> Cartesian: (0.891, 1.441, 1.782)
+  Vertex 3: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+Triangle 59 [Type: G]
+  Edge lengths: 0.4000, 0.6805, 0.4000
+  Vertex 1: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+  Vertex 2: [3, 1, 2, 1, 2, 0]  --> Cartesian: (0.891, 1.441, 1.782)
+  Vertex 3: [3, 1, 1, 1, 1, 0]  --> Cartesian: (0.340, 1.101, 1.571)
+Triangle 60 [Type: G]
+  Edge lengths: 0.4000, 0.4000, 0.6805
+  Vertex 1: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+  Vertex 2: [3, 1, 1, 1, 1, 0]  --> Cartesian: (0.340, 1.101, 1.571)
+  Vertex 3: [3, 1, 1, 1, 0, 0]  --> Cartesian: (0.000, 1.101, 1.361)
+Triangle 61 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.4000
+  Vertex 1: [3, 1, 1, 1, 0, 0]  --> Cartesian: (0.000, 1.101, 1.361)
+  Vertex 2: [3, 1, 1, 1, 1, 0]  --> Cartesian: (0.340, 1.101, 1.571)
+  Vertex 3: [3, 1, 2, 1, 0, 0]  --> Cartesian: (0.210, 1.441, 1.361)
+Triangle 62 [Type: ?]
+  Edge lengths: 0.4000, 0.4000, 0.4206
+  Vertex 1: [3, 1, 1, 1, 0, 0]  --> Cartesian: (0.000, 1.101, 1.361)
+  Vertex 2: [3, 1, 2, 1, 0, 0]  --> Cartesian: (0.210, 1.441, 1.361)
+  Vertex 3: [3, 1, 2, 1, -1, 0]  --> Cartesian: (-0.130, 1.441, 1.151)
+Triangle 63 [Type: T]
+  Edge lengths: 0.4000, 0.6805, 1.0422
+  Vertex 1: [3, 1, 2, 1, -1, 0]  --> Cartesian: (-0.130, 1.441, 1.151)
+  Vertex 2: [3, 1, 2, 1, 0, 0]  --> Cartesian: (0.210, 1.441, 1.361)
+  Vertex 3: [3, 1, 3, 1, 1, 0]  --> Cartesian: (0.761, 1.782, 1.571)
+Triangle 64 [Type: T]
+  Edge lengths: 1.0422, 0.4000, 0.6805
+  Vertex 1: [3, 1, 2, 1, -1, 0]  --> Cartesian: (-0.130, 1.441, 1.151)
+  Vertex 2: [3, 1, 3, 1, 1, 0]  --> Cartesian: (0.761, 1.782, 1.571)
+  Vertex 3: [3, 1, 3, 1, 0, 0]  --> Cartesian: (0.421, 1.782, 1.361)
+Triangle 65 [Type: T]
+  Edge lengths: 0.4000, 0.4206, 0.7168
+  Vertex 1: [3, 1, 3, 1, 1, 0]  --> Cartesian: (0.761, 1.782, 1.571)
+  Vertex 2: [3, 1, 3, 1, 2, 0]  --> Cartesian: (1.101, 1.782, 1.782)
+  Vertex 3: [3, 1, 2, 1, 3, 0]  --> Cartesian: (1.231, 1.441, 1.992)
+Triangle 66 [Type: T]
+  Edge lengths: 0.7168, 0.4000, 0.4206
+  Vertex 1: [3, 1, 3, 1, 1, 0]  --> Cartesian: (0.761, 1.782, 1.571)
+  Vertex 2: [3, 1, 2, 1, 3, 0]  --> Cartesian: (1.231, 1.441, 1.992)
+  Vertex 3: [3, 1, 2, 1, 2, 0]  --> Cartesian: (0.891, 1.441, 1.782)
+Triangle 67 [Type: G]
+  Edge lengths: 0.4000, 0.6805, 0.4000
+  Vertex 1: [3, 1, 2, 1, 2, 0]  --> Cartesian: (0.891, 1.441, 1.782)
+  Vertex 2: [3, 1, 2, 1, 3, 0]  --> Cartesian: (1.231, 1.441, 1.992)
+  Vertex 3: [3, 1, 1, 1, 2, 0]  --> Cartesian: (0.681, 1.101, 1.782)
+Triangle 68 [Type: G]
+  Edge lengths: 0.4000, 0.4000, 0.6805
+  Vertex 1: [3, 1, 2, 1, 2, 0]  --> Cartesian: (0.891, 1.441, 1.782)
+  Vertex 2: [3, 1, 1, 1, 2, 0]  --> Cartesian: (0.681, 1.101, 1.782)
+  Vertex 3: [3, 1, 1, 1, 1, 0]  --> Cartesian: (0.340, 1.101, 1.571)
+Triangle 69 [Type: ?]
+  Edge lengths: 0.4000, 0.4206, 0.4000
+  Vertex 1: [3, 1, 1, 1, 1, 0]  --> Cartesian: (0.340, 1.101, 1.571)
+  Vertex 2: [3, 1, 1, 1, 2, 0]  --> Cartesian: (0.681, 1.101, 1.782)
+  Vertex 3: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+Triangle 70 [Type: ?]
+  Edge lengths: 0.4000, 0.4000, 0.4206
+  Vertex 1: [3, 1, 1, 1, 1, 0]  --> Cartesian: (0.340, 1.101, 1.571)
+  Vertex 2: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+  Vertex 3: [3, 1, 2, 1, 0, 0]  --> Cartesian: (0.210, 1.441, 1.361)
+Triangle 71 [Type: T]
+  Edge lengths: 0.4000, 0.6805, 1.0422
+  Vertex 1: [3, 1, 2, 1, 0, 0]  --> Cartesian: (0.210, 1.441, 1.361)
+  Vertex 2: [3, 1, 2, 1, 1, 0]  --> Cartesian: (0.551, 1.441, 1.571)
+  Vertex 3: [3, 1, 3, 1, 2, 0]  --> Cartesian: (1.101, 1.782, 1.782)
+Triangle 72 [Type: T]
+  Edge lengths: 1.0422, 0.4000, 0.6805
+  Vertex 1: [3, 1, 2, 1, 0, 0]  --> Cartesian: (0.210, 1.441, 1.361)
+  Vertex 2: [3, 1, 3, 1, 2, 0]  --> Cartesian: (1.101, 1.782, 1.782)
+  Vertex 3: [3, 1, 3, 1, 1, 0]  --> Cartesian: (0.761, 1.782, 1.571)
+

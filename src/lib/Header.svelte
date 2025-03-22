@@ -1,9 +1,7 @@
 <script>
   import { page } from "$app/stores";
-  export const identifier = "header";
 </script>
 
-<template >
 <div class="header grid">
   <div>
     <img src="/images/dodecahedron.svg" />
@@ -14,7 +12,7 @@
     </h5>
     {#if $page.data.intro }
     <h6>
-    { $page.data.intro}
+    { $page.data.intro }
     </h6>
     {/if}
   </div>
@@ -22,7 +20,6 @@
     <img src="/images/dodecahedron.svg" />
   </div>
 </div>
-</template>
 
 <style>
   .header {

@@ -21,7 +21,6 @@
       x = [];
     }
   }
-  let myId = "component nav";
   $: makeButtons($page.data);
 </script>
 

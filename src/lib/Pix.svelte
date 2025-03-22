@@ -11,7 +11,7 @@
   }
 </script>
 
-<pix>
+<div>
   <a href={locatePhoto(photoURL, 0)}>
     <article>
       <h3>{heading}</h3>
@@ -26,4 +26,4 @@
 -->
     </article>
   </a>
-</pix>
+</div>

@@ -1,21 +1,17 @@
 <script>
-  export const identifier = "BambooCanDo";
   import footerText from "./footerText.txt?raw";
 </script>
 
-<template lang="pug">
-footer(class="footer")
-  p {footerText}
-d
-  p.noColor {footerText}
-</template>
+<footer>
+  <p>{footerText}</p>
+  <div>
+  <p class="noColor">{footerText}</p>
+  </div>
+</footer>
 
 <style>
   a {
     color: black;
-  }
-  .pure-button {
-    background: dark-grey;
   }
   .noColor {
     color: #fff;
@@ -23,7 +19,7 @@ d
   p {
     font-size: small;
   }
-  .footer {
+  footer {
     background-color: beige;
     padding-top: 0.1in;
     position: fixed;
