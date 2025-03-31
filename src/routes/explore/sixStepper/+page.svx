@@ -1,5 +1,5 @@
 <script>
-  import SixBasisVisualizer from './visualizer2.svelte';
+  import SixBasisVisualizer from './sixStepStepper.svelte';
 
   const phi = (1 + Math.sqrt(5)) / 2;
   
@@ -23,14 +23,26 @@
   }
   
   // Define a simple example of a triangle in six-basis notation
-  const sixBasisEdges = [
-    [[0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0]],  // B0
-    [[1, 0, 0, 0, 0, 0], [1, 0, 1, 0, 0, 0]],  // +B2
-    [[1, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]]   // back to origin
+  const inputVectors = [
+    [-1, null, null, null, null, null],  // +B2
+    [0, null, null, null, null, null],
+    [1, null, null, null, null, null],  // B0
+    [2, null, null, null, null, null],
+    [3, null, -1, null, null, null],
+    [3, null, 0, null, null, null],
+    [3, null, 1, null, null, null],
+    [3, null, 2, null, null, null],
+    [3, 3, 2, null, null, null],
+    [3, 2, 2, null, null, null],
+    [3, 1, 2, null, null, null],
+    [3, 0, 2, null, null, null],
+    [2, 0, 2, null, null, null],
+    [1, 0, 2, null, null, null],
+    [0, 0, 2, null, null, null],
+    [0, 0, 1, null, null, null],
+    [0, 0, 0, null, null ,null]   // back to origin
   ];
 
-  // Convert six-basis edges to Cartesian edges
-  const edges = sixBasisEdges.map(edge => [sixBaseToCartesian(edge[0]), sixBaseToCartesian(edge[1])]);
 </script>
 
 # Logical Analysis of the Six–Basis Conversion and Dodecahedron Vertices
@@ -120,5 +132,5 @@ The logical derivation presented here offers insight into:
 
 This system forms a solid mathematical and geometric basis for further exploration and application in areas requiring precise spatial addressing on a φ–lattice.
 
-<SixBasisVisualizer edges={sixBasisEdges} />
+<SixBasisVisualizer inputVectors={inputVectors} animationSpeed={100} />
 
