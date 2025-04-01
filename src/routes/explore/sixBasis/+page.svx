@@ -1,5 +1,5 @@
 <script>
-  import SixBasisVisualizer from './visualizer2.svelte';
+  import SixBasisVisualizer from './visualizer.svelte';
 
   const phi = (1 + Math.sqrt(5)) / 2;
   
