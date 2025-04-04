@@ -101,7 +101,7 @@
     <Floater>
 <SixStepper animationSpeed={750} inputVectors={inputVectors}  />
     </Floater>
-    <div class="floater-label">Intersection Pointsr</div>
+    <div class="floater-label">Intersection Points</div>
   </div>
 
   <div class="floater-with-label">
