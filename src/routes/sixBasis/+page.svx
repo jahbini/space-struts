@@ -1,5 +1,15 @@
 <script>
   import SixBasisVisualizer from './visualizer.svelte';
+  import SixStepper from './sixStepStepper.svelte';
+  import SixDotter from './sixDotter.svelte';
+  import Floater from '$lib/Floater.svelte'
+  import FloaterTest from '$lib/FloaterTest.svelte'
+  import { afterNavigate } from '$app/navigation';
+
+  afterNavigate(() => {
+    console.log("Navigated!");
+    console.log("Current floater DOM:", document.querySelector('.floater-expanded'));
+  });
 
   const phi = (1 + Math.sqrt(5)) / 2;
   
@@ -29,11 +39,80 @@
     [[1, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]]   // back to origin
   ];
 
+  const inputVectors = [
+    [-1, null, null, null, null, null],  // +B2
+    [0, null, null, null, null, null],
+    [1, null, null, null, null, null],  // B0
+    [2, null, null, null, null, null],
+    [3, null, -1, null, null, null],
+    [3, null, 0, null, null, null],
+    [3, null, 1, null, null, null],
+    [3, null, 2, null, null, null],
+    [3, 3, 2, null, null, null],
+    [3, 2, 2, null, null, null],
+    [3, 1, 2, null, null, null],
+    [3, 0, 2, null, null, null],
+    [2, 0, 2, null, null, null],
+    [1, 0, 2, null, null, null],
+    [0, 0, 2, null, null, null],
+    [0, 0, 1, null, null, null],
+    [0, 0, 0, null, null ,null]   // back to origin
+  ];
   // Convert six-basis edges to Cartesian edges
   const edges = sixBasisEdges.map(edge => [sixBaseToCartesian(edge[0]), sixBaseToCartesian(edge[1])]);
 </script>
+<style>
+  .floater-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 2em 0;
+  }
 
-# Logical Analysis of the Six–Basis Conversion and Dodecahedron Vertices
+  .floater-with-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .floater-label {
+    margin-top: 0.5em;
+    font-size: 0.9em;
+    color: #ccc;
+    text-align: center;
+  }
+</style>
+
+# Space Struts' New Six Basis Architecture
+
+
+<div>
+<div class="floater-row">
+  <div class="floater-with-label">
+    <Floater>
+      <SixBasisVisualizer />
+    </Floater>
+    <div class="floater-label">6-Basis Preview</div>
+  </div>
+
+  <div class="floater-with-label">
+    <Floater>
+<SixStepper animationSpeed={750} inputVectors={inputVectors}  />
+    </Floater>
+    <div class="floater-label">Intersection Pointsr</div>
+  </div>
+
+  <div class="floater-with-label">
+    <Floater>
+<SixDotter   />
+    </Floater>
+    <div class="floater-label">The Six Basis Crystal</div>
+  </div>
+</div>
+</div>
+
 
 ## Introduction
 
@@ -119,6 +198,4 @@ The logical derivation presented here offers insight into:
 - The practical representation of dodecahedron vertices in a form suitable for both visualization and engineering.
 
 This system forms a solid mathematical and geometric basis for further exploration and application in areas requiring precise spatial addressing on a φ–lattice.
-
-<SixBasisVisualizer edges={sixBasisEdges} />
 

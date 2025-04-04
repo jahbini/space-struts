@@ -8,6 +8,7 @@ export async function load({ cookies }) {
     navPages: {
       "/why/": "why",
       "/what/": "what",
+      "/sixBasis/": "Six Basis Archetecture",
      // "/how/": "how",
       "/explore/": "explore"
     },

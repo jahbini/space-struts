@@ -11,6 +11,7 @@
     [1, null, 3, null, 2, null]
   ];
   export let animationSpeed = 3000;
+  export let expanded = false;
 
   let container;
 

@@ -1,7 +1,11 @@
 <script>
-  import { onMount } from 'svelte';
   import * as THREE from 'three';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+  import { onMount, onDestroy, tick } from 'svelte';
+
+  let scene, camera, renderer, controls;
+  let container=null;
+  let activeContainer=null;
 
   const phi = (1 + Math.sqrt(5)) / 2;
   const sixBases = [
@@ -28,7 +32,6 @@
     );
   }
 
-  let container;
 
   function createEdge(a, b, material) {
     const points = [
@@ -105,18 +108,27 @@
     }
     animate();
   }
+function stopScene() {
+    if (renderer) {
+      renderer.dispose();
+      renderer.forceContextLoss?.();
+      renderer.domElement = null;
+    }
+    scene = null;
+    renderer = null;
+    camera = null;
+    controls = null;
+  }
 
-  $: if (container) renderScene();
+ // handle startup and teardown reactively
+  $: if (container) {
+     if (container != activeContainer) {
+      activeContainer = container;
+      tick().then(renderScene);
+      }
+  }
+
+  onDestroy(stopScene);
 </script>
 
-<div bind:this={container} style="width: 100%; height: 600px;"></div>
-
-<div style="margin-top: 1em; display: flex; gap: 1em; flex-wrap: wrap;">
-  {#each colors as color, i}
-    <button on:click={() => activeColorIndex = activeColorIndex === i ? null : i}
-            style="background: {color}; color: white; padding: 0.5em 1em; border: none; cursor: pointer;">
-      {activeColorIndex === i ? 'Show All' : `Highlight B${i}`}
-    </button>
-  {/each}
-</div>
-
+<div bind:this={container} style="width: 100%; height: 100%;"></div>
