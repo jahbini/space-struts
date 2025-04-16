@@ -40,6 +40,16 @@ decode =
   "p": -Phi
   "P": Phi
 
+phiDecode =
+  "z": 'p(0,0)'
+  "O": 'p(0,1)'
+  "o": 'p(0,-1)'
+  "f": 'p(-1,1)'
+  "F": 'p(1,-1)'
+  "p": 'p(-1,0)'
+  "P": 'p(1,0)'
+
+
 #"#ooO-#zfP-#OoO-#Fpz-#fpz",  # Face A
 planeVertices = [
     [decode['z'], decode['f'],decode['P']],
@@ -133,11 +143,14 @@ export class Geo
       p.shapeName[shapeName] = shapeName
       return (M.theLowdown ptxt).value
     p = seen.P decode[xyz[1]],decode[xyz[2]],decode[xyz[3]]
+    phiBass = [ phiDecode(xyz[1]) , phiDecode(xyz[2]) , phiDecode(xyz[3]) ]
     if ptxt[0] == '@'
       po= reflectPointAcrossPlane [p.x,p.y,p.z],planeVertices
       p = seen.P po[0],po[1],po[2]
     p.d = p.magnitude().toFixed 3
     p.shapeName = { "#{shapeName}": shapeName }
+    p.phiBase = phiBase
+
     p.ID = ptxt
     (M.saveThis ptxt, p).value #return just the point value, not the meta info
     

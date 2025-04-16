@@ -1,0 +1,81 @@
+<script>
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { onMount } from 'svelte';
+  import { SixVector } from '$lib/sixvector.js';
+
+  let container;
+  let vector = new SixVector([null, 2, null, 1, 1, null]);
+
+  onMount(() => {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.update();
+
+    const axesHelper = new THREE.AxesHelper(2);
+    scene.add(axesHelper);
+
+    // Visualize basis vectors
+    const origin = new THREE.Vector3(0, 0, 0);
+    for (const basis of SixVector.basis) {
+      const dir = new THREE.Vector3(...basis).normalize();
+      const arrow = new THREE.ArrowHelper(dir, origin, 1.5, 0x888888);
+      scene.add(arrow);
+    }
+
+    // Visualize computed vector
+    const target = new THREE.Vector3(...vector.toCartesian());
+    const vecArrow = new THREE.ArrowHelper(target.clone().normalize(), origin, target.length(), 0xff0000);
+    scene.add(vecArrow);
+
+    camera.position.set(3, 3, 5);
+    camera.lookAt(0, 0, 0);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    return () => {
+      container.removeChild(renderer.domElement);
+    };
+  });
+</script>
+
+<div class="wrapper">
+  <div bind:this={container} class="viewport"></div>
+  <div class="sidebar">
+    <!-- Future UI goes here -->
+  </div>
+</div>
+
+<style>
+  .wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .viewport {
+    width: 500px;
+    height: 500px;
+    overflow: hidden;
+    background-color: #f0f0f0;
+  }
+
+  .sidebar {
+    flex-grow: 1;
+    padding: 1rem;
+  }
+</style>
+

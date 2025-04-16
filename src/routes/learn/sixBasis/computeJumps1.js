@@ -1,3 +1,5 @@
+// This code generates all single and double steps
+
 const phi = (1 + Math.sqrt(5)) / 2;
 
 const sixBases = [
