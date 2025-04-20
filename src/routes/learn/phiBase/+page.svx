@@ -1,3 +1,101 @@
+<script>
+  import PhiOps from './phiOps.svelte';
+  import Floater from '$lib/Floater.svelte'
+  import FloaterTest from '$lib/FloaterTest.svelte'
+  import { afterNavigate } from '$app/navigation';
+
+  afterNavigate(() => {
+    console.log("Navigated!");
+    console.log("Current floater DOM:", document.querySelector('.floater-expanded'));
+  });
+
+  const phi = (1 + Math.sqrt(5)) / 2;
+  
+  const sixBases = [
+    [phi, 0, 1],
+    [phi, 0, -1],
+    [0, 1, phi],
+    [0, -1, phi],
+    [1, phi, 0],
+    [-1, phi, 0]
+  ];
+
+  function sixBaseToCartesian(coords) {
+    let x = 0, y = 0, z = 0;
+    for (let i = 0; i < 6; i++) {
+      x += coords[i] * sixBases[i][0];
+      y += coords[i] * sixBases[i][1];
+      z += coords[i] * sixBases[i][2];
+    }
+    return { x, y, z };
+  }
+  
+  // Define a simple example of a triangle in six-basis notation
+  const sixBasisEdges = [
+    [[0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0]],  // B0
+    [[1, 0, 0, 0, 0, 0], [1, 0, 1, 0, 0, 0]],  // +B2
+    [[1, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]]   // back to origin
+  ];
+
+  const inputVectors = [
+    [-1, null, null, null, null, null],  // +B2
+    [0, null, null, null, null, null],
+    [1, null, null, null, null, null],  // B0
+    [2, null, null, null, null, null],
+    [3, null, -1, null, null, null],
+    [3, null, 0, null, null, null],
+    [3, null, 1, null, null, null],
+    [3, null, 2, null, null, null],
+    [3, 3, 2, null, null, null],
+    [3, 2, 2, null, null, null],
+    [3, 1, 2, null, null, null],
+    [3, 0, 2, null, null, null],
+    [2, 0, 2, null, null, null],
+    [1, 0, 2, null, null, null],
+    [0, 0, 2, null, null, null],
+    [0, 0, 1, null, null, null],
+    [0, 0, 0, null, null ,null]   // back to origin
+  ];
+  // Convert six-basis edges to Cartesian edges
+  const edges = sixBasisEdges.map(edge => [sixBaseToCartesian(edge[0]), sixBaseToCartesian(edge[1])]);
+</script>
+<style>
+  .floater-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 2em 0;
+  }
+
+  .floater-with-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .floater-label {
+    margin-top: 0.5em;
+    font-size: 0.9em;
+    color: #ccc;
+    text-align: center;
+  }
+</style>
+
+# Space Struts' New Six Basis Architecture
+
+
+<div>
+<div >
+  <div class="floater-with-label">
+      <PhiOps />
+  </div>
+    <div class="floater-label">6-Basis Preview</div>
+
+</div>
+</div>
+
 
 # The Magic of Phi Math: How We Build in Golden Space
 
@@ -72,13 +170,13 @@ We only use two triangle shapes in our structure:
 - Angles: 36°–72°–72°  
 - Side lengths: `φ`, `φ`, `1`
 
-![Golden Triangle](./triangle-golden.svg)
+![Golden Triangle](/golden-triangle.svg)
 
 ### 2. Golden Gnomon  
 - Angles: 36°–36°–108°  
 - Side lengths: `1`, `1`, `φ`
 
-![Golden Gnomon](./triangle-gnomon.svg)
+![Golden Gnomon](/golden-gnomon.svg)
 
 ---
 
@@ -154,5 +252,3 @@ Welcome to golden geometry. 🌟
 <div style="min-height:1.5in">
 
 </div>
-<style>
-</style>

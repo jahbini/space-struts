@@ -71,13 +71,13 @@ We only use two triangle shapes in our structure:
 - Angles: 36°–72°–72°  
 - Side lengths: `φ`, `φ`, `1`
 
-![Golden Triangle](./triangle-golden.svg)
+![Golden Triangle](golden-triangle.svg)
 
 ### 2. Golden Gnomon  
 - Angles: 36°–36°–108°  
 - Side lengths: `1`, `1`, `φ`
 
-![Golden Gnomon](./triangle-gnomon.svg)
+![Golden Gnomon](golden-gnomon.svg)
 
 ---
 
