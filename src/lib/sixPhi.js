@@ -1,87 +1,9 @@
-// PhiBaseNumber models p·phi + n using integer arithmetic
+// PhiBase models p·phi + n using integer arithmetic
 const phi = (1 + Math.sqrt(5)) / 2;
-export class PhiBaseNumber {
-  constructor(p = 0, n = 0) {
-    this.p = p; // phi multiplier
-    this.n = n; // integer offset
-  }
-
-  static fromFloat(value) {
-    const p = Math.round((value - Math.round(value)) / phi);
-    const n = Math.round(value - p * phi);
-    return new PhiBaseNumber(p, n);
-  }
-
-  add(other) {
-    return new PhiBaseNumber(this.p + other.p, this.n + other.n);
-  }
-
-  subtract(other) {
-    return new PhiBaseNumber(this.p - other.p, this.n - other.n);
-  }
-
-  scale(scalar) {
-    return new PhiBaseNumber(this.p * scalar, this.n * scalar);
-  }
-
-  negate() {
-    return new PhiBaseNumber(-this.p, -this.n);
-  }
-
-  multiply(other) {
-    const p = this.p * other.n + this.n * other.p + this.p * other.p;
-    const n = this.p * other.p + this.n * other.n;
-    return new PhiBaseNumber(p, n);
-  }
-
-exactDivide(other) {
-  const conj = new PhiBaseNumber(-other.p, other.p + other.n);
-
-  const numerator = this.multiply(conj);
-  const denominator = other.multiply(conj); // this will be phi-free: p=0, just n
-
-  if (denominator.p !== 0) {
-    console.warn("Unexpected phi term in denominator after conjugation");
-    return null;
-  }
-
-  if (denominator.n === 0) {
-    console.warn("Division by zero after conjugation");
-    return null;
-  }
-
-  return new PhiBaseNumber(numerator.p / denominator.n, numerator.n / denominator.n);
-}
-  xexactDivide(other) {
-    const oP = other.p;
-    const oN = other.n;
-    const denom = oP * oP - 2 * oN * oN;
-    if (denom === 0) {
-      console.warn("Division by zero-like phi denominator");
-      return null;
-    }
-    const numP = this.n * oP - this.p * oN - this.n * oN;
-    const numN = this.p * oP - this.n * oN - this.n * oN;
-    return new PhiBaseNumber(numP / denom, numN / denom);
-  }
-
-  isInteger() {
-    return Number.isInteger(this.p) && Number.isInteger(this.n);
-  }
-
-  toFloat() {
-    return this.p * phi + this.n;
-  }
-
-  toString() {
-    const phiStr = this.p === 0 ? "" : (this.p === 1 ? "ϕ" : `${this.p}ϕ`);
-    const nStr = this.n !== 0 ? (this.n > 0 && phiStr ? ` + ${this.n}` : `${this.n}`) : "";
-    return (phiStr + nStr) || "0";
-  }
-}
+import { PhiBase } from './phiBase.js'
 
 export class SixPhiVector3 {
-  constructor(x = new PhiBaseNumber(), y = new PhiBaseNumber(), z = new PhiBaseNumber()) {
+  constructor(x = new PhiBase(), y = new PhiBase(), z = new PhiBase()) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -152,22 +74,22 @@ function phiDet3x3(M) {
   const g = M[2][0], h = M[2][1], i = M[2][2];
 
   // Compute each of the minor terms
-  const ei = e.multiply(i);   // e * i
-  const fh = f.multiply(h);   // f * h
+  const ei = e.mul(i);   // e * i
+  const fh = f.mul(h);   // f * h
   const ei_minus_fh = ei.subtract(fh);  // (ei - fh)
 
-  const di = d.multiply(i);   // d * i
-  const fg = f.multiply(g);   // f * g
+  const di = d.mul(i);   // d * i
+  const fg = f.mul(g);   // f * g
   const di_minus_fg = di.subtract(fg);  // (di - fg)
 
-  const dh = d.multiply(h);   // d * h
-  const eg = e.multiply(g);   // e * g
+  const dh = d.mul(h);   // d * h
+  const eg = e.mul(g);   // e * g
   const dh_minus_eg = dh.subtract(eg);  // (dh - eg)
 
   // Multiply by corresponding cofactors
-  const termA = a.multiply(ei_minus_fh);
-  const termB = b.multiply(di_minus_fg);
-  const termC = c.multiply(dh_minus_eg);
+  const termA = a.mul(ei_minus_fh);
+  const termB = b.mul(di_minus_fg);
+  const termC = c.mul(dh_minus_eg);
 
   // Final determinant: a(ei - fh) - b(di - fg) + c(dh - eg)
   const det = termA.subtract(termB).add(termC);
@@ -176,20 +98,20 @@ function phiDet3x3(M) {
 }
 export class SixPhiVector {
   static basis = [
-    new SixPhiVector3(new PhiBaseNumber(1, 0), new PhiBaseNumber(0, 0), new PhiBaseNumber(0, 1)),
-    new SixPhiVector3(new PhiBaseNumber(1, 0), new PhiBaseNumber(0, 0), new PhiBaseNumber(0, -1)),
-    new SixPhiVector3(new PhiBaseNumber(0, 0), new PhiBaseNumber(0, 1), new PhiBaseNumber(1, 0)),
-    new SixPhiVector3(new PhiBaseNumber(0, 0), new PhiBaseNumber(0, -1), new PhiBaseNumber(1, 0)),
-    new SixPhiVector3(new PhiBaseNumber(0, 1), new PhiBaseNumber(1, 0), new PhiBaseNumber(0, 0)),
-    new SixPhiVector3(new PhiBaseNumber(0, -1), new PhiBaseNumber(1, 0), new PhiBaseNumber(0, 0))
+    new SixPhiVector3(new PhiBase(1, 0), new PhiBase(0, 0), new PhiBase(0, 1)),
+    new SixPhiVector3(new PhiBase(1, 0), new PhiBase(0, 0), new PhiBase(0, -1)),
+    new SixPhiVector3(new PhiBase(0, 0), new PhiBase(0, 1), new PhiBase(1, 0)),
+    new SixPhiVector3(new PhiBase(0, 0), new PhiBase(0, -1), new PhiBase(1, 0)),
+    new SixPhiVector3(new PhiBase(0, 1), new PhiBase(1, 0), new PhiBase(0, 0)),
+    new SixPhiVector3(new PhiBase(0, -1), new PhiBase(1, 0), new PhiBase(0, 0))
   ];
 
   constructor(input) {
     function g(xx) {
     if (typeof xx === 'number' ) {
-     return new PhiBaseNumber(0,xx);
+     return new PhiBase(0,xx);
     }
-    if (typeof xx === 'PhiBaseNumber' ) {
+    if (xx instanceof PhiBase ) {
      return xx;
     }
     return null;
@@ -198,9 +120,58 @@ export class SixPhiVector {
     this.isComplete = !this.coeffs.includes(null);
   }
 
-complete(debug = false) {
+  complete = function (debug = false) {
+  if (this.isComplete) return;
+
+  const known = [];
+  const unknownIndices = [];
+
+  for (let i = 0; i < 6; i++) {
+    if (this.coeffs[i]) {
+      known.push([i, this.coeffs[i]]);
+    } else {
+      unknownIndices.push(i);
+    }
+  }
+
+  if (known.length !== 3 || unknownIndices.length !== 3) {
+    if (debug) console.warn("Cannot complete: vector must have exactly 3 known coefficients.");
+    return null;
+  }
+
+  let x = new PhiBase(0, 0), y = new PhiBase(0, 0), z = new PhiBase(0, 0);
+  for (const [i, val] of known) {
+    const b = SixPhiVector.basis[i];
+    x = x.add(b.x.mul(val));
+    y = y.add(b.y.mul(val));
+    z = z.add(b.z.mul(val));
+  }
+
+  const A = [[], [], []];
+  for (const i of unknownIndices) {
+    const b = SixPhiVector.basis[i];
+    A[0].push(b.x);
+    A[1].push(b.y);
+    A[2].push(b.z);
+  }
+
+  const rhs = [x.neg(), y.neg(), z.neg()];
+  const solved = symbolicSolve6x3(A, rhs);
+  for (let i = 0; i < 3; i++) {
+    this.coeffs[unknownIndices[i]] = solved[i];
+  }
+
+  this.isComplete = true;
+};
+
+//toVector3 = function () {
+//  const [x, y, z] = this.toFloatArray();
+//  return new THREE.Vector3(x, y, z);
+//};
+
+complete_old(debug = false) {
   function buildCol(A, bVec, colIndex) {
-  // A is a 3x3 matrix of PhiBaseNumbers (rows of 3 each)
+  // A is a 3x3 matrix of PhiBases (rows of 3 each)
   // bVec is a SixPhiVector3: { x, y, z }
   // colIndex = 0, 1, or 2 indicating which column to replace
 
@@ -264,6 +235,10 @@ function buildRealCol(A, bVec, colIndex) {
     const realBasis = phiBasis.toFloatArray();
 
     phiB = phiB.add(phiBasis.scale(c));
+    if ( c instanceof PhiBase) {
+     debugger;
+     c= c.toNumber();
+    }
     realB[0] += realBasis[0] * c;
     realB[1] += realBasis[1] * c;
     realB[2] += realBasis[2] * c;
@@ -276,7 +251,7 @@ function buildRealCol(A, bVec, colIndex) {
   debugger;
   const phiA = unused.map(i => {
     const b = SixPhiVector.basis[i];
-    return [b.x, b.y, b.z];  // Each is a PhiBaseNumber
+    return [b.x, b.y, b.z];  // Each is a PhiBase
   });
   const realA = unused.map(i => SixPhiVector.basis[i].toFloatArray());
 

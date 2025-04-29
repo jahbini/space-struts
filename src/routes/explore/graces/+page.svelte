@@ -1,5 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: Unexpected token
-https://svelte.dev/e/js_parse_error -->
 <script lang="coffeescript" type="text/coffeescript">
 
 import Select from 'svelte-select'
@@ -8,8 +6,10 @@ import { onMount } from 'svelte'
 import  _  from 'underscore'
 import { page } from '$app/stores';
 import  Checkme from './Checkme.svelte'
-import { Geo} from './Geo.coffee'
+import { Geo } from './Geo.coffee'
+import SixPhiDotter from './sixPhiDotter.svelte'
 import ColorPicker from 'svelte-awesome-color-picker';
+ 
 
 
 items = ['One', 'Two', 'Three'];
@@ -358,6 +358,7 @@ makeScene= (filters)->
   ###
   mdl.remove linesToShow if linesToShow
   linesToShow = {}
+  debugger
   {segmentNames,segmentsByMagnitude} = G.createSegments cantidatePoints
   someLines = []
   segmentText=[]
@@ -429,6 +430,10 @@ makeScene= (filters)->
   <title>Star</title>
 </svelte:head>
 <div class="pageContainer">
+<div class="floater-expanded" >
+  <SixPhiDotter />
+</div>
+
 <div>
   <figure style="float:left; margin: 0 0 0 0">
     <canvas width={svgSize+"px"} style="background:white" height={svgSize+"px"} id="seen-canvas1"></canvas>
@@ -512,4 +517,21 @@ Select {--font-size:small; float:right;}
 position: absolute;
 left: -999px;
 }
+  .floater-expanded {
+    position: fixed;
+    top: 1in; /* Shift down about an inch */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+    height: 85vh;
+    background: rgba(0, 0, 0, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 0 30px #000;
+    z-index: 9999;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 </style>

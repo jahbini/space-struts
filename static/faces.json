@@ -1,0 +1,1578 @@
+{
+  "version": "V0.0",
+  "timestamp": "2025-04-23T22:51:11.466Z",
+  "label": "geo_structure",
+  "trails": [
+    {
+      "id": "square",
+      "path": "#ffz-#Ffz-#FFz-#fFz",
+      "points": [
+        "#ffz",
+        "#Ffz",
+        "#FFz",
+        "#fFz"
+      ],
+      "edges": [
+        "_#ffz_#Ffz",
+        "_#Ffz_#FFz",
+        "_#FFz_#fFz"
+      ]
+    },
+    {
+      "id": "pentagon",
+      "path": "#zFP-#OOO-#PzF-#OoO-#zfP",
+      "points": [
+        "#zFP",
+        "#OOO",
+        "#PzF",
+        "#OoO",
+        "#zfP"
+      ],
+      "edges": [
+        "_#zFP_#OOO",
+        "_#OOO_#PzF",
+        "_#PzF_#OoO",
+        "_#OoO_#zfP"
+      ]
+    },
+    {
+      "id": "octahedron",
+      "path": "#Ozz-#ozz-#zoz-#zOz-#zzo-#zzO",
+      "points": [
+        "#Ozz",
+        "#ozz",
+        "#zoz",
+        "#zOz",
+        "#zzo",
+        "#zzO"
+      ],
+      "edges": [
+        "_#Ozz_#ozz",
+        "_#ozz_#zoz",
+        "_#zoz_#zOz",
+        "_#zOz_#zzo",
+        "_#zzo_#zzO"
+      ]
+    },
+    {
+      "id": "cube",
+      "path": "#OOO-#oOO-#OoO-#ooO-#OOo-#oOo-#Ooo-#ooo",
+      "points": [
+        "#OOO",
+        "#oOO",
+        "#OoO",
+        "#ooO",
+        "#OOo",
+        "#oOo",
+        "#Ooo",
+        "#ooo"
+      ],
+      "edges": [
+        "_#OOO_#oOO",
+        "_#oOO_#OoO",
+        "_#OoO_#ooO",
+        "_#ooO_#OOo",
+        "_#OOo_#oOo",
+        "_#oOo_#Ooo",
+        "_#Ooo_#ooo"
+      ]
+    },
+    {
+      "id": "tetrahedron1",
+      "path": "#ooo-#oOO-#OoO-#OOo",
+      "points": [
+        "#ooo",
+        "#oOO",
+        "#OoO",
+        "#OOo"
+      ],
+      "edges": [
+        "_#ooo_#oOO",
+        "_#oOO_#OoO",
+        "_#OoO_#OOo"
+      ]
+    },
+    {
+      "id": "tetrahedron2",
+      "path": "#OOO-#Ooo-#oOo-#ooO",
+      "points": [
+        "#OOO",
+        "#Ooo",
+        "#oOo",
+        "#ooO"
+      ],
+      "edges": [
+        "_#OOO_#Ooo",
+        "_#Ooo_#oOo",
+        "_#oOo_#ooO"
+      ]
+    },
+    {
+      "id": "icosahedron1",
+      "path": "#zOF-#zoF-#zof-#zOf-#oFz-#ofz-#OFz-#Ofz-#FzO-#fzO-#Fzo-#fzo",
+      "points": [
+        "#zOF",
+        "#zoF",
+        "#zof",
+        "#zOf",
+        "#oFz",
+        "#ofz",
+        "#OFz",
+        "#Ofz",
+        "#FzO",
+        "#fzO",
+        "#Fzo",
+        "#fzo"
+      ],
+      "edges": [
+        "_#zOF_#zoF",
+        "_#zoF_#zof",
+        "_#zof_#zOf",
+        "_#zOf_#oFz",
+        "_#oFz_#ofz",
+        "_#ofz_#OFz",
+        "_#OFz_#Ofz",
+        "_#Ofz_#FzO",
+        "_#FzO_#fzO",
+        "_#fzO_#Fzo",
+        "_#Fzo_#fzo"
+      ]
+    },
+    {
+      "id": "icosahedron2",
+      "path": "#zFO-#zFo-#zfo-#zfO-#Foz-#foz-#FOz-#fOz-#OzF-#Ozf-#ozF-#ozf",
+      "points": [
+        "#zFO",
+        "#zFo",
+        "#zfo",
+        "#zfO",
+        "#Foz",
+        "#foz",
+        "#FOz",
+        "#fOz",
+        "#OzF",
+        "#Ozf",
+        "#ozF",
+        "#ozf"
+      ],
+      "edges": [
+        "_#zFO_#zFo",
+        "_#zFo_#zfo",
+        "_#zfo_#zfO",
+        "_#zfO_#Foz",
+        "_#Foz_#foz",
+        "_#foz_#FOz",
+        "_#FOz_#fOz",
+        "_#fOz_#OzF",
+        "_#OzF_#Ozf",
+        "_#Ozf_#ozF",
+        "_#ozF_#ozf"
+      ]
+    },
+    {
+      "id": "dodecahedron1",
+      "path": "#ooo-#ooO-#oOo-#oOO-#Ooo-#OoO-#OOo-#OOO-#zfp-#zFp-#zfP-#zFP-#pzf-#Pzf-#pzF-#PzF-#fpz-#Fpz-#fPz-#FPz",
+      "points": [
+        "#ooo",
+        "#ooO",
+        "#oOo",
+        "#oOO",
+        "#Ooo",
+        "#OoO",
+        "#OOo",
+        "#OOO",
+        "#zfp",
+        "#zFp",
+        "#zfP",
+        "#zFP",
+        "#pzf",
+        "#Pzf",
+        "#pzF",
+        "#PzF",
+        "#fpz",
+        "#Fpz",
+        "#fPz",
+        "#FPz"
+      ],
+      "edges": [
+        "_#ooo_#ooO",
+        "_#ooO_#oOo",
+        "_#oOo_#oOO",
+        "_#oOO_#Ooo",
+        "_#Ooo_#OoO",
+        "_#OoO_#OOo",
+        "_#OOo_#OOO",
+        "_#OOO_#zfp",
+        "_#zfp_#zFp",
+        "_#zFp_#zfP",
+        "_#zfP_#zFP",
+        "_#zFP_#pzf",
+        "_#pzf_#Pzf",
+        "_#Pzf_#pzF",
+        "_#pzF_#PzF",
+        "_#PzF_#fpz",
+        "_#fpz_#Fpz",
+        "_#Fpz_#fPz",
+        "_#fPz_#FPz"
+      ]
+    },
+    {
+      "id": "dodecahedron2",
+      "path": "#ooo-#oOo-#ooO-#oOO-#Ooo-#OOo-#OoO-#OOO-#zpf-#zpF-#zPf-#zPF-#fzp-#fzP-#Fzp-#FzP-#pfz-#pFz-#Pfz-#PFz",
+      "points": [
+        "#ooo",
+        "#oOo",
+        "#ooO",
+        "#oOO",
+        "#Ooo",
+        "#OOo",
+        "#OoO",
+        "#OOO",
+        "#zpf",
+        "#zpF",
+        "#zPf",
+        "#zPF",
+        "#fzp",
+        "#fzP",
+        "#Fzp",
+        "#FzP",
+        "#pfz",
+        "#pFz",
+        "#Pfz",
+        "#PFz"
+      ],
+      "edges": [
+        "_#ooo_#oOo",
+        "_#oOo_#ooO",
+        "_#ooO_#oOO",
+        "_#oOO_#Ooo",
+        "_#Ooo_#OOo",
+        "_#OOo_#OoO",
+        "_#OoO_#OOO",
+        "_#OOO_#zpf",
+        "_#zpf_#zpF",
+        "_#zpF_#zPf",
+        "_#zPf_#zPF",
+        "_#zPF_#fzp",
+        "_#fzp_#fzP",
+        "_#fzP_#Fzp",
+        "_#Fzp_#FzP",
+        "_#FzP_#pfz",
+        "_#pfz_#pFz",
+        "_#pFz_#Pfz",
+        "_#Pfz_#PFz"
+      ]
+    },
+    {
+      "id": "faceA",
+      "path": "#ooO-#zfP-#OoO-#Fpz-#fpz",
+      "points": [
+        "#ooO",
+        "#zfP",
+        "#OoO",
+        "#Fpz",
+        "#fpz"
+      ],
+      "edges": [
+        "_#ooO_#zfP",
+        "_#zfP_#OoO",
+        "_#OoO_#Fpz",
+        "_#Fpz_#fpz"
+      ]
+    },
+    {
+      "id": "facea",
+      "path": "#oOo-#zFp-#OOo-#FPz-#fPz",
+      "points": [
+        "#oOo",
+        "#zFp",
+        "#OOo",
+        "#FPz",
+        "#fPz"
+      ],
+      "edges": [
+        "_#oOo_#zFp",
+        "_#zFp_#OOo",
+        "_#OOo_#FPz",
+        "_#FPz_#fPz"
+      ]
+    },
+    {
+      "id": "faceB",
+      "path": "#ooo-#fpz-#ooO-#pzF-#pzf",
+      "points": [
+        "#ooo",
+        "#fpz",
+        "#ooO",
+        "#pzF",
+        "#pzf"
+      ],
+      "edges": [
+        "_#ooo_#fpz",
+        "_#fpz_#ooO",
+        "_#ooO_#pzF",
+        "_#pzF_#pzf"
+      ]
+    },
+    {
+      "id": "faceb",
+      "path": "#OOo-#FPz-#OOO-#PzF-#Pzf",
+      "points": [
+        "#OOo",
+        "#FPz",
+        "#OOO",
+        "#PzF",
+        "#Pzf"
+      ],
+      "edges": [
+        "_#OOo_#FPz",
+        "_#FPz_#OOO",
+        "_#OOO_#PzF",
+        "_#PzF_#Pzf"
+      ]
+    },
+    {
+      "id": "faceC",
+      "path": "#ooo-#zfp-#Ooo-#Fpz-#fpz",
+      "points": [
+        "#ooo",
+        "#zfp",
+        "#Ooo",
+        "#Fpz",
+        "#fpz"
+      ],
+      "edges": [
+        "_#ooo_#zfp",
+        "_#zfp_#Ooo",
+        "_#Ooo_#Fpz",
+        "_#Fpz_#fpz"
+      ]
+    },
+    {
+      "id": "facec",
+      "path": "#oOO-#zFP-#OOO-#FPz-#fPz",
+      "points": [
+        "#oOO",
+        "#zFP",
+        "#OOO",
+        "#FPz",
+        "#fPz"
+      ],
+      "edges": [
+        "_#oOO_#zFP",
+        "_#zFP_#OOO",
+        "_#OOO_#FPz",
+        "_#FPz_#fPz"
+      ]
+    },
+    {
+      "id": "faceD",
+      "path": "#Ooo-#Fpz-#OoO-#PzF-#Pzf",
+      "points": [
+        "#Ooo",
+        "#Fpz",
+        "#OoO",
+        "#PzF",
+        "#Pzf"
+      ],
+      "edges": [
+        "_#Ooo_#Fpz",
+        "_#Fpz_#OoO",
+        "_#OoO_#PzF",
+        "_#PzF_#Pzf"
+      ]
+    },
+    {
+      "id": "faced",
+      "path": "#oOo-#fPz-#oOO-#pzF-#pzf",
+      "points": [
+        "#oOo",
+        "#fPz",
+        "#oOO",
+        "#pzF",
+        "#pzf"
+      ],
+      "edges": [
+        "_#oOo_#fPz",
+        "_#fPz_#oOO",
+        "_#oOO_#pzF",
+        "_#pzF_#pzf"
+      ]
+    },
+    {
+      "id": "faceE",
+      "path": "#ooo-#pzf-#oOo-#zFp-#zfp",
+      "points": [
+        "#ooo",
+        "#pzf",
+        "#oOo",
+        "#zFp",
+        "#zfp"
+      ],
+      "edges": [
+        "_#ooo_#pzf",
+        "_#pzf_#oOo",
+        "_#oOo_#zFp",
+        "_#zFp_#zfp"
+      ]
+    },
+    {
+      "id": "facee",
+      "path": "#OoO-#PzF-#OOO-#zFP-#zfP",
+      "points": [
+        "#OoO",
+        "#PzF",
+        "#OOO",
+        "#zFP",
+        "#zfP"
+      ],
+      "edges": [
+        "_#OoO_#PzF",
+        "_#PzF_#OOO",
+        "_#OOO_#zFP",
+        "_#zFP_#zfP"
+      ]
+    },
+    {
+      "id": "faceF",
+      "path": "#ooO-#pzF-#oOO-#zFP-#zfP",
+      "points": [
+        "#ooO",
+        "#pzF",
+        "#oOO",
+        "#zFP",
+        "#zfP"
+      ],
+      "edges": [
+        "_#ooO_#pzF",
+        "_#pzF_#oOO",
+        "_#oOO_#zFP",
+        "_#zFP_#zfP"
+      ]
+    },
+    {
+      "id": "facef",
+      "path": "#Ooo-#Pzf-#OOo-#zFp-#zfp",
+      "points": [
+        "#Ooo",
+        "#Pzf",
+        "#OOo",
+        "#zFp",
+        "#zfp"
+      ],
+      "edges": [
+        "_#Ooo_#Pzf",
+        "_#Pzf_#OOo",
+        "_#OOo_#zFp",
+        "_#zFp_#zfp"
+      ]
+    }
+  ],
+  "points": {
+    "#ffz": {
+      "name": "#ffz",
+      "coords": [
+        "p-1,1",
+        "p-1,1",
+        "p0,0"
+      ]
+    },
+    "#Ffz": {
+      "name": "#Ffz",
+      "coords": [
+        "p1,-1",
+        "p-1,1",
+        "p0,0"
+      ]
+    },
+    "#FFz": {
+      "name": "#FFz",
+      "coords": [
+        "p1,-1",
+        "p1,-1",
+        "p0,0"
+      ]
+    },
+    "#fFz": {
+      "name": "#fFz",
+      "coords": [
+        "p-1,1",
+        "p1,-1",
+        "p0,0"
+      ]
+    },
+    "#zFP": {
+      "name": "#zFP",
+      "coords": [
+        "p0,0",
+        "p1,-1",
+        "p1,0"
+      ]
+    },
+    "#OOO": {
+      "name": "#OOO",
+      "coords": [
+        "p0,1",
+        "p0,1",
+        "p0,1"
+      ]
+    },
+    "#PzF": {
+      "name": "#PzF",
+      "coords": [
+        "p1,0",
+        "p0,0",
+        "p1,-1"
+      ]
+    },
+    "#OoO": {
+      "name": "#OoO",
+      "coords": [
+        "p0,1",
+        "p0,-1",
+        "p0,1"
+      ]
+    },
+    "#zfP": {
+      "name": "#zfP",
+      "coords": [
+        "p0,0",
+        "p-1,1",
+        "p1,0"
+      ]
+    },
+    "#Ozz": {
+      "name": "#Ozz",
+      "coords": [
+        "p0,1",
+        "p0,0",
+        "p0,0"
+      ]
+    },
+    "#ozz": {
+      "name": "#ozz",
+      "coords": [
+        "p0,-1",
+        "p0,0",
+        "p0,0"
+      ]
+    },
+    "#zoz": {
+      "name": "#zoz",
+      "coords": [
+        "p0,0",
+        "p0,-1",
+        "p0,0"
+      ]
+    },
+    "#zOz": {
+      "name": "#zOz",
+      "coords": [
+        "p0,0",
+        "p0,1",
+        "p0,0"
+      ]
+    },
+    "#zzo": {
+      "name": "#zzo",
+      "coords": [
+        "p0,0",
+        "p0,0",
+        "p0,-1"
+      ]
+    },
+    "#zzO": {
+      "name": "#zzO",
+      "coords": [
+        "p0,0",
+        "p0,0",
+        "p0,1"
+      ]
+    },
+    "#oOO": {
+      "name": "#oOO",
+      "coords": [
+        "p0,-1",
+        "p0,1",
+        "p0,1"
+      ]
+    },
+    "#ooO": {
+      "name": "#ooO",
+      "coords": [
+        "p0,-1",
+        "p0,-1",
+        "p0,1"
+      ]
+    },
+    "#OOo": {
+      "name": "#OOo",
+      "coords": [
+        "p0,1",
+        "p0,1",
+        "p0,-1"
+      ]
+    },
+    "#oOo": {
+      "name": "#oOo",
+      "coords": [
+        "p0,-1",
+        "p0,1",
+        "p0,-1"
+      ]
+    },
+    "#Ooo": {
+      "name": "#Ooo",
+      "coords": [
+        "p0,1",
+        "p0,-1",
+        "p0,-1"
+      ]
+    },
+    "#ooo": {
+      "name": "#ooo",
+      "coords": [
+        "p0,-1",
+        "p0,-1",
+        "p0,-1"
+      ]
+    },
+    "#zOF": {
+      "name": "#zOF",
+      "coords": [
+        "p0,0",
+        "p0,1",
+        "p1,-1"
+      ]
+    },
+    "#zoF": {
+      "name": "#zoF",
+      "coords": [
+        "p0,0",
+        "p0,-1",
+        "p1,-1"
+      ]
+    },
+    "#zof": {
+      "name": "#zof",
+      "coords": [
+        "p0,0",
+        "p0,-1",
+        "p-1,1"
+      ]
+    },
+    "#zOf": {
+      "name": "#zOf",
+      "coords": [
+        "p0,0",
+        "p0,1",
+        "p-1,1"
+      ]
+    },
+    "#oFz": {
+      "name": "#oFz",
+      "coords": [
+        "p0,-1",
+        "p1,-1",
+        "p0,0"
+      ]
+    },
+    "#ofz": {
+      "name": "#ofz",
+      "coords": [
+        "p0,-1",
+        "p-1,1",
+        "p0,0"
+      ]
+    },
+    "#OFz": {
+      "name": "#OFz",
+      "coords": [
+        "p0,1",
+        "p1,-1",
+        "p0,0"
+      ]
+    },
+    "#Ofz": {
+      "name": "#Ofz",
+      "coords": [
+        "p0,1",
+        "p-1,1",
+        "p0,0"
+      ]
+    },
+    "#FzO": {
+      "name": "#FzO",
+      "coords": [
+        "p1,-1",
+        "p0,0",
+        "p0,1"
+      ]
+    },
+    "#fzO": {
+      "name": "#fzO",
+      "coords": [
+        "p-1,1",
+        "p0,0",
+        "p0,1"
+      ]
+    },
+    "#Fzo": {
+      "name": "#Fzo",
+      "coords": [
+        "p1,-1",
+        "p0,0",
+        "p0,-1"
+      ]
+    },
+    "#fzo": {
+      "name": "#fzo",
+      "coords": [
+        "p-1,1",
+        "p0,0",
+        "p0,-1"
+      ]
+    },
+    "#zFO": {
+      "name": "#zFO",
+      "coords": [
+        "p0,0",
+        "p1,-1",
+        "p0,1"
+      ]
+    },
+    "#zFo": {
+      "name": "#zFo",
+      "coords": [
+        "p0,0",
+        "p1,-1",
+        "p0,-1"
+      ]
+    },
+    "#zfo": {
+      "name": "#zfo",
+      "coords": [
+        "p0,0",
+        "p-1,1",
+        "p0,-1"
+      ]
+    },
+    "#zfO": {
+      "name": "#zfO",
+      "coords": [
+        "p0,0",
+        "p-1,1",
+        "p0,1"
+      ]
+    },
+    "#Foz": {
+      "name": "#Foz",
+      "coords": [
+        "p1,-1",
+        "p0,-1",
+        "p0,0"
+      ]
+    },
+    "#foz": {
+      "name": "#foz",
+      "coords": [
+        "p-1,1",
+        "p0,-1",
+        "p0,0"
+      ]
+    },
+    "#FOz": {
+      "name": "#FOz",
+      "coords": [
+        "p1,-1",
+        "p0,1",
+        "p0,0"
+      ]
+    },
+    "#fOz": {
+      "name": "#fOz",
+      "coords": [
+        "p-1,1",
+        "p0,1",
+        "p0,0"
+      ]
+    },
+    "#OzF": {
+      "name": "#OzF",
+      "coords": [
+        "p0,1",
+        "p0,0",
+        "p1,-1"
+      ]
+    },
+    "#Ozf": {
+      "name": "#Ozf",
+      "coords": [
+        "p0,1",
+        "p0,0",
+        "p-1,1"
+      ]
+    },
+    "#ozF": {
+      "name": "#ozF",
+      "coords": [
+        "p0,-1",
+        "p0,0",
+        "p1,-1"
+      ]
+    },
+    "#ozf": {
+      "name": "#ozf",
+      "coords": [
+        "p0,-1",
+        "p0,0",
+        "p-1,1"
+      ]
+    },
+    "#zfp": {
+      "name": "#zfp",
+      "coords": [
+        "p0,0",
+        "p-1,1",
+        "p-1,0"
+      ]
+    },
+    "#zFp": {
+      "name": "#zFp",
+      "coords": [
+        "p0,0",
+        "p1,-1",
+        "p-1,0"
+      ]
+    },
+    "#pzf": {
+      "name": "#pzf",
+      "coords": [
+        "p-1,0",
+        "p0,0",
+        "p-1,1"
+      ]
+    },
+    "#Pzf": {
+      "name": "#Pzf",
+      "coords": [
+        "p1,0",
+        "p0,0",
+        "p-1,1"
+      ]
+    },
+    "#pzF": {
+      "name": "#pzF",
+      "coords": [
+        "p-1,0",
+        "p0,0",
+        "p1,-1"
+      ]
+    },
+    "#fpz": {
+      "name": "#fpz",
+      "coords": [
+        "p-1,1",
+        "p-1,0",
+        "p0,0"
+      ]
+    },
+    "#Fpz": {
+      "name": "#Fpz",
+      "coords": [
+        "p1,-1",
+        "p-1,0",
+        "p0,0"
+      ]
+    },
+    "#fPz": {
+      "name": "#fPz",
+      "coords": [
+        "p-1,1",
+        "p1,0",
+        "p0,0"
+      ]
+    },
+    "#FPz": {
+      "name": "#FPz",
+      "coords": [
+        "p1,-1",
+        "p1,0",
+        "p0,0"
+      ]
+    },
+    "#zpf": {
+      "name": "#zpf",
+      "coords": [
+        "p0,0",
+        "p-1,0",
+        "p-1,1"
+      ]
+    },
+    "#zpF": {
+      "name": "#zpF",
+      "coords": [
+        "p0,0",
+        "p-1,0",
+        "p1,-1"
+      ]
+    },
+    "#zPf": {
+      "name": "#zPf",
+      "coords": [
+        "p0,0",
+        "p1,0",
+        "p-1,1"
+      ]
+    },
+    "#zPF": {
+      "name": "#zPF",
+      "coords": [
+        "p0,0",
+        "p1,0",
+        "p1,-1"
+      ]
+    },
+    "#fzp": {
+      "name": "#fzp",
+      "coords": [
+        "p-1,1",
+        "p0,0",
+        "p-1,0"
+      ]
+    },
+    "#fzP": {
+      "name": "#fzP",
+      "coords": [
+        "p-1,1",
+        "p0,0",
+        "p1,0"
+      ]
+    },
+    "#Fzp": {
+      "name": "#Fzp",
+      "coords": [
+        "p1,-1",
+        "p0,0",
+        "p-1,0"
+      ]
+    },
+    "#FzP": {
+      "name": "#FzP",
+      "coords": [
+        "p1,-1",
+        "p0,0",
+        "p1,0"
+      ]
+    },
+    "#pfz": {
+      "name": "#pfz",
+      "coords": [
+        "p-1,0",
+        "p-1,1",
+        "p0,0"
+      ]
+    },
+    "#pFz": {
+      "name": "#pFz",
+      "coords": [
+        "p-1,0",
+        "p1,-1",
+        "p0,0"
+      ]
+    },
+    "#Pfz": {
+      "name": "#Pfz",
+      "coords": [
+        "p1,0",
+        "p-1,1",
+        "p0,0"
+      ]
+    },
+    "#PFz": {
+      "name": "#PFz",
+      "coords": [
+        "p1,0",
+        "p1,-1",
+        "p0,0"
+      ]
+    }
+  },
+  "edges": {
+    "_#ffz_#Ffz": {
+      "name": "_#p-1,1,p-1,1,p0,0_#p1,-1,p-1,1,p0,0",
+      "from": "#ffz",
+      "to": "#Ffz"
+    },
+    "_#Ffz_#FFz": {
+      "name": "_#p1,-1,p-1,1,p0,0_#p1,-1,p1,-1,p0,0",
+      "from": "#Ffz",
+      "to": "#FFz"
+    },
+    "_#FFz_#fFz": {
+      "name": "_#p1,-1,p1,-1,p0,0_#p-1,1,p1,-1,p0,0",
+      "from": "#FFz",
+      "to": "#fFz"
+    },
+    "_#zFP_#OOO": {
+      "name": "_#p0,0,p1,-1,p1,0_#p0,1,p0,1,p0,1",
+      "from": "#zFP",
+      "to": "#OOO"
+    },
+    "_#OOO_#PzF": {
+      "name": "_#p0,1,p0,1,p0,1_#p1,0,p0,0,p1,-1",
+      "from": "#OOO",
+      "to": "#PzF"
+    },
+    "_#PzF_#OoO": {
+      "name": "_#p1,0,p0,0,p1,-1_#p0,1,p0,-1,p0,1",
+      "from": "#PzF",
+      "to": "#OoO"
+    },
+    "_#OoO_#zfP": {
+      "name": "_#p0,1,p0,-1,p0,1_#p0,0,p-1,1,p1,0",
+      "from": "#OoO",
+      "to": "#zfP"
+    },
+    "_#Ozz_#ozz": {
+      "name": "_#p0,1,p0,0,p0,0_#p0,-1,p0,0,p0,0",
+      "from": "#Ozz",
+      "to": "#ozz"
+    },
+    "_#ozz_#zoz": {
+      "name": "_#p0,-1,p0,0,p0,0_#p0,0,p0,-1,p0,0",
+      "from": "#ozz",
+      "to": "#zoz"
+    },
+    "_#zoz_#zOz": {
+      "name": "_#p0,0,p0,-1,p0,0_#p0,0,p0,1,p0,0",
+      "from": "#zoz",
+      "to": "#zOz"
+    },
+    "_#zOz_#zzo": {
+      "name": "_#p0,0,p0,1,p0,0_#p0,0,p0,0,p0,-1",
+      "from": "#zOz",
+      "to": "#zzo"
+    },
+    "_#zzo_#zzO": {
+      "name": "_#p0,0,p0,0,p0,-1_#p0,0,p0,0,p0,1",
+      "from": "#zzo",
+      "to": "#zzO"
+    },
+    "_#OOO_#oOO": {
+      "name": "_#p0,1,p0,1,p0,1_#p0,-1,p0,1,p0,1",
+      "from": "#OOO",
+      "to": "#oOO"
+    },
+    "_#oOO_#OoO": {
+      "name": "_#p0,-1,p0,1,p0,1_#p0,1,p0,-1,p0,1",
+      "from": "#oOO",
+      "to": "#OoO"
+    },
+    "_#OoO_#ooO": {
+      "name": "_#p0,1,p0,-1,p0,1_#p0,-1,p0,-1,p0,1",
+      "from": "#OoO",
+      "to": "#ooO"
+    },
+    "_#ooO_#OOo": {
+      "name": "_#p0,-1,p0,-1,p0,1_#p0,1,p0,1,p0,-1",
+      "from": "#ooO",
+      "to": "#OOo"
+    },
+    "_#OOo_#oOo": {
+      "name": "_#p0,1,p0,1,p0,-1_#p0,-1,p0,1,p0,-1",
+      "from": "#OOo",
+      "to": "#oOo"
+    },
+    "_#oOo_#Ooo": {
+      "name": "_#p0,-1,p0,1,p0,-1_#p0,1,p0,-1,p0,-1",
+      "from": "#oOo",
+      "to": "#Ooo"
+    },
+    "_#Ooo_#ooo": {
+      "name": "_#p0,1,p0,-1,p0,-1_#p0,-1,p0,-1,p0,-1",
+      "from": "#Ooo",
+      "to": "#ooo"
+    },
+    "_#ooo_#oOO": {
+      "name": "_#p0,-1,p0,-1,p0,-1_#p0,-1,p0,1,p0,1",
+      "from": "#ooo",
+      "to": "#oOO"
+    },
+    "_#OoO_#OOo": {
+      "name": "_#p0,1,p0,-1,p0,1_#p0,1,p0,1,p0,-1",
+      "from": "#OoO",
+      "to": "#OOo"
+    },
+    "_#OOO_#Ooo": {
+      "name": "_#p0,1,p0,1,p0,1_#p0,1,p0,-1,p0,-1",
+      "from": "#OOO",
+      "to": "#Ooo"
+    },
+    "_#Ooo_#oOo": {
+      "name": "_#p0,1,p0,-1,p0,-1_#p0,-1,p0,1,p0,-1",
+      "from": "#Ooo",
+      "to": "#oOo"
+    },
+    "_#oOo_#ooO": {
+      "name": "_#p0,-1,p0,1,p0,-1_#p0,-1,p0,-1,p0,1",
+      "from": "#oOo",
+      "to": "#ooO"
+    },
+    "_#zOF_#zoF": {
+      "name": "_#p0,0,p0,1,p1,-1_#p0,0,p0,-1,p1,-1",
+      "from": "#zOF",
+      "to": "#zoF"
+    },
+    "_#zoF_#zof": {
+      "name": "_#p0,0,p0,-1,p1,-1_#p0,0,p0,-1,p-1,1",
+      "from": "#zoF",
+      "to": "#zof"
+    },
+    "_#zof_#zOf": {
+      "name": "_#p0,0,p0,-1,p-1,1_#p0,0,p0,1,p-1,1",
+      "from": "#zof",
+      "to": "#zOf"
+    },
+    "_#zOf_#oFz": {
+      "name": "_#p0,0,p0,1,p-1,1_#p0,-1,p1,-1,p0,0",
+      "from": "#zOf",
+      "to": "#oFz"
+    },
+    "_#oFz_#ofz": {
+      "name": "_#p0,-1,p1,-1,p0,0_#p0,-1,p-1,1,p0,0",
+      "from": "#oFz",
+      "to": "#ofz"
+    },
+    "_#ofz_#OFz": {
+      "name": "_#p0,-1,p-1,1,p0,0_#p0,1,p1,-1,p0,0",
+      "from": "#ofz",
+      "to": "#OFz"
+    },
+    "_#OFz_#Ofz": {
+      "name": "_#p0,1,p1,-1,p0,0_#p0,1,p-1,1,p0,0",
+      "from": "#OFz",
+      "to": "#Ofz"
+    },
+    "_#Ofz_#FzO": {
+      "name": "_#p0,1,p-1,1,p0,0_#p1,-1,p0,0,p0,1",
+      "from": "#Ofz",
+      "to": "#FzO"
+    },
+    "_#FzO_#fzO": {
+      "name": "_#p1,-1,p0,0,p0,1_#p-1,1,p0,0,p0,1",
+      "from": "#FzO",
+      "to": "#fzO"
+    },
+    "_#fzO_#Fzo": {
+      "name": "_#p-1,1,p0,0,p0,1_#p1,-1,p0,0,p0,-1",
+      "from": "#fzO",
+      "to": "#Fzo"
+    },
+    "_#Fzo_#fzo": {
+      "name": "_#p1,-1,p0,0,p0,-1_#p-1,1,p0,0,p0,-1",
+      "from": "#Fzo",
+      "to": "#fzo"
+    },
+    "_#zFO_#zFo": {
+      "name": "_#p0,0,p1,-1,p0,1_#p0,0,p1,-1,p0,-1",
+      "from": "#zFO",
+      "to": "#zFo"
+    },
+    "_#zFo_#zfo": {
+      "name": "_#p0,0,p1,-1,p0,-1_#p0,0,p-1,1,p0,-1",
+      "from": "#zFo",
+      "to": "#zfo"
+    },
+    "_#zfo_#zfO": {
+      "name": "_#p0,0,p-1,1,p0,-1_#p0,0,p-1,1,p0,1",
+      "from": "#zfo",
+      "to": "#zfO"
+    },
+    "_#zfO_#Foz": {
+      "name": "_#p0,0,p-1,1,p0,1_#p1,-1,p0,-1,p0,0",
+      "from": "#zfO",
+      "to": "#Foz"
+    },
+    "_#Foz_#foz": {
+      "name": "_#p1,-1,p0,-1,p0,0_#p-1,1,p0,-1,p0,0",
+      "from": "#Foz",
+      "to": "#foz"
+    },
+    "_#foz_#FOz": {
+      "name": "_#p-1,1,p0,-1,p0,0_#p1,-1,p0,1,p0,0",
+      "from": "#foz",
+      "to": "#FOz"
+    },
+    "_#FOz_#fOz": {
+      "name": "_#p1,-1,p0,1,p0,0_#p-1,1,p0,1,p0,0",
+      "from": "#FOz",
+      "to": "#fOz"
+    },
+    "_#fOz_#OzF": {
+      "name": "_#p-1,1,p0,1,p0,0_#p0,1,p0,0,p1,-1",
+      "from": "#fOz",
+      "to": "#OzF"
+    },
+    "_#OzF_#Ozf": {
+      "name": "_#p0,1,p0,0,p1,-1_#p0,1,p0,0,p-1,1",
+      "from": "#OzF",
+      "to": "#Ozf"
+    },
+    "_#Ozf_#ozF": {
+      "name": "_#p0,1,p0,0,p-1,1_#p0,-1,p0,0,p1,-1",
+      "from": "#Ozf",
+      "to": "#ozF"
+    },
+    "_#ozF_#ozf": {
+      "name": "_#p0,-1,p0,0,p1,-1_#p0,-1,p0,0,p-1,1",
+      "from": "#ozF",
+      "to": "#ozf"
+    },
+    "_#ooo_#ooO": {
+      "name": "_#p0,-1,p0,-1,p0,-1_#p0,-1,p0,-1,p0,1",
+      "from": "#ooo",
+      "to": "#ooO"
+    },
+    "_#ooO_#oOo": {
+      "name": "_#p0,-1,p0,-1,p0,1_#p0,-1,p0,1,p0,-1",
+      "from": "#ooO",
+      "to": "#oOo"
+    },
+    "_#oOo_#oOO": {
+      "name": "_#p0,-1,p0,1,p0,-1_#p0,-1,p0,1,p0,1",
+      "from": "#oOo",
+      "to": "#oOO"
+    },
+    "_#oOO_#Ooo": {
+      "name": "_#p0,-1,p0,1,p0,1_#p0,1,p0,-1,p0,-1",
+      "from": "#oOO",
+      "to": "#Ooo"
+    },
+    "_#Ooo_#OoO": {
+      "name": "_#p0,1,p0,-1,p0,-1_#p0,1,p0,-1,p0,1",
+      "from": "#Ooo",
+      "to": "#OoO"
+    },
+    "_#OOo_#OOO": {
+      "name": "_#p0,1,p0,1,p0,-1_#p0,1,p0,1,p0,1",
+      "from": "#OOo",
+      "to": "#OOO"
+    },
+    "_#OOO_#zfp": {
+      "name": "_#p0,1,p0,1,p0,1_#p0,0,p-1,1,p-1,0",
+      "from": "#OOO",
+      "to": "#zfp"
+    },
+    "_#zfp_#zFp": {
+      "name": "_#p0,0,p-1,1,p-1,0_#p0,0,p1,-1,p-1,0",
+      "from": "#zfp",
+      "to": "#zFp"
+    },
+    "_#zFp_#zfP": {
+      "name": "_#p0,0,p1,-1,p-1,0_#p0,0,p-1,1,p1,0",
+      "from": "#zFp",
+      "to": "#zfP"
+    },
+    "_#zfP_#zFP": {
+      "name": "_#p0,0,p-1,1,p1,0_#p0,0,p1,-1,p1,0",
+      "from": "#zfP",
+      "to": "#zFP"
+    },
+    "_#zFP_#pzf": {
+      "name": "_#p0,0,p1,-1,p1,0_#p-1,0,p0,0,p-1,1",
+      "from": "#zFP",
+      "to": "#pzf"
+    },
+    "_#pzf_#Pzf": {
+      "name": "_#p-1,0,p0,0,p-1,1_#p1,0,p0,0,p-1,1",
+      "from": "#pzf",
+      "to": "#Pzf"
+    },
+    "_#Pzf_#pzF": {
+      "name": "_#p1,0,p0,0,p-1,1_#p-1,0,p0,0,p1,-1",
+      "from": "#Pzf",
+      "to": "#pzF"
+    },
+    "_#pzF_#PzF": {
+      "name": "_#p-1,0,p0,0,p1,-1_#p1,0,p0,0,p1,-1",
+      "from": "#pzF",
+      "to": "#PzF"
+    },
+    "_#PzF_#fpz": {
+      "name": "_#p1,0,p0,0,p1,-1_#p-1,1,p-1,0,p0,0",
+      "from": "#PzF",
+      "to": "#fpz"
+    },
+    "_#fpz_#Fpz": {
+      "name": "_#p-1,1,p-1,0,p0,0_#p1,-1,p-1,0,p0,0",
+      "from": "#fpz",
+      "to": "#Fpz"
+    },
+    "_#Fpz_#fPz": {
+      "name": "_#p1,-1,p-1,0,p0,0_#p-1,1,p1,0,p0,0",
+      "from": "#Fpz",
+      "to": "#fPz"
+    },
+    "_#fPz_#FPz": {
+      "name": "_#p-1,1,p1,0,p0,0_#p1,-1,p1,0,p0,0",
+      "from": "#fPz",
+      "to": "#FPz"
+    },
+    "_#ooo_#oOo": {
+      "name": "_#p0,-1,p0,-1,p0,-1_#p0,-1,p0,1,p0,-1",
+      "from": "#ooo",
+      "to": "#oOo"
+    },
+    "_#ooO_#oOO": {
+      "name": "_#p0,-1,p0,-1,p0,1_#p0,-1,p0,1,p0,1",
+      "from": "#ooO",
+      "to": "#oOO"
+    },
+    "_#Ooo_#OOo": {
+      "name": "_#p0,1,p0,-1,p0,-1_#p0,1,p0,1,p0,-1",
+      "from": "#Ooo",
+      "to": "#OOo"
+    },
+    "_#OOo_#OoO": {
+      "name": "_#p0,1,p0,1,p0,-1_#p0,1,p0,-1,p0,1",
+      "from": "#OOo",
+      "to": "#OoO"
+    },
+    "_#OoO_#OOO": {
+      "name": "_#p0,1,p0,-1,p0,1_#p0,1,p0,1,p0,1",
+      "from": "#OoO",
+      "to": "#OOO"
+    },
+    "_#OOO_#zpf": {
+      "name": "_#p0,1,p0,1,p0,1_#p0,0,p-1,0,p-1,1",
+      "from": "#OOO",
+      "to": "#zpf"
+    },
+    "_#zpf_#zpF": {
+      "name": "_#p0,0,p-1,0,p-1,1_#p0,0,p-1,0,p1,-1",
+      "from": "#zpf",
+      "to": "#zpF"
+    },
+    "_#zpF_#zPf": {
+      "name": "_#p0,0,p-1,0,p1,-1_#p0,0,p1,0,p-1,1",
+      "from": "#zpF",
+      "to": "#zPf"
+    },
+    "_#zPf_#zPF": {
+      "name": "_#p0,0,p1,0,p-1,1_#p0,0,p1,0,p1,-1",
+      "from": "#zPf",
+      "to": "#zPF"
+    },
+    "_#zPF_#fzp": {
+      "name": "_#p0,0,p1,0,p1,-1_#p-1,1,p0,0,p-1,0",
+      "from": "#zPF",
+      "to": "#fzp"
+    },
+    "_#fzp_#fzP": {
+      "name": "_#p-1,1,p0,0,p-1,0_#p-1,1,p0,0,p1,0",
+      "from": "#fzp",
+      "to": "#fzP"
+    },
+    "_#fzP_#Fzp": {
+      "name": "_#p-1,1,p0,0,p1,0_#p1,-1,p0,0,p-1,0",
+      "from": "#fzP",
+      "to": "#Fzp"
+    },
+    "_#Fzp_#FzP": {
+      "name": "_#p1,-1,p0,0,p-1,0_#p1,-1,p0,0,p1,0",
+      "from": "#Fzp",
+      "to": "#FzP"
+    },
+    "_#FzP_#pfz": {
+      "name": "_#p1,-1,p0,0,p1,0_#p-1,0,p-1,1,p0,0",
+      "from": "#FzP",
+      "to": "#pfz"
+    },
+    "_#pfz_#pFz": {
+      "name": "_#p-1,0,p-1,1,p0,0_#p-1,0,p1,-1,p0,0",
+      "from": "#pfz",
+      "to": "#pFz"
+    },
+    "_#pFz_#Pfz": {
+      "name": "_#p-1,0,p1,-1,p0,0_#p1,0,p-1,1,p0,0",
+      "from": "#pFz",
+      "to": "#Pfz"
+    },
+    "_#Pfz_#PFz": {
+      "name": "_#p1,0,p-1,1,p0,0_#p1,0,p1,-1,p0,0",
+      "from": "#Pfz",
+      "to": "#PFz"
+    },
+    "_#ooO_#zfP": {
+      "name": "_#p0,-1,p0,-1,p0,1_#p0,0,p-1,1,p1,0",
+      "from": "#ooO",
+      "to": "#zfP"
+    },
+    "_#zfP_#OoO": {
+      "name": "_#p0,0,p-1,1,p1,0_#p0,1,p0,-1,p0,1",
+      "from": "#zfP",
+      "to": "#OoO"
+    },
+    "_#OoO_#Fpz": {
+      "name": "_#p0,1,p0,-1,p0,1_#p1,-1,p-1,0,p0,0",
+      "from": "#OoO",
+      "to": "#Fpz"
+    },
+    "_#Fpz_#fpz": {
+      "name": "_#p1,-1,p-1,0,p0,0_#p-1,1,p-1,0,p0,0",
+      "from": "#Fpz",
+      "to": "#fpz"
+    },
+    "_#oOo_#zFp": {
+      "name": "_#p0,-1,p0,1,p0,-1_#p0,0,p1,-1,p-1,0",
+      "from": "#oOo",
+      "to": "#zFp"
+    },
+    "_#zFp_#OOo": {
+      "name": "_#p0,0,p1,-1,p-1,0_#p0,1,p0,1,p0,-1",
+      "from": "#zFp",
+      "to": "#OOo"
+    },
+    "_#OOo_#FPz": {
+      "name": "_#p0,1,p0,1,p0,-1_#p1,-1,p1,0,p0,0",
+      "from": "#OOo",
+      "to": "#FPz"
+    },
+    "_#FPz_#fPz": {
+      "name": "_#p1,-1,p1,0,p0,0_#p-1,1,p1,0,p0,0",
+      "from": "#FPz",
+      "to": "#fPz"
+    },
+    "_#ooo_#fpz": {
+      "name": "_#p0,-1,p0,-1,p0,-1_#p-1,1,p-1,0,p0,0",
+      "from": "#ooo",
+      "to": "#fpz"
+    },
+    "_#fpz_#ooO": {
+      "name": "_#p-1,1,p-1,0,p0,0_#p0,-1,p0,-1,p0,1",
+      "from": "#fpz",
+      "to": "#ooO"
+    },
+    "_#ooO_#pzF": {
+      "name": "_#p0,-1,p0,-1,p0,1_#p-1,0,p0,0,p1,-1",
+      "from": "#ooO",
+      "to": "#pzF"
+    },
+    "_#pzF_#pzf": {
+      "name": "_#p-1,0,p0,0,p1,-1_#p-1,0,p0,0,p-1,1",
+      "from": "#pzF",
+      "to": "#pzf"
+    },
+    "_#FPz_#OOO": {
+      "name": "_#p1,-1,p1,0,p0,0_#p0,1,p0,1,p0,1",
+      "from": "#FPz",
+      "to": "#OOO"
+    },
+    "_#PzF_#Pzf": {
+      "name": "_#p1,0,p0,0,p1,-1_#p1,0,p0,0,p-1,1",
+      "from": "#PzF",
+      "to": "#Pzf"
+    },
+    "_#ooo_#zfp": {
+      "name": "_#p0,-1,p0,-1,p0,-1_#p0,0,p-1,1,p-1,0",
+      "from": "#ooo",
+      "to": "#zfp"
+    },
+    "_#zfp_#Ooo": {
+      "name": "_#p0,0,p-1,1,p-1,0_#p0,1,p0,-1,p0,-1",
+      "from": "#zfp",
+      "to": "#Ooo"
+    },
+    "_#Ooo_#Fpz": {
+      "name": "_#p0,1,p0,-1,p0,-1_#p1,-1,p-1,0,p0,0",
+      "from": "#Ooo",
+      "to": "#Fpz"
+    },
+    "_#oOO_#zFP": {
+      "name": "_#p0,-1,p0,1,p0,1_#p0,0,p1,-1,p1,0",
+      "from": "#oOO",
+      "to": "#zFP"
+    },
+    "_#OOO_#FPz": {
+      "name": "_#p0,1,p0,1,p0,1_#p1,-1,p1,0,p0,0",
+      "from": "#OOO",
+      "to": "#FPz"
+    },
+    "_#Fpz_#OoO": {
+      "name": "_#p1,-1,p-1,0,p0,0_#p0,1,p0,-1,p0,1",
+      "from": "#Fpz",
+      "to": "#OoO"
+    },
+    "_#OoO_#PzF": {
+      "name": "_#p0,1,p0,-1,p0,1_#p1,0,p0,0,p1,-1",
+      "from": "#OoO",
+      "to": "#PzF"
+    },
+    "_#oOo_#fPz": {
+      "name": "_#p0,-1,p0,1,p0,-1_#p-1,1,p1,0,p0,0",
+      "from": "#oOo",
+      "to": "#fPz"
+    },
+    "_#fPz_#oOO": {
+      "name": "_#p-1,1,p1,0,p0,0_#p0,-1,p0,1,p0,1",
+      "from": "#fPz",
+      "to": "#oOO"
+    },
+    "_#oOO_#pzF": {
+      "name": "_#p0,-1,p0,1,p0,1_#p-1,0,p0,0,p1,-1",
+      "from": "#oOO",
+      "to": "#pzF"
+    },
+    "_#ooo_#pzf": {
+      "name": "_#p0,-1,p0,-1,p0,-1_#p-1,0,p0,0,p-1,1",
+      "from": "#ooo",
+      "to": "#pzf"
+    },
+    "_#pzf_#oOo": {
+      "name": "_#p-1,0,p0,0,p-1,1_#p0,-1,p0,1,p0,-1",
+      "from": "#pzf",
+      "to": "#oOo"
+    },
+    "_#zFp_#zfp": {
+      "name": "_#p0,0,p1,-1,p-1,0_#p0,0,p-1,1,p-1,0",
+      "from": "#zFp",
+      "to": "#zfp"
+    },
+    "_#PzF_#OOO": {
+      "name": "_#p1,0,p0,0,p1,-1_#p0,1,p0,1,p0,1",
+      "from": "#PzF",
+      "to": "#OOO"
+    },
+    "_#OOO_#zFP": {
+      "name": "_#p0,1,p0,1,p0,1_#p0,0,p1,-1,p1,0",
+      "from": "#OOO",
+      "to": "#zFP"
+    },
+    "_#zFP_#zfP": {
+      "name": "_#p0,0,p1,-1,p1,0_#p0,0,p-1,1,p1,0",
+      "from": "#zFP",
+      "to": "#zfP"
+    },
+    "_#pzF_#oOO": {
+      "name": "_#p-1,0,p0,0,p1,-1_#p0,-1,p0,1,p0,1",
+      "from": "#pzF",
+      "to": "#oOO"
+    },
+    "_#Ooo_#Pzf": {
+      "name": "_#p0,1,p0,-1,p0,-1_#p1,0,p0,0,p-1,1",
+      "from": "#Ooo",
+      "to": "#Pzf"
+    },
+    "_#Pzf_#OOo": {
+      "name": "_#p1,0,p0,0,p-1,1_#p0,1,p0,1,p0,-1",
+      "from": "#Pzf",
+      "to": "#OOo"
+    },
+    "_#OOo_#zFp": {
+      "name": "_#p0,1,p0,1,p0,-1_#p0,0,p1,-1,p-1,0",
+      "from": "#OOo",
+      "to": "#zFp"
+    }
+  }
+}

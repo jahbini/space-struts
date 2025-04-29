@@ -1,0 +1,1 @@
+ Pentagon = "#ooO-#zfP-#OoO-#Fpz-#fpz"

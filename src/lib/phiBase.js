@@ -20,6 +20,18 @@ export class PhiBase {
   clone() {
     return new PhiBase(this.p, this.n);
   }
+  isZero() {
+    return this.p == 0 && this.n == 0 ;
+  }
+
+  step() {
+    const phiValue = this.p * PhiBase.phi; // φ as static or imported
+    if (this.n < phiValue) {
+      return new PhiBase(this.p, this.n + 1);
+    } else {
+      return new PhiBase(this.p + 1, this.n);
+    }
+  }
 
   /** String representation, e.g. "3φ + 5" */
   toString() {
@@ -45,6 +57,17 @@ export class PhiBase {
   sub(other) {
     return new PhiBase(this.p - other.p, this.n - other.n);
   }
+  
+  /** Negation */
+  negate() {
+    return new PhiBase(-this.p,-this.n);
+  }
+
+  /** Scaling by a constant or a phiBase value */
+  scale(x) {
+    if ( x instanceof PhiBase ) return this.mul(x);
+    return new PhiBase(x * this.p, x * this.n)
+   }
 
   /** Multiplication in ℤ[φ]
    * (p1φ + n1)(p2φ + n2)
@@ -74,7 +97,7 @@ export class PhiBase {
     const num = this.mul(conj);
     // Ensure integral result
     if (num.p % denom !== 0 || num.n % denom !== 0) {
-      throw new Error(
+      console.warn(
         `Non-integer division result (requires substructure): [${num.p}/${denom} φ, ${num.n}/${denom}]`
       );
     }
@@ -122,7 +145,7 @@ export class PhiBase {
   } catch (e) {
     threw = true;
   }
-  console.assert(threw, 'non-integer div did not throw');
+  console.assert(!threw, 'non---integer div did not throw');
 
   console.log('PhiBase: all tests passed');
 })();

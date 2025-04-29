@@ -1,0 +1,139 @@
+<script>
+  import { onMount } from 'svelte';
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+  import { PhiBaseNumber, SixPhiVector } from '$lib/sixPhi';
+  //import { PhiBase } from '$lib/phiBase';
+
+  let x = 0, y = 0, z = 0;
+  let container;
+  let scene, camera, renderer, controls;
+  let meshGroup;
+  let triangleQueue = [];
+  let interval;
+  const wrapSize = 10;
+  const offsetRadius = 2.5;
+
+  function wrap(val, width = wrapSize) {
+    return ((val + width / 2) % width + width) % width - width / 2;
+  }
+
+  async function loadDodecahedronFaces() {
+    const res = await fetch('/faces.json');
+    const data = await res.json();
+    return {
+      pointsMap: data.points,
+      faces: data.trails.filter(f => f.id.startsWith('face') || f.id === 'dodecahedron1')
+    };
+  }
+
+  function convertSymbolToVec(symbol, pointsMap) {
+    const coeffs = pointsMap[symbol].coords.map(c => {
+      const [p, n] = c.replace('p', '').split(',').map(Number);
+      return new PhiBaseNumber(p, n);
+    });
+    return new SixPhiVector(coeffs).toVector3();
+  }
+
+  async function createTriangles(center) {
+    const { pointsMap, faces } = await loadDodecahedronFaces();
+    let triangles = [];
+
+    for (const face of faces) {
+      const symbols = face.points;
+      const vecs = symbols.map(s => convertSymbolToVec(s, pointsMap).add(center));
+      for (let i = 1; i < vecs.length - 1; i++) {
+        const geo = new THREE.BufferGeometry().setFromPoints([vecs[0], vecs[i], vecs[i + 1]]);
+        triangles.push(geo);
+      }
+    }
+    return triangles;
+  }
+
+  async function buildShell() {
+    if (interval) clearInterval(interval);
+    triangleQueue = [];
+
+    const center = new THREE.Vector3(
+      wrap(x) + offsetRadius,
+      wrap(y) + offsetRadius,
+      wrap(z) + offsetRadius
+    );
+
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ffcc, side: THREE.DoubleSide });
+    meshGroup.clear();
+    const geometries = await createTriangles(center);
+    triangleQueue = geometries.map(geo => new THREE.Mesh(geo, material));
+
+    interval = setInterval(() => {
+      if (triangleQueue.length === 0) {
+        clearInterval(interval);
+        return;
+      }
+      meshGroup.add(triangleQueue.shift());
+    }, 100);
+  }
+
+  onMount(() => {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 15;
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    controls = new OrbitControls(camera, renderer.domElement);
+    meshGroup = new THREE.Group();
+    scene.add(meshGroup);
+
+    const light = new THREE.AmbientLight(0xffffff);
+    scene.add(light);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    buildShell();
+  });
+
+  $: buildShell();
+</script>
+
+<div bind:this={container} class="webgl-canvas"></div>
+
+<div class="ui-overlay">
+  <label>X: <input type="number" bind:value={x} class="border" /></label>
+  <label>Y: <input type="number" bind:value={y} class="border" /></label>
+  <label>Z: <input type="number" bind:value={z} class="border" /></label>
+</div>
+
+
+<style>
+  input {
+    width: 60px;
+    margin-right: 10px;
+  }
+
+  .ui-overlay {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    z-index: 1000; /* Ensure it's above the WebGL canvas */
+  }
+
+  .webgl-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0; /* Behind the overlay */
+    width: 70%;
+    height: 100%;
+  }
+</style>

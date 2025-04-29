@@ -1,4 +1,5 @@
 <script>
+ // import { SixPhiVector } from '$lib/sixPhi.js'
 </script>
 
 # Building in Space with Golden Triangles: A Student Guide

@@ -2,12 +2,13 @@
   import * as THREE from 'three';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   import { onMount } from 'svelte';
-  import { SixVector } from '$lib/sixvector.js';
+  import { SixPhiVector } from '$lib/sixPhi.js';
 
   let container;
-  let vector = new SixVector([null, 2, null, 1, 1, null]);
+  let vector = new SixPhiVector([null, 2, null, 1, 1, null]);
 
   onMount(() => {
+    console.log("Mounted");
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -21,10 +22,10 @@
 
     const axesHelper = new THREE.AxesHelper(2);
     scene.add(axesHelper);
-
+    console.log("adding to scene");
     // Visualize basis vectors
     const origin = new THREE.Vector3(0, 0, 0);
-    for (const basis of SixVector.basis) {
+    for (const basis of SixPhiVector.basis) {
       const dir = new THREE.Vector3(...basis).normalize();
       const arrow = new THREE.ArrowHelper(dir, origin, 1.5, 0x888888);
       scene.add(arrow);

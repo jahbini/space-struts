@@ -314,4 +314,4 @@ function main() {
 }
 console.log( "vector???",completePartialVector([1,0,1,0,1,0]) );
 
-// main();
+main();

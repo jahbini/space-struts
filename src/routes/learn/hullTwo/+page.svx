@@ -1,0 +1,16 @@
+<script>
+import PlaneTiler from './planeTiler.svelte'
+</script>
+
+# Building in Space with Golden Triangles: A Student Guide
+
+<div>
+PlaneTyler here
+<PlaneTiler/>
+PlaneTyler done
+</div>
+
+<div style="min-height:1.5in">
+</div>
+<style>
+</style>
