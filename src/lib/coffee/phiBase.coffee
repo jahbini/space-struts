@@ -32,10 +32,11 @@ class PhiBase
     else
       new PhiBase(@p * c, @n * c)
 
-  step: () ->
-    phiValue = this.p * PhiBase.PHI; # φ as static or imported
-    if (this.n < phiValue) 
-      return new PhiBase(this.p, this.n + 1)
+  step: (incr=1) ->
+    phiValue = (this.p + 1) * PhiBase.PHI; # φ as static or imported
+    nIncr = this.n + incr
+    if (nIncr < phiValue) 
+      return new PhiBase(this.p, nIncr)
     else 
       return new PhiBase(this.p + 1, this.n)
 
@@ -76,7 +77,7 @@ class PhiBase
     parts.push("#{@n}") if @n != 0
     parts.join(' + ') or '0'
 
-  fromFloat: (num, tolerance = 1e-8) ->
+  @fromFloat: (num, tolerance = 1e-8) ->
     neg = false
     if num < 0
       neg = true
@@ -84,11 +85,11 @@ class PhiBase
 
     x = new PhiBase(0, 0)
     best = x
-    bestErr = Math.abs(x.toNumber() - num)
+    bestErr = Math.abs(x.toFloat() - num)
 
     while true
       candidate = x.step()
-      candVal = candidate.toNumber()
+      candVal = candidate.toFloat()
       err = Math.abs(candVal - num)
 
       if err < bestErr
