@@ -6,7 +6,8 @@ import { onMount } from 'svelte'
 import  _  from 'underscore'
 import { page } from '$app/stores';
 import  Checkme from './Checkme.svelte'
-import { Geo} from './Geo.coffee'
+import { GeoPhi} from '$lib/coffee/geoPhi.coffee'
+import { SixPhiVector } from '$lib/coffee/sixPhiVector.coffee'
 import ColorPicker from 'svelte-awesome-color-picker';
 
 
@@ -132,10 +133,15 @@ filledAngle = (points)->
   p
 
 showSegments = (segments,color="#000000")->
+  pathToSeen= (p)->
+    [x,y,z] = p.sixPhiToCartesianDisplay()
+    return new seen.P(x,y,z)
+  debugger
   p=new seen.Model()
   return p unless segments.length
   for s in segments
-    p.add wireframe s.path, color if s
+    path = [ pathToSeen( s.path[0]), pathToSeen(s.path[1]) ]
+    p.add wireframe path, color if s
   p.scale defaultSize
   p
 
@@ -156,10 +162,11 @@ showVectors = (segments)->
 showPoints = (points)->
   p = new seen.Model()
   for point in points
+    [x,y,z] = point.sixPhiToCartesianDisplay()
     glyf=seen.Shapes.tetrahedron 1
     glyf.fill '#4cc488'
     glyf.scale 5
-    glyf.translate defaultSize*point.x,defaultSize*point.y,defaultSize*point.z
+    glyf.translate defaultSize*x,defaultSize*y,defaultSize*z
     p.add glyf
   p
 
@@ -173,7 +180,8 @@ showPointNames = (points)->
     }
     label.fill '#000000'
     label.scale 2.5
-    label.translate defaultSize*point.x,defaultSize*point.y,svgSize*0.4*point.z
+    [x,y,z] = point.sixPhiToCartesianDisplay()
+    label.translate defaultSize*x,defaultSize*y,svgSize*0.4*z
     cluster.add label
   cluster
     
@@ -271,7 +279,7 @@ onMount ->
     setTimeout onMount,50
     return
   else
-    G=new Geo()
+    G=new GeoPhi()
     mdl = seen.Models.default()
     mdl.cullBackfaces = false
     materialfiller= new seen.Material seen.C 40,60,80,30
@@ -326,7 +334,6 @@ makeResponsiveAngles= (event)->
   makeScene filters
 
 makeResponsiveScene= (event)->
-  debugger
   selectedAngle.handleClear() if selectedAngle
   if event.detail?
     for request in event.detail
@@ -349,7 +356,6 @@ setAngleColor=(event)->
   makeScene filters
 
 makeScene= (filters)->
-  
   ###
   # seen is now loaded and can be used.
   # computation for display will proceed.
@@ -372,7 +378,7 @@ makeScene= (filters)->
 
   mdl.remove anglesToShow if anglesToShow
   anglesToShow={}
-  {angleNames, anglesByMagnitude} =  G.createAngles cantidatePoints, someLines 
+  # {angleNames, anglesByMagnitude} =  G.createAngles cantidatePoints, someLines 
 
 
   someAngles = []

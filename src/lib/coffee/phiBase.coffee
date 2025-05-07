@@ -47,7 +47,7 @@ class PhiBase
       @n * other.n + @p * other.p
     )
 
-  div: (other) ->
+  div: (other , report = false) ->
     # Phi-algebra division
     phiMinusOne = new PhiBase(1, -1)
     newNumerator = @mul(phiMinusOne)
@@ -60,7 +60,7 @@ class PhiBase
     resultP = newNumerator.p / denomValue
     resultN = newNumerator.n / denomValue
 
-    if not Number.isInteger(resultP) or not Number.isInteger(resultN)
+    if report && (not Number.isInteger(resultP) or not Number.isInteger(resultN))
       console.log "Notice: Non-integer PhiBase division result:", resultP, resultN
 
     new PhiBase(resultP, resultN)
