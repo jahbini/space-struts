@@ -75,6 +75,7 @@ export class GeoPhi
     ID = "#{ptxt1}-#{ptxt2}"
     return ID if M.MM[ID]
 
+    debugger
     p1 = GeoPhi.createPhiPoint(ptxt1)
     p2 = GeoPhi.createPhiPoint(ptxt2)
     dVector = p1.clone().sub(p2)
@@ -104,30 +105,32 @@ export class GeoPhi
   ###
   # angleBetween: compute angles between two segments at a point
   ###
-  angleBetween: (originID, segID0, segID1) ->
+  angleBetween: (originID, segID) ->
     oVal = M.MM[originID].value
-    s0 = M.MM[segID0].value.path
-    s1 = M.MM[segID1].value.path
+    seg = M.MM[segID].value
     # find points
     pO = oVal
-    [pA] = if s0[0].ID is originID then [s0[1]] else [s0[0]]
-    [pB] = if s1[0].ID is originID then [s1[1]] else [s1[0]]
+    pA = seg.path[0]
+    pB = seg.path[1]
     # vectors
-    vA = pA.copy().subtract(pO)
-    vB = pB.copy().subtract(pO)
-    angle = vA.angleTo(vB)
-    angleName = angle.toFixed(3)
-    M.saveThis("#{segID0}-#{originID}-#{segID1}", {angleName, angle})
-    angleName
+    vA = pA.sub(pO)
+    vB = pB.sub(pO)
+    dot = vA.dot vB
+    raw= dot.toFloat() / (vB.magnitude() * vA.magnitude() )
+    angleDeg = Math.acos(raw) * 180 / Math.PI;
+    angleDeg.toFixed 3
 
   createAngles: (points, segments)->
     biVectors = {}
+    angleNames = []
+    anglesByMagnitude = []
+    return {angleNames,anglesByMagnitude} if segments.length == 0
     for i in points
       for j in segments
         continue unless j?.ID
         [leg0,leg1]= j.ID.split "-"
         continue if  i.ID== leg0 || i.ID == leg1
-        d = @angleBetween i.ID,leg0,leg1
+        d = @angleBetween i.ID,j.ID
         ID="#{i.ID}<#{leg0}-#{leg1}"
         seg0Vector = M.MM[leg0].value
         seg1Vector = M.MM[leg1].value

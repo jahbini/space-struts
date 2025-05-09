@@ -4,8 +4,22 @@
 import { PhiBase, ZERO } from './phiBase.coffee'
 
 PHI=PhiBase.PHI
+# set the scaling factor for the dot product to one for calibration
+# G_SCALE will be corrected when the class is properly defined below
+G_SCALE = 1.0
+testing = false # end of file confidence tests of this class
+
 # sixBasisPhi.coffee
 # Defines the six basis vectors using PhiBase notation
+sixBases =
+  [
+    [ PHI, 0, 1 ]   # phi, 0, 1
+    [ PHI, 0, -1 ]  # phi, 0, -1
+    [ 0, 1, PHI ]    # 0, 1, phi
+    [ 0, -1, PHI ]   # 0, -1, phi
+    [ 1, PHI, 0 ]    # 1, phi, 0
+    [ -1, PHI, 0 ]   # -1, phi, 0
+  ]
 
 # Assumes PhiBase is already loaded or imported
 p = (phi, n) -> new PhiBase(phi, n)
@@ -19,16 +33,8 @@ sixPhiBases =
     [ p(0, 1), p(1, 0), p(0, 0) ]  # +1 along x, +phi along y
     [ p(0,-1), p(1, 0), p(0, 0) ] # +1 along x, -phi along y
   ]
-
-sixBases =
-  [
-    [ PHI, 0, 1 ]   # phi, 0, 1
-    [ PHI, 0, -1 ]  # phi, 0, -1
-    [ 0, 1, PHI ]    # 0, 1, phi
-    [ 0, -1, PHI ]   # 0, -1, phi
-    [ 1, PHI, 0 ]    # 1, phi, 0
-    [ -1, PHI, 0 ]   # -1, phi, 0
-  ]
+# PhiBase Metric Tensor G for sixPhi system
+# Each entry G[i][j] = PhiBase(p, n) means p*phi + n
 
 class SixPhiVector
   constructor: (list) ->
@@ -65,11 +71,20 @@ class SixPhiVector
   negate: ->
     new SixPhiVector(@v.map((x) -> x.negate()))
 
-  dot: (other) ->
-    result = ZERO
-    for i in [0..5]
-      result = result.add(@v[i].mul(other.v[i]))
-    result
+  dot: (B, debug = false) ->
+    A = @v
+    B = B.v
+    sum = p(0, 0)
+    for i in [0...6]
+      for j in [i...6]
+        aMulB = A[i].mul(B[j])
+        g = G[i][j]
+        term = aMulB.mul(g)
+        if i != j then term = term.scale(2)
+        sum = sum.add(term)
+        if debug
+          console.log "term: #{term.toName()}"
+    return sum.scale(G_SCALE)  # only here
 
   magnitudeSquared: ->
     @dot(@)
@@ -118,7 +133,30 @@ class SixPhiVector
       (a.sub(b).add(p(1,0).mul(c.add(d)))).div(p(2,4)).toFloat()
     ]
   
-    
+
+# Generate exact metric tensor G from basis vectors
+G = []
+for i in [0...6]
+  row = []
+  for j in [0...6]
+    ssum = p(0, 0)
+    for k in [0..2]
+      ssum = ssum.add(sixPhiBases[i][k].mul(sixPhiBases[j][k]))
+    row.push(ssum)
+  G.push(row)
+debugger
+# Optional diagnostic: dump G as .toName() for readability
+console.log "\nExact Metric Tensor G (symbolic):"
+for row in G
+  console.log row.map((g) -> g.toName()).join(', ')
+
+buildReferenceVector = ->
+  new SixPhiVector([
+    p(1,1), p(1,-1), p(1,1),
+    p(1,-1), p(1,1), p(1,-1)
+  ])
+
+G_SCALE = 3 / buildReferenceVector().dot(buildReferenceVector()).toFloat()
 
 # Input: Cartesian coordinates (x, y, z)
 # Output: { sixPhiVector, residual: [dx, dy, dz], distance }
@@ -141,3 +179,43 @@ quantizedFromCartesian = (x, y, z) ->
 ZERO6 = new SixPhiVector([ZERO, ZERO, ZERO, ZERO, ZERO, ZERO])
 
 export { quantizedFromCartesian, SixPhiVector, ZERO6 }
+if testing
+    # --- Symmetry check ---
+  console.log "Checking symmetry of G..."
+  for i in [0...6]
+    for j in [0...6]
+      unless G[i][j].equals(G[j][i])
+        console.error "G[\#{i}][\#{j}] ≠ G[\#{j}][\#{i}]"
+
+  # --- Positive semi-definiteness ---
+  console.log "Checking positive semi-definiteness of G..."
+  for i in [0...6]
+    v = [0,0,0,0,0,0].map (x, j) -> if j == i then PhiBase.ONE else PhiBase.ZERO
+    vec = new SixPhiVector(v)
+    mag2 = vec.dot(vec).toFloat()
+    if mag2 < 0
+      console.warn "G makes basis vector \#{i} have negative squared magnitude: \#{mag2}"
+
+  # --- Expected dot products ---
+  expected = {
+    '0-1': p(1,0),
+    '0-5': p(0,-2),
+    '3-4': p(0,-2)
+  }
+  for key, val of expected
+    [i, j] = key.split('-').map(Number)
+    actual = G[i][j]
+    unless actual.equals(val)
+      console.error "Mismatch: G[\#{i}][\#{j}] = \#{actual.toName()} ≠ expected \#{val.toName()}"
+
+  # Define two test points
+  A = new SixPhiVector([p(0,1), p(0,0), p(0,0), p(0,0), p(0,0), p(0,0)])  # unit in dir 0
+  B = new SixPhiVector([p(0,0), p(0,0), p(0,0), p(0,0), p(0,0), p(0,0)])  # origin
+
+  # Compute vector difference and magnitude
+  D = A.sub(B)
+  console.log "D = ", D.toString()
+  mag2 = D.dot(D, true)
+  console.log "distance² = #{mag2.toName()} → float: #{mag2.toFloat()}"
+  console.log "All G matrix and dot product checks complete."
+

@@ -71,6 +71,9 @@ class PhiBase
   toFloat: ->
     @p * PHI + @n
 
+  toName: ->
+    this.toString()
+
   toString: ->
     parts = []
     parts.push("#{@p}φ") if @p != 0

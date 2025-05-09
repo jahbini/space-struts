@@ -17,7 +17,7 @@ duh=  duh.split /, ?/ if 'string' == typeof duh
 
 useShapes = ("#{shape}": shape for shape in duh) || {}
 
-G={Polyhedra:[]}
+PolyG={Polyhedra:[]}
 shapesText=""
 svgSize=200
 defaultSize=48
@@ -136,7 +136,6 @@ showSegments = (segments,color="#000000")->
   pathToSeen= (p)->
     [x,y,z] = p.sixPhiToCartesianDisplay()
     return new seen.P(x,y,z)
-  debugger
   p=new seen.Model()
   return p unless segments.length
   for s in segments
@@ -146,11 +145,16 @@ showSegments = (segments,color="#000000")->
   p
 
 showVectors = (segments)->
+  toSeen = (vector)->
+    [x,y,z]=vector.sixPhiToCartesianDisplay()
+    new seen.P x,y,z
+    
   p=new seen.Model()
   return p unless segments.length
   for s in segments
     continue unless s
-    p.add filledAngle [s.path[0],s.path[1],s.path[2],s.path[0]]
+    anchor= toSeen s.path[0]
+    p.add filledAngle [ anchor, toSeen(s.path[1]), toSeen(s.path[2]), anchor]
 
   p.scale defaultSize
   p
@@ -279,7 +283,7 @@ onMount ->
     setTimeout onMount,50
     return
   else
-    G=new GeoPhi()
+    PolyG=new GeoPhi()
     mdl = seen.Models.default()
     mdl.cullBackfaces = false
     materialfiller= new seen.Material seen.C 40,60,80,30
@@ -304,8 +308,8 @@ updateShapesWanted = (event) ->
   cantidatePoints= []
   filters.segmentMagnitudes = []
   for key of filters.useShapes
-    cantidatePoints=cantidatePoints.concat G.Polyhedra[key]
-  {segmentNames,segmentsByMagnitude} = G.createSegments cantidatePoints
+    cantidatePoints=cantidatePoints.concat PolyG.Polyhedra[key]
+  {segmentNames,segmentsByMagnitude} = PolyG.createSegments cantidatePoints
   # remove any segments that don't have a length of the shapes displayed
   for k of filters.segmentMagnitudes
     filters.segmentMagnitudes[k] = segmentsByMagnitude[k]?
@@ -362,7 +366,7 @@ makeScene= (filters)->
   ###
   mdl.remove linesToShow if linesToShow
   linesToShow = {}
-  {segmentNames,segmentsByMagnitude} = G.createSegments cantidatePoints
+  {segmentNames,segmentsByMagnitude} = PolyG.createSegments cantidatePoints
   someLines = []
   segmentText=[]
   segmentsActive={}
@@ -378,8 +382,8 @@ makeScene= (filters)->
 
   mdl.remove anglesToShow if anglesToShow
   anglesToShow={}
-  # {angleNames, anglesByMagnitude} =  G.createAngles cantidatePoints, someLines 
-
+  {angleNames, anglesByMagnitude} =  PolyG.createAngles cantidatePoints, someLines 
+  
 
   someAngles = []
   angleText=[]
@@ -389,7 +393,8 @@ makeScene= (filters)->
     anglesActive[key]=true
   someAngles =  anglesByMagnitude[key] || []
   if someAngles?.length 
-    anglesToShow = showVectors someAngles[0..showSomeAngles()]
+    debugger
+    anglesToShow = showVectors someAngles
     mdl.add anglesToShow  
 
   if someAngles.length == 0
@@ -426,7 +431,7 @@ makeScene= (filters)->
 
   context1.render()
   context2.render()
-  items=_.keys(G.Polyhedra)
+  items=_.keys(PolyG.Polyhedra)
   
 </script>
 <svelte:head>
