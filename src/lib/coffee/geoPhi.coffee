@@ -75,7 +75,6 @@ export class GeoPhi
     ID = "#{ptxt1}-#{ptxt2}"
     return ID if M.MM[ID]
 
-    debugger
     p1 = GeoPhi.createPhiPoint(ptxt1)
     p2 = GeoPhi.createPhiPoint(ptxt2)
     dVector = p1.clone().sub(p2)
@@ -115,8 +114,14 @@ export class GeoPhi
     # vectors
     vA = pA.sub(pO)
     vB = pB.sub(pO)
-    dot = vA.dot vB
-    raw= dot.toFloat() / (vB.magnitude() * vA.magnitude() )
+    aMag = vA.magnitude()
+    bMag = vB.magnitude()
+    scaleMag = 1.0/(aMag*bMag)
+    
+    debugger
+    result = vA.dot vB
+    #raw= result.toFloat() / (aMag * bMag)
+    raw = result.scale(scaleMag).toFloat()
     angleDeg = Math.acos(raw) * 180 / Math.PI;
     angleDeg.toFixed 3
 
@@ -148,6 +153,27 @@ export class GeoPhi
     anglesByMagnitude = anglesByMagnitude.value()
     {angleNames,anglesByMagnitude}
 
+  testAngleWithSegment: (originID, pointA_ID, pointB_ID, expectedDeg = null) ->
+    seg = createSegment(pointA_ID, pointB_ID)
+    segID = seg.ID
+    M.MM[segID] = { value: seg }  # Register it if needed by angleBetween
+
+    angle = angleBetween(originID, segID)
+    rounded = angle.toFixed(3)
+
+    result = "Angle at #{originID} between #{pointA_ID} and #{pointB_ID}: #{rounded}°"
+    if expectedDeg?
+      delta = Math.abs(angle - expectedDeg)
+      result += " | Expected: #{expectedDeg}° | Δ = #{delta.toFixed(3)}°"
+      if delta > 0.01
+        console.warn "⚠️ Angle mismatch: #{result}"
+      else
+        console.log "✅ " + result
+    else
+      console.log result
+
+    return angle
+
   constructor: ->
     # initialize polyhedra points
     @Polyhedra =
@@ -167,3 +193,31 @@ export class GeoPhi
     @segmentNames = segmentNames
     @segmentsByMagnitude = segmentsByMagnitude
 
+testGeo = new GeoPhi()
+
+# --- Angle testing routine ---
+testAngleWithSegment = (originID, pointA_ID, pointB_ID, expectedDeg = null) ->
+  segID = testGeo.createSegment(pointA_ID, pointB_ID)
+  GeoPhi.createPhiPoint(originID)
+
+  angle = testGeo.angleBetween(originID, segID)
+  rounded = angle
+
+  result = "Angle at #{originID} between #{pointA_ID} and #{pointB_ID}: #{rounded}°"
+  if expectedDeg?
+    delta = Math.abs(angle - expectedDeg)
+    result += " | Expected: #{expectedDeg}° | Δ = #{delta.toFixed(3)}°"
+    if delta > 0.01
+      ratio=delta/angle
+      console.warn "⚠️ Angle mismatch: #{result}, #{ratio}"
+    else
+      console.log "✅ " + result
+  else
+    console.log result
+
+  return angle
+
+testAngleWithSegment "#OOO", "#OoO", "#oOO", 90  # if expecting 90°
+testAngleWithSegment "#OoO", "#oOO", "#OOO", 45
+testAngleWithSegment "#oOO", "#OOO", "#OoO", 45
+testAngleWithSegment "#OOO", "#oOO", "#OoO", 90

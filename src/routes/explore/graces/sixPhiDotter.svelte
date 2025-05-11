@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import * as THREE from 'three';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-//  import GeoSixPhi from '$lib/coffee/geoSixPhi.coffee';
+  import { GeoPhi } from '$lib/coffee/geoPhi.coffee';
   import {PhiBase,ZERO, PHI}  from '$lib/coffee/phiBase.coffee';
   import { quantizedFromCartesian, SixPhiVector } from '$lib/coffee/sixPhiVector.coffee'; 
   let container;
@@ -24,10 +24,11 @@
     let testzPhi=PhiBase.fromFloat(testz)
     let testv= SixPhiVector.fromPhiPoint( testxPhi, testyPhi, testzPhi );
     let textxyz= testv.sixPhiToCartesianDisplay() 
-    if ( false) {    
+    if ( true) {    
       const ONE=new PhiBase(0,1);
       steps = [ new PhiBase(0,-1), ZERO, ONE, new PhiBase(1,-1), new PhiBase(1,0), new PhiBase(1,1), new PhiBase(2,-1), new PhiBase(2,0),new PhiBase(2,1) ]
       steps = [ new PhiBase(0,-1), ZERO, ONE, new PhiBase(1,-1), new PhiBase(1,0)]
+      steps = [  ZERO, ONE, new PhiBase(1,-1)]
       const scanLimit = steps.length
       for (i=0; i<=scanLimit; i++){
         steps[i + scanLimit] = steps[i].negate();

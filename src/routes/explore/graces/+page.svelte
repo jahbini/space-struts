@@ -6,7 +6,7 @@ import { onMount } from 'svelte'
 import  _  from 'underscore'
 import { page } from '$app/stores';
 import  Checkme from './Checkme.svelte'
-import { Geo } from './Geo.coffee'
+import { GeoPhi } from '$lib/coffee/geoPhi.coffee'
 import SixPhiDotter from './sixPhiDotter.svelte'
 import ColorPicker from 'svelte-awesome-color-picker';
  
@@ -273,7 +273,7 @@ onMount ->
     setTimeout onMount,50
     return
   else
-    G=new Geo()
+    G=new GeoPhi()
     mdl = seen.Models.default()
     mdl.cullBackfaces = false
     materialfiller= new seen.Material seen.C 40,60,80,30
@@ -433,6 +433,7 @@ makeScene= (filters)->
 <div class="floater-expanded" >
   <SixPhiDotter />
 </div>
+
 
 <div>
   <figure style="float:left; margin: 0 0 0 0">

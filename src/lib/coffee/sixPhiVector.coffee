@@ -2,6 +2,7 @@
 # Full six-basis vector math, symbolic PhiBase style
 
 import { PhiBase, ZERO } from './phiBase.coffee'
+import { GeoPhi } from './geoPhi.coffee'
 
 PHI=PhiBase.PHI
 # set the scaling factor for the dot product to one for calibration
@@ -35,6 +36,30 @@ sixPhiBases =
   ]
 # PhiBase Metric Tensor G for sixPhi system
 # Each entry G[i][j] = PhiBase(p, n) means p*phi + n
+
+# Generate exact metric tensor G from basis vectors
+G = []
+for i in [0...6]
+  row = []
+  for j in [0...6]
+    sum = p(0, 0)
+    for k in [0..2]
+      sum = sum.add(sixPhiBases[i][k].mul(sixPhiBases[j][k]))
+    row.push(sum)
+  G.push(row)
+
+# Optional diagnostic: dump G as .toName() for readability
+console.log "\nExact Metric Tensor G (symbolic):"
+for row in G
+  console.log row.map((g) -> g.toName()).join(', ')
+
+buildReferenceVector = ->
+  new SixPhiVector([
+    p(1,1), p(1,-1), p(1,1),
+    p(1,-1), p(1,1), p(1,-1)
+  ])
+
+
 
 class SixPhiVector
   constructor: (list) ->
@@ -71,20 +96,12 @@ class SixPhiVector
   negate: ->
     new SixPhiVector(@v.map((x) -> x.negate()))
 
-  dot: (B, debug = false) ->
-    A = @v
-    B = B.v
-    sum = p(0, 0)
-    for i in [0...6]
-      for j in [i...6]
-        aMulB = A[i].mul(B[j])
-        g = G[i][j]
-        term = aMulB.mul(g)
-        if i != j then term = term.scale(2)
-        sum = sum.add(term)
-        if debug
-          console.log "term: #{term.toName()}"
-    return sum.scale(G_SCALE)  # only here
+  dot: (other) ->
+    result = p(0, 0)
+    for i in [0..5]
+      for j in [0..5]
+        result = result.add(@v[i].mul(other.v[j]).mul(G[i][j]))
+    result.scale(G_SCALE)
 
   magnitudeSquared: ->
     @dot(@)
@@ -134,28 +151,6 @@ class SixPhiVector
     ]
   
 
-# Generate exact metric tensor G from basis vectors
-G = []
-for i in [0...6]
-  row = []
-  for j in [0...6]
-    ssum = p(0, 0)
-    for k in [0..2]
-      ssum = ssum.add(sixPhiBases[i][k].mul(sixPhiBases[j][k]))
-    row.push(ssum)
-  G.push(row)
-debugger
-# Optional diagnostic: dump G as .toName() for readability
-console.log "\nExact Metric Tensor G (symbolic):"
-for row in G
-  console.log row.map((g) -> g.toName()).join(', ')
-
-buildReferenceVector = ->
-  new SixPhiVector([
-    p(1,1), p(1,-1), p(1,1),
-    p(1,-1), p(1,1), p(1,-1)
-  ])
-
 G_SCALE = 3 / buildReferenceVector().dot(buildReferenceVector()).toFloat()
 
 # Input: Cartesian coordinates (x, y, z)
@@ -178,7 +173,9 @@ quantizedFromCartesian = (x, y, z) ->
 # Useful constant
 ZERO6 = new SixPhiVector([ZERO, ZERO, ZERO, ZERO, ZERO, ZERO])
 
+
 export { quantizedFromCartesian, SixPhiVector, ZERO6 }
+testing = false
 if testing
     # --- Symmetry check ---
   console.log "Checking symmetry of G..."
