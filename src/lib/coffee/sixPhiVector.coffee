@@ -90,6 +90,11 @@ class SixPhiVector
   sub: (other) ->
     new SixPhiVector(@v.map((x, i) -> x.sub(other.v[i])))
 
+  equals: (other)->
+    result = true
+    @v.map( (x,i) -> result= result and x.equals other.v[i] )
+    return result
+
   scale: (c) ->
     new SixPhiVector(@v.map((x) -> x.scale(c)))
 
@@ -149,7 +154,11 @@ class SixPhiVector
       (c.sub(d).add(p(1,0).mul(e.add(f)))).div(p(2,4)).toFloat(),
       (a.sub(b).add(p(1,0).mul(c.add(d)))).div(p(2,4)).toFloat()
     ]
-  
+
+  reflect: ( faceID ) ->
+    r = new sixPhiVector @.v
+    r.v[faceID] = r.v[faceID].negate()
+    r
 
 G_SCALE = 3 / buildReferenceVector().dot(buildReferenceVector()).toFloat()
 
