@@ -48,10 +48,12 @@ for i in [0...6]
     row.push(sum)
   G.push(row)
 
-# Optional diagnostic: dump G as .toName() for readability
-console.log "\nExact Metric Tensor G (symbolic):"
-for row in G
-  console.log row.map((g) -> g.toName()).join(', ')
+testing = false
+if testing
+  # Optional diagnostic: dump G as .toName() for readability
+  console.log "\nExact Metric Tensor G (symbolic):"
+  for row in G
+    console.log row.map((g) -> g.toName()).join(', ')
 
 buildReferenceVector = ->
   new SixPhiVector([
@@ -181,9 +183,8 @@ quantizedFromCartesian = (x, y, z) ->
   }
 # Useful constant
 ZERO6 = new SixPhiVector([ZERO, ZERO, ZERO, ZERO, ZERO, ZERO])
-
-
 export { quantizedFromCartesian, SixPhiVector, ZERO6 }
+
 testing = false
 if testing
     # --- Symmetry check ---

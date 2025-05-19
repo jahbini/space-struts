@@ -1,7 +1,7 @@
 import { Memo } from '$lib/coffee/memo.coffee'
 import _ from 'underscore'
 import { ONE, ZERO, PHI, PhiBase }  from '$lib/coffee/phiBase.coffee'
-import { SixPhiVector } from '$lib/coffee/sixPhiVector.coffee'
+import { SixPhiVector, ZERO6 } from '$lib/coffee/sixPhiVector.coffee'
 
 export M = new Memo()
 cliques= {}
@@ -18,40 +18,54 @@ stripName=(sID,tID)->
   rValue=tID.split(/<|>|-/g).join('').replace(segParts[0],'').replace(segParts[1],'')
   return rValue
 
+movedTriangles = 0;
 
 export class GeoPhi
   itemsConstructed =0
-  ###+
-  # param: ptxt encoding of essential points above text
-  # returns new seen.P decorated with ID: ptxt
-  # side-effect: adds point to pointName map to this returned value
-  ###
-  createSeenPoint:  (ptxt,shapeName = "")->
-    return null if ! xyz=ptxt.match '[@|#](.)(.)(.)(X[0-9]+)?$'
-    if null != p=(M.theLowdown ptxt).value
-      p.shapeName[shapeName] = shapeName
-      return (M.theLowdown ptxt).value
-    if ptxt[0] == '@'
-      po= reflectPointAcrossPlane [p.x,p.y,p.z],planeVertices
-      p = seen.P po[0],po[1],po[2]
-    p.d = p.magnitude().toFixed 3
-    p.shapeName = { "#{shapeName}": shapeName }
-    p.ID = ptxt
-    (M.saveThis ptxt, p).value #return just the point value, not the meta info
 
   normalizeFrame: (points,bias=null)->
-    bias=seen.P() unless bias?.constructor?.name == "Point"
+    bias=ZERO6 unless bias instanceof SixPhiVector
     for s in points
+      if typeof s == 'string'
+          s=GeoPhi.createPhiPoint s
       if s instanceof SixPhiVector
-        [x,y,z] = s.sixPhiToCartesianDisplay()
-        p = seen.P x,y,z
-        r=bias.copy().add p
+        r=bias.add s
         r.ID=s?.ID
         r
       else
+        debugger
         r=bias.copy().add s
-        r.ID=s
+        r.ID=s.ID
       r
+
+  normalizeXYZ: (pointsV6) ->
+    pointsXYZ = []
+    for s in pointsV6
+      [x,y,z] = s.sixPhiToCartesianDisplay()
+      pointsXYZ.push P(x,y,z)
+    pointsXYZ 
+
+  
+  moveTriangle: (sID,tID) ->
+    triangle = M.MM[tID].value
+    segment=M.MM[sID].value
+    path=@normalizeFrame (tID.split /-|<|>/)
+    nickName = (sID.split 'X')[0]
+    offsetSegment = @cliques[nickName][tID][0]
+    tMidPointV6 = M.MM[offsetSegment].value.midPoint
+    sMidPointV6 = segment.midPoint
+    path = path.map( (p) -> p.sub(tMidPointV6).add(sMidPointV6) )
+    s1=@moveSegment triangle.segments[0],[path[0],path[1]],sID
+    s2=@moveSegment triangle.segments[1],[path[1],path[2]],sID
+    s3=@moveSegment triangle.segments[2],[path[0],path[2]],sID
+    segments=[]
+    segments.push s1 if s1
+    segments.push s2 if s2
+    segments.push s3 if s3
+    ID = tID+"--"+movedTriangles++
+    face = triangle.face
+    {value}=M.saveThis ID, {ID, face, segments,path}
+    value
 
   createCliques = (G) ->
     return [] unless G.fiboTriangles.length
@@ -139,30 +153,27 @@ export class GeoPhi
       return shape.split('-').map (pt) -> GeoPhi.createPhiPoint(pt, shapeName)
     []
 
-  moveSegment: (segmentName,seenDestination,sID=null) ->
+  moveSegment: (segmentName,V6Destination,sID=null) ->
     segment = M.MM[segmentName].value
     midPoint =segment.midPoint
     vetric = segment.vetric
-    if seenDestination.constructor.name == "Point"
-      path = [ segment.path[0].sub(midPoint).add(seenDestination),
-        segment.path[1].sub(midPoint).add(seenDestination) ]
-    else if seenDestination instanceof SixPhiVector
-      path = [ segment.path[0].sub(midPoint).add(seenDestination),
-               segment.path[1].sub(midPoint).add(seenDestination)]
+    if V6Destination.length != 2
+      path = [ segment.path[0].sub(midPoint).add(V6Destination),
+               segment.path[1].sub(midPoint).add(V6Destination)]
     else
-      path = seenDestination
+      path = V6Destination
     midPoint=path[0].add(path[1]).scale 0.5
     if sID
       unlessSegment = M.MM[sID].value
       residual = unlessSegment.midPoint.sub(midPoint).magnitudeSquared()
-      if residual > 0.1
+      if residual.toFloat() > 0.1
         ID=segmentName+"X"+itemsConstructed++
-        M.saveThis ID, {ID, seenDestination,path,midPoint,vetric}
+        M.saveThis ID, {ID, v:V6Destination,path,midPoint,vetric}
       else
         ID=null
     else
       ID=segmentName+"X"+itemsConstructed++
-      M.saveThis ID, {ID, seenDestination,path,midPoint,vetric}
+      M.saveThis ID, {ID, v:V6Destination,path,midPoint,vetric}
 
     return ID
 
@@ -373,33 +384,35 @@ export class GeoPhi
     # create the fiboTriangles on each of the 12 faces
     @fiboTriangles= @createFiboTriangles @Faces
     {@cliques,@cliqueNames} = createCliques @
-    console.log @cliques["#zoz-#smz"]
+    console.log @cliques["#Ooo-#Pzf"]
 
-testGeo = new GeoPhi()
+testing = false
+if testing
+  testGeo = new GeoPhi()
 
-# --- Angle testing routine ---
-testAngleWithSegment = (originID, pointA_ID, pointB_ID, expectedDeg = null) ->
-  segID = testGeo.createSegment(pointA_ID, pointB_ID)
-  GeoPhi.createPhiPoint(originID)
+  # --- Angle testing routine ---
+  testAngleWithSegment = (originID, pointA_ID, pointB_ID, expectedDeg = null) ->
+    segID = testGeo.createSegment(pointA_ID, pointB_ID)
+    GeoPhi.createPhiPoint(originID)
 
-  angle = testGeo.angleBetween(originID, segID)
-  rounded = angle
+    angle = testGeo.angleBetween(originID, segID)
+    rounded = angle
 
-  result = "Angle at #{originID} between #{pointA_ID} and #{pointB_ID}: #{rounded}°"
-  if expectedDeg?
-    delta = Math.abs(angle - expectedDeg)
-    result += " | Expected: #{expectedDeg}° | Δ = #{delta.toFixed(3)}°"
-    if delta > 0.01
-      ratio=delta/angle
-      console.warn "⚠️ Angle mismatch: #{result}, #{ratio}"
+    result = "Angle at #{originID} between #{pointA_ID} and #{pointB_ID}: #{rounded}°"
+    if expectedDeg?
+      delta = Math.abs(angle - expectedDeg)
+      result += " | Expected: #{expectedDeg}° | Δ = #{delta.toFixed(3)}°"
+      if delta > 0.01
+        ratio=delta/angle
+        console.warn "⚠️ Angle mismatch: #{result}, #{ratio}"
+      else
+        console.log "✅ " + result
     else
-      console.log "✅ " + result
-  else
-    console.log result
+      console.log result
 
-  return angle
+    return angle
 
-testAngleWithSegment "#OOO", "#OoO", "#oOO", 90  # if expecting 90°
-testAngleWithSegment "#OoO", "#oOO", "#OOO", 45
-testAngleWithSegment "#oOO", "#OOO", "#OoO", 45
-testAngleWithSegment "#OOO", "#oOO", "#OoO", 90
+  testAngleWithSegment "#OOO", "#OoO", "#oOO", 90  # if expecting 90°
+  testAngleWithSegment "#OoO", "#oOO", "#OOO", 45
+  testAngleWithSegment "#oOO", "#OOO", "#OoO", 45
+  testAngleWithSegment "#OOO", "#oOO", "#OoO", 90
