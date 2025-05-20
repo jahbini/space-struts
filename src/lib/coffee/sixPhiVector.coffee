@@ -61,8 +61,6 @@ buildReferenceVector = ->
     p(1,-1), p(1,1), p(1,-1)
   ])
 
-
-
 class SixPhiVector
   constructor: (list) ->
     if list.length isnt 6
@@ -156,6 +154,22 @@ class SixPhiVector
       (c.sub(d).add(p(1,0).mul(e.add(f)))).div(p(2,4)).toFloat(),
       (a.sub(b).add(p(1,0).mul(c.add(d)))).div(p(2,4)).toFloat()
     ]
+
+  reflect = (v, k) ->
+    u = [0,0,0,0,0,0]; u[k] = p(0,1)  # symbolic unit
+    dotVU = p(0,0); dotUU = p(0,0)
+    for i in [0...6]
+      for j in [0...6]
+        dotVU = dotVU.add( v[i].mul(G[i][j]).mul(u[j]) )
+        dotUU = dotUU.add( u[i].mul(G[i][j]).mul(u[j]) )
+
+    scale = dotVU.div(dotUU)
+
+    reflected = []
+    for i in [0...6]
+      projComponent = u[i].mul(scale)
+      reflected[i] = v[i].sub(projComponent.mul(p(0,2)))
+    reflected
 
   reflect: ( faceID ) ->
     r = new sixPhiVector @.v

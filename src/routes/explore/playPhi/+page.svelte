@@ -5,7 +5,6 @@ import * as seenModule from '$lib/seen.m.coffee'
 import { onMount } from 'svelte'
 import  _  from 'underscore'
 import { page } from '$app/stores';
-import  Checkme from './Checkme.svelte'
 import { GeoPhi, M } from '$lib/coffee/geoPhi.coffee'
 import ColorPicker from 'svelte-awesome-color-picker';
 

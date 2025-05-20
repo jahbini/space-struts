@@ -110,19 +110,58 @@ export class GeoPhi
     "z": new PhiBase(0, 0)
     "0": new PhiBase(0, 0)
     "O": new PhiBase(0, 1)
-    "o": new PhiBase(0, -1) # -1/phi = -(phi - 1) = -phi + 1
+    "o": new PhiBase(0, -1)
     "f": new PhiBase(-1, 1) #  1/phi = phi - 1
-    "F": new PhiBase(1, -1)
+    "F": new PhiBase(1, -1) # -1/phi = -(phi - 1) = -phi + 1
     "p": new PhiBase(-1, 0)
     "P": new PhiBase(1, 0)
   }
+  p=(a,b) -> new PhiBase(a,b)
 
+  basisNormals3Phi = [
+    # Face A
+    { x: p(1, 0), y: p(0, 1), z: p(0, 0) },     # (φ, 1, 0)
+    # Face B
+    { x: p(1, 0), y: p(0, -1), z: p(0, 0) },    # (φ, -1, 0)
+    # Face C
+    { x: p(0, 1), y: p(0, 0), z: p(1, 0) },     # (1, 0, φ)
+    # Face D
+    { x: p(0, -1), y: p(0, 0), z: p(1, 0) },    # (-1, 0, φ)
+    # Face E
+    { x: p(0, 0), y: p(1, 0), z: p(0, 1) },     # (0, φ, 1)
+    # Face F
+    { x: p(0, 0), y: p(1, 0), z: p(0, -1) }     # (0, φ, -1)
+  ]
+
+# Reflect a PhiBase point {x, y, z} across one of the six basis planes
+  reflect3PhiAcrossPlane = (point, planeIndex) ->
+    [x, y, z] = point
+    n = basisNormals3Phi[planeIndex]
+
+    # Dot products
+    dotNP = n.x.mul(x).add(n.y.mul(y)).add(n.z.mul(z))
+    dotNN = n.x.mul(n.x).add(n.y.mul(n.y)).add(n.z.mul(n.z))
+
+    scale = dotNP.div(dotNN)
+
+    # 2 * projection vector
+    dx = n.x.mul(scale).mul(p(0,2))
+    dy = n.y.mul(scale).mul(p(0,2))
+    dz = n.z.mul(scale).mul(p(0,2))
+
+    [x.sub(dx), y.sub(dy), z.sub(dz)]
+
+  planeVertices = [
+    [decode['z'], decode['f'],decode['P']],
+    [decode['F'], decode['p'],decode['z']],
+    [decode['f'], decode['p'],decode['z']],
+  ]; #// Plane defined by a face of the dodecahedron
   ###
   # createPhiPoint: builds a SixPhiVector from a 3-char code
   # side-effect: caches in Memo with key ptxt
   ###
   @createPhiPoint= (ptxt, shapeName = "") ->
-    return null unless m = ptxt.match /#(.)(.)(.)$/
+    return null unless m = ptxt.match /[@|#](.)(.)(.)$/
     # reuse existing if already created
     if existing = M.theLowdown(ptxt)?.value
       existing.shapeName[shapeName] = shapeName
@@ -132,6 +171,9 @@ export class GeoPhi
     x = decode[m[1]]
     y = decode[m[2]]
     z = decode[m[3]]
+
+    if ptxt[0] == '@'
+      [x,y,z]= reflect3PhiAcrossPlane [x,y,z],5
 
     # convert to six-basis vector
     v = SixPhiVector.fromPhiPoint(x, y, z)
@@ -357,7 +399,7 @@ export class GeoPhi
      "#OoO-#PzF-#OOO-#zFP-#zfP",   #Face e
      "#ooO-#pzF-#oOO-#zFP-#zfP",    #Face F
      "#Ooo-#Pzf-#OOo-#zFp-#zfp",  #Face f
-###
+
      "@ooO-@zfP-@OoO-@Fpz-@fpz",  # Face A
      "@oOo-@zFp-@OOo-@FPz-@fPz",   # Face a
      "@ooo-@fpz-@ooO-@pzF-@pzf",   #Face B
@@ -370,7 +412,7 @@ export class GeoPhi
      "@OoO-@PzF-@OOO-@zFP-@zfP",   #Face e
      "@ooO-@pzF-@oOO-@zFP-@zfP",    #Face F
      "@Ooo-@Pzf-@OOo-@zFp-@zfp",  #Face f
-###
+
     ]
 
     # build segments
