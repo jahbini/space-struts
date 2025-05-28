@@ -204,7 +204,6 @@ splitName = (longName)->
   return value
 
 useTriangle=(event)->
-  debugger
   triangle = G.moveTriangle pageState.activeClique,pageState.activeCliqueTriangle
   for seg in triangle.segments
     pageState.openSegments.push seg
@@ -249,9 +248,15 @@ showClique=(sID)->
   p=new seen.Model()
   # go through all the triangles of the clique
   triangles = G.cliques[nickName]
+  activeTriangle = pageState.activeCliqueTriangle 
   for k,t of triangles
     # k is "#xyz>#xyz>#xyz"
     # t is [ segment parallel to nickName,  "#xxx" ] 
+    if k == activeTriangle
+      crayon = new seen.Material seen.C 240,240,240,80
+    else
+      crayon = new seen.Material seen.C 100,100,100,40
+      
     offsetSegment = t[0]
     #push the triangle full name and "#xxx" out to the User Interface
     cliqueTriangles.push [k,t[1] ]
@@ -265,9 +270,9 @@ showClique=(sID)->
       r=r.sub(tmidPointV6).add(segment.midPoint)
       r
 
-    p.add wireframe ps ,new seen.Material seen.C 100,100,100,40
+    p.add wireframe ps ,crayon
 
-    mdl1.add showPoints ps 
+    mdl1.add showPoints ps ,crayon
 
   p.scale defaultSize
   p
@@ -277,13 +282,15 @@ showClique=(sID)->
 # descr: generate the vertices as tetrahedrons from seen's model mdl
 # param: mdl seenjs model to attach this graphic
 ###
-showPoints = (points)->
+showPoints = (points,color=null)->
   p = new seen.Model()
   for point in points
     glyf=seen.Shapes.tetrahedron 1
     glyf.fill glyf.filler
-    if point.ID
+    if color == null && point.ID
       glyf.fill makeColorFromID point.ID,220
+    else
+      glyf.fill color
     [x,y,z] = point.sixPhiToCartesianDisplay()
     glyf.scale 5
     glyf.translate defaultSize*x,defaultSize*y,defaultSize*z
@@ -547,7 +554,6 @@ makeScene= ()->
    
   mdl1.remove cliquesToShow if cliquesToShow
   if pageState.activeClique
-    debugger
     cliquesToShow = showClique pageState.activeClique
     mdl1.add cliquesToShow 
     mdl2.add highlightCliqueSegment pageState.activeClique
@@ -562,9 +568,9 @@ makeScene= ()->
   ###
   zero = GeoPhi.createPhiPoint "#zzz"
   if pageState.openSegments.length == 0
-    pageState.openSegments.push G.moveSegment G.cliqueNames[2],zero
-    #pageState.openSegments.push G.moveSegment "#zFP-#zfP",zero
-    #pageState.openSegments.push G.moveSegment "#oOO-#oOo",zero
+    #pageState.openSegments.push G.moveSegment G.cliqueNames[2],zero
+    pageState.openSegments.push G.moveSegment "#fPz-#zFP" ,zero
+    pageState.openSegments.push G.moveSegment "#OOO-#fPz",zero
   for segment in pageState.openSegments  
     temp = M.MM[segment]
     mdl2.add showSegments [temp.value],"#8F50FF"

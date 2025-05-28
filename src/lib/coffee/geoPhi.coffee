@@ -13,6 +13,11 @@ splitIntoNames = (longName)->
   return value
 
 
+# stripName will examine the points of a triangle and 
+#   return the point that is not in the segment
+# sID is one segment of the triangle tID, it contains two points
+# tID is a triangle of three points
+#
 stripName=(sID,tID)->
   segParts=sID.split />|-|</g
   rValue=tID.split(/<|>|-/g).join('').replace(segParts[0],'').replace(segParts[1],'')
@@ -72,20 +77,17 @@ export class GeoPhi
     cantidates = G.fiboTriangles.slice 0
     for  masterTriangle in cantidates
       for s,idx in masterTriangle.value.segments
-        usedPointNames = {}
         sV = (M.theLowdown s).value.vetric
-        sVmS = sV.magnitudeSquared()
-        cliques[s] = {"#{masterTriangle.value.ID}": {} }
+        cliques[s] = {"#{masterTriangle.value.ID}": {} } unless cliques[s]
         for cantidateTriangle in cantidates
           for cc in cantidateTriangle.value.segments
             possiblePoint = stripName cc,cantidateTriangle.value.ID
             #if we have already a triangle that reaches this point, skip this one
-            if possiblePoint of usedPointNames
+            if possiblePoint of cliques[s]
               continue
             cV=(M.theLowdown cc).value.vetric
             if ( cV.equals(sV) || cV.negate().equals(sV) )
               cliques[s][cantidateTriangle.value.ID]=[cc,possiblePoint]
-              usedPointNames[possiblePoint] = true
 
     cnames = for s of cliques
       s
@@ -156,11 +158,52 @@ export class GeoPhi
     [decode['F'], decode['p'],decode['z']],
     [decode['f'], decode['p'],decode['z']],
   ]; #// Plane defined by a face of the dodecahedron
+
+  ###
+  # createPhiPoint: builds a SixPhiVector from a 3-char code with optional reflection suffix
+  # side-effect: caches in Memo using canonical key: <base>|<reflections>
+  ###
+  @createPhiPoint = (ptxt, shapeName = "") ->
+    return null unless m = ptxt.match /^#([zZoOpPfF]{3})(?:~([A-F]+))?$/
+
+    baseSym = m[1]
+    reflectSeq = (m[2] or "").split('')  # e.g., "ABA" → ['A','B','A']
+
+    # decode base point
+    x = decode[baseSym[0]]
+    y = decode[baseSym[1]]
+    z = decode[baseSym[2]]
+
+    # apply reflections in order
+    for face in reflectSeq
+      faceIndex = face.charCodeAt(0) - 'A'.charCodeAt(0)
+      [x, y, z] = reflect3PhiAcrossPlane [x, y, z], faceIndex
+
+    # create six-basis vector
+    v = SixPhiVector.fromPhiPoint(x, y, z)
+
+    # build canonical key
+    reflectStr = reflectSeq.join('')
+    canonicalKey = "#{baseSym}|#{reflectStr}"
+
+    # reuse existing if already created
+    if existing = M.theLowdown(canonicalKey)?.value
+      existing.shapeName[shapeName] = shapeName
+      return existing
+
+    # attach metadata
+    v.ID = canonicalKey
+    v.d = v.magnitude().toFixed(3)
+    v.shapeName = { [shapeName]: shapeName }
+
+    # cache it
+    M.saveThis(canonicalKey, v)
+    return v
   ###
   # createPhiPoint: builds a SixPhiVector from a 3-char code
   # side-effect: caches in Memo with key ptxt
   ###
-  @createPhiPoint= (ptxt, shapeName = "") ->
+  @createOldPhiPoint= (ptxt, shapeName = "") ->
     return null unless m = ptxt.match /[@|#](.)(.)(.)$/
     # reuse existing if already created
     if existing = M.theLowdown(ptxt)?.value
@@ -324,42 +367,32 @@ export class GeoPhi
       segments:[s1,s2,s3]
       face: face
 
-
+  ###
+  # Reflects each point name in the dash-joined string across planeIndex (0–5)
+  # Returns a new dash-joined string of reflected names.
+  ###
   reflect: (names, planeIndex) ->
-    # Reflect across basis plane `planeIndex`
-    debugger
-    path = for point in names.match /#.../
-       vec = M.MM[point].v
-       vec = vec.reflect planeIndex
-       ID='#{point}_r#{planeIndex}'
-       M.saveThis '#{point}_r#{planeIndex}'
-       reflectedVec = []
+    planeLetter = String.fromCharCode('A'.charCodeAt(0) + planeIndex)
 
-    # Append reflection tag to name
-    newName = "#{names}_r#{planeIndex}"
-    M.saveThis newName, {ID:newName,path}
+    # Split and process each point name
+    reflectedNames = for pointName in names.split('-')
+      match = pointName.match /^#([zZoOpPfF]{3})(?:~([A-F]+))?$/
+      continue unless match
 
-  testAngleWithSegment: (originID, pointA_ID, pointB_ID, expectedDeg = null) ->
-    seg = createSegment(pointA_ID, pointB_ID)
-    segID = seg.ID
-    M.MM[segID] = { value: seg }  # Register it if needed by angleBetween
+      base = match[1]
+      prevSeq = (match[2] or '').split('')
+      newSeq = prevSeq.concat([planeLetter])
+      newSymbolicName = "##{base}~#{newSeq.join('')}"
 
-    angle = angleBetween(originID, segID)
-    rounded = angle.toFixed(3)
+      # Ensure the reflected point exists in M
+      GeoPhi.createPhiPoint(newSymbolicName)
 
-    result = "Angle at #{originID} between #{pointA_ID} and #{pointB_ID}: #{rounded}°"
-    if expectedDeg?
-      delta = Math.abs(angle - expectedDeg)
-      result += " | Expected: #{expectedDeg}° | Δ = #{delta.toFixed(3)}°"
-      if delta > 0.01
-        console.warn "⚠️ Angle mismatch: #{result}"
-      else
-        console.log "✅ " + result
-    else
-      console.log result
+      # Return the new symbolic name for output
+      newSymbolicName
 
-    return angle
- 
+    # Join all reflected point names back together
+    return reflectedNames.join('-')
+
   # create the fiboTriangles on each of the 12 faces
   createFiboTriangles: (faces)->
     all=[]
@@ -400,23 +433,10 @@ export class GeoPhi
      "#ooO-#pzF-#oOO-#zFP-#zfP",    #Face F
      "#Ooo-#Pzf-#OOo-#zFp-#zfp",  #Face f
 
-     "@ooO-@zfP-@OoO-@Fpz-@fpz",  # Face A
-     "@oOo-@zFp-@OOo-@FPz-@fPz",   # Face a
-     "@ooo-@fpz-@ooO-@pzF-@pzf",   #Face B
-     "@OOo-@FPz-@OOO-@PzF-@Pzf",   #Face b
-     "@ooo-@zfp-@Ooo-@Fpz-@fpz",    #Face C
-     "@oOO-@zFP-@OOO-@FPz-@fPz",   #Face c
-     "@Ooo-@Fpz-@OoO-@PzF-@Pzf",  # Face D
-     "@oOo-@fPz-@oOO-@pzF-@pzf"   # Face d
-     "@ooo-@pzf-@oOo-@zFp-@zfp",   #Face E
-     "@OoO-@PzF-@OOO-@zFP-@zfP",   #Face e
-     "@ooO-@pzF-@oOO-@zFP-@zfP",    #Face F
-     "@Ooo-@Pzf-@OOo-@zFp-@zfp",  #Face f
-
     ]
 
     # build segments
-    Melements = _(M.MM).filter (item, key) -> key.match /^#...$/
+    Melements = _(M.MM).filter (item, key) -> key.match /^#([zZoOpPfF]{3})(?:~([A-F]+))?$/
     Melements = Melements.map (item, key) -> item.value
     {segmentNames, segmentsByMagnitude} =
       @createSegments(Melements)
@@ -424,8 +444,24 @@ export class GeoPhi
     @segmentsByMagnitude = segmentsByMagnitude
     #@examineFaces()
     # create the fiboTriangles on each of the 12 faces
+    reflectedFaces = for mirror in [0..5]
+      for face in @Faces
+        @reflect face,mirror
+    @Faces = [@Faces,reflectedFaces.flat()].flat()  
     @fiboTriangles= @createFiboTriangles @Faces
     {@cliques,@cliqueNames} = createCliques @
+    cliqueSize = 0
+    cliqueMaxKids = -99
+    for jj of @cliques
+      cliqueSize++
+      cliqueKids = 0
+      for kk of @cliques[jj]
+        cliqueKids++
+      console.log jj,cliqueKids
+      if cliqueKids>cliqueMaxKids
+        cliqueMaxKids= cliqueKids
+
+    console.log cliqueSize,cliqueMaxKids
     console.log @cliques["#Ooo-#Pzf"]
 
 testing = false
