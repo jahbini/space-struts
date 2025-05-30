@@ -75,19 +75,19 @@ export class GeoPhi
   createCliques = (G) ->
     return [] unless G.fiboTriangles.length
     cantidates = G.fiboTriangles.slice 0
+    cliques={}
     for  masterTriangle in cantidates
       for s,idx in masterTriangle.value.segments
         sV = (M.theLowdown s).value.vetric
-        cliques[s] = {"#{masterTriangle.value.ID}": {} } unless cliques[s]
-        for cantidateTriangle in cantidates
-          for cc in cantidateTriangle.value.segments
-            possiblePoint = stripName cc,cantidateTriangle.value.ID
-            #if we have already a triangle that reaches this point, skip this one
-            if possiblePoint of cliques[s]
-              continue
-            cV=(M.theLowdown cc).value.vetric
-            if ( cV.equals(sV) || cV.negate().equals(sV) )
-              cliques[s][cantidateTriangle.value.ID]=[cc,possiblePoint]
+        cliqueName = sV.toName()
+        cliqueName2 = sV.negate().toName()
+        possiblePoint = stripName s,masterTriangle.value.ID
+        data= {"#{masterTriangle.value.ID}": {s,possiblePoint} } 
+        if cliques[cliqueName]?
+          cliques[cliqueName][masterTriangle.value.ID]=[s,possiblePoint]
+        else
+          cliques[cliqueName] = {"#{masterTriangle.value.ID}":[s,possiblePoint]} 
+        cliques[cliqueName2] = cliques[cliqueName]
 
     cnames = for s of cliques
       s
@@ -462,7 +462,8 @@ export class GeoPhi
         cliqueMaxKids= cliqueKids
 
     console.log cliqueSize,cliqueMaxKids
-    console.log @cliques["#Ooo-#Pzf"]
+    console.log @cliques[@cliqueNames[2] ]
+    console.log @cliques[@cliqueNames[20] ]
 
 testing = false
 if testing

@@ -131,6 +131,9 @@ class SixPhiVector
   toFloatArray: ->
     @v.map((x) -> x.toFloat())
 
+  toName: ->
+    '[' + @v.map((x) -> x.toName()).join(', ') + ']'
+
   toString: ->
     '[' + @v.map((x) -> x.toString()).join(', ') + ']'
 

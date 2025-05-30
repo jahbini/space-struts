@@ -66,13 +66,17 @@ class PhiBase
     new PhiBase(resultP, resultN)
 
   equals: (other) ->
-    @p == other.p and @n == other.n
+    ee = (xx) -> Math.trunc(xx*1000)
+    ee=(xx)->Math.sign(xx)*Math.round(Math.abs(xx)*1000)
+    ee(@p) == ee(other.p) and ee(@n) == ee(other.n)
 
   toFloat: ->
     @p * PHI + @n
 
   toName: ->
-    this.toString()
+    ee = (xx) -> Math.trunc(xx*1000)
+    ee=(xx)->Math.sign(xx)*Math.round(Math.abs(xx)*1000)
+    "#{ee(@p)}φ," + "#{ee(@n)}"
 
   toString: ->
     parts = []
