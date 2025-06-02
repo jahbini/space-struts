@@ -47,12 +47,16 @@ class PhiBase
       @n * other.n + @p * other.p
     )
 
-  div: (other , report = false) ->
+  conjugate: ->
+    new PhiBase(-@p, @p + @n)
+
+  div: (other , allow = false) ->
+    if other.p == 0 and other.n ==1
+     return @clone()
     # Phi-algebra division
     phiMinusOne = new PhiBase(1, -1)
     newNumerator = @mul(phiMinusOne)
     newDenominator = other.mul(phiMinusOne)
-
     denomValue = newDenominator.toFloat()
     if denomValue == 0
       throw new Error("Division by zero in PhiBase")
@@ -60,9 +64,9 @@ class PhiBase
     resultP = newNumerator.p / denomValue
     resultN = newNumerator.n / denomValue
 
-    if report && (not Number.isInteger(resultP) or not Number.isInteger(resultN))
-      console.log "Notice: Non-integer PhiBase division result:", resultP, resultN
-
+    if !allow && (not Number.isInteger(resultP) or not Number.isInteger(resultN))
+      debugger
+      console.log "Notice: Non-integer PhiBase division result:", @, newDenominator
     new PhiBase(resultP, resultN)
 
   equals: (other) ->

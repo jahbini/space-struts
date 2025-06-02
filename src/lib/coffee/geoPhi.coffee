@@ -55,11 +55,12 @@ export class GeoPhi
     triangle = M.MM[tID].value
     segment=M.MM[sID].value
     path=@normalizeFrame (tID.split /-|<|>/)
-    nickName = (sID.split 'X')[0]
+    nickName = segment.vetric.toName()
     offsetSegment = @cliques[nickName][tID][0]
     tMidPointV6 = M.MM[offsetSegment].value.midPoint
     sMidPointV6 = segment.midPoint
     path = path.map( (p) -> p.sub(tMidPointV6).add(sMidPointV6) )
+    debugger
     s1=@moveSegment triangle.segments[0],[path[0],path[1]],sID
     s2=@moveSegment triangle.segments[1],[path[1],path[2]],sID
     s3=@moveSegment triangle.segments[2],[path[0],path[2]],sID
@@ -175,16 +176,22 @@ export class GeoPhi
     z = decode[baseSym[2]]
 
     # apply reflections in order
-    for face in reflectSeq
-      faceIndex = face.charCodeAt(0) - 'A'.charCodeAt(0)
-      [x, y, z] = reflect3PhiAcrossPlane [x, y, z], faceIndex
+    #for face in reflectSeq
+    #  faceIndex = face.charCodeAt(0) - 'A'.charCodeAt(0)
+    #  [x, y, z] = reflect3PhiAcrossPlane [x, y, z], faceIndex
 
     # create six-basis vector
     v = SixPhiVector.fromPhiPoint(x, y, z)
 
+    # apply symbolic reflections, not Cartesian
+    for face in reflectSeq
+      faceIndex = face.charCodeAt(0) - 'A'.charCodeAt(0)
+      v = v.reflect(faceIndex)
+
     # build canonical key
     reflectStr = reflectSeq.join('')
     canonicalKey = "#{baseSym}|#{reflectStr}"
+    canonicalKey = ptxt
 
     # reuse existing if already created
     if existing = M.theLowdown(canonicalKey)?.value
@@ -203,30 +210,6 @@ export class GeoPhi
   # createPhiPoint: builds a SixPhiVector from a 3-char code
   # side-effect: caches in Memo with key ptxt
   ###
-  @createOldPhiPoint= (ptxt, shapeName = "") ->
-    return null unless m = ptxt.match /[@|#](.)(.)(.)$/
-    # reuse existing if already created
-    if existing = M.theLowdown(ptxt)?.value
-      existing.shapeName[shapeName] = shapeName
-      return existing
-
-    # decode to phi-base coordinates
-    x = decode[m[1]]
-    y = decode[m[2]]
-    z = decode[m[3]]
-
-    if ptxt[0] == '@'
-      [x,y,z]= reflect3PhiAcrossPlane [x,y,z],5
-
-    # convert to six-basis vector
-    v = SixPhiVector.fromPhiPoint(x, y, z)
-    # attach metadata
-    v.ID = ptxt
-    v.d = v.magnitude().toFixed(3)
-    v.shapeName = { [shapeName]: shapeName }
-    # cache
-    M.saveThis(ptxt, v)
-    v
 
   ###
   # formPointsFromPhi: splits an encoded shape string or array and creates points
@@ -255,7 +238,7 @@ export class GeoPhi
         ID=segmentName+"X"+itemsConstructed++
         M.saveThis ID, {ID, v:V6Destination,path,midPoint,vetric}
       else
-        ID=null
+        ID=sID
     else
       ID=segmentName+"X"+itemsConstructed++
       M.saveThis ID, {ID, v:V6Destination,path,midPoint,vetric}
@@ -435,40 +418,70 @@ export class GeoPhi
 
     ]
 
+    # create the fiboTriangles on each of the 12 faces
+    reflectedFaces = for mirror in [0..0]
+      for face in @Faces
+        @reflect face,mirror
+    @Faces = [@Faces,reflectedFaces.flat()].flat()  
+
     # build segments
     Melements = _(M.MM).filter (item, key) -> key.match /^#([zZoOpPfF]{3})(?:~([A-F]+))?$/
     Melements = Melements.map (item, key) -> item.value
+    @allPoints = Melements
     {segmentNames, segmentsByMagnitude} =
       @createSegments(Melements)
     @segmentNames = segmentNames
     @segmentsByMagnitude = segmentsByMagnitude
-    #@examineFaces()
-    # create the fiboTriangles on each of the 12 faces
-    reflectedFaces = for mirror in [0..5]
-      for face in @Faces
-        @reflect face,mirror
-    @Faces = [@Faces,reflectedFaces.flat()].flat()  
     @fiboTriangles= @createFiboTriangles @Faces
     {@cliques,@cliqueNames} = createCliques @
-    cliqueSize = 0
-    cliqueMaxKids = -99
-    for jj of @cliques
-      cliqueSize++
-      cliqueKids = 0
-      for kk of @cliques[jj]
-        cliqueKids++
-      console.log jj,cliqueKids
-      if cliqueKids>cliqueMaxKids
-        cliqueMaxKids= cliqueKids
 
-    console.log cliqueSize,cliqueMaxKids
-    console.log @cliques[@cliqueNames[2] ]
-    console.log @cliques[@cliqueNames[20] ]
-
-testing = false
+testing = true
 if testing
   testGeo = new GeoPhi()
 
+  cliqueSize = 0
+  cliqueMaxKids = -99
+  for jj of testGeo.cliques
+    cliqueSize++
+    cliqueKids = 0
+    for kk of testGeo.cliques[jj]
+      cliqueKids++
+    #console.log jj,cliqueKids
+    if cliqueKids>cliqueMaxKids
+      cliqueMaxKids= cliqueKids
+
+  console.log cliqueSize,cliqueMaxKids
+  console.log testGeo.cliques[testGeo.cliqueNames[2] ]
+  console.log testGeo.cliques[testGeo.cliqueNames[20] ]
+
+
+  writeJsonFile = (filename, data) ->
+    json = JSON.stringify(data, null, 2)
+    blob = new Blob([json], {type: 'application/json'})
+    url = URL.createObjectURL(blob)
+    a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+  # Write a JSON file from a named object
+  writeJsonFile2 = (filename, data) ->
+    json = JSON.stringify data, null, 2  # Pretty-print with 2-space indent
+    fs.writeFileSync filename, json, 'utf8'
+    console.log "Wrote JSON to #{filename}"
+
+  cleanData = (rawData) ->
+    rawData.map (item) ->
+      item.value
+  writeJsonFile 'fiboTriangles.json', cleanData testGeo.fiboTriangles
+  #writeJsonFile 'allPoints.json', testGeo.allPoints
+  #writeJsonFile 'segments.json', testGeo.segmentsByMagnitude
+  #writeJsonFile 'cliques.json', testGeo.cliques
+
+if false
   # --- Angle testing routine ---
   testAngleWithSegment = (originID, pointA_ID, pointB_ID, expectedDeg = null) ->
     segID = testGeo.createSegment(pointA_ID, pointB_ID)

@@ -204,6 +204,7 @@ splitName = (longName)->
   return value
 
 useTriangle=(event)->
+  debugger
   triangle = G.moveTriangle pageState.activeClique,pageState.activeCliqueTriangle
   for seg in triangle.segments
     pageState.openSegments.push seg
@@ -226,7 +227,7 @@ displayTriangle = (sID,tID)->
   segment=M.MM[sID].value
   p = new seen.Model()
   ps= tID.split /-|<|>/g
-  nickName = (sID.split 'X')[0]
+  nickName = segment.vetric.toName()
   offsetSegment = G.cliques[nickName][tID][0]
   cliquePoint = G.cliques[nickName][tID][1]
   tmidPointV6 = M.MM[offsetSegment].value.midPoint
@@ -244,7 +245,7 @@ showClique=(sID)->
   cliqueTriangles = []
   # the segment sID is parallel to the original nickname segment 
   segment=M.MM[sID].value
-  nickName = (sID.split 'X')[0]
+  nickName = segment.vetric.toName()
   p=new seen.Model()
   # go through all the triangles of the clique
   triangles = G.cliques[nickName]

@@ -1,7 +1,7 @@
 # sixPhiVector.coffee
 # Full six-basis vector math, symbolic PhiBase style
 
-import { PhiBase, ZERO } from './phiBase.coffee'
+import { PhiBase, ZERO , ONE } from './phiBase.coffee'
 import { GeoPhi } from './geoPhi.coffee'
 
 PHI=PhiBase.PHI
@@ -62,7 +62,7 @@ buildReferenceVector = ->
   ])
 
 class SixPhiVector
-  constructor: (list) ->
+  constructor: (list,@scaleFactor=PhiBase.ONE) ->
     if list.length isnt 6
       throw new Error("SixPhiVector must have exactly 6 elements")
     @v = for x in list
@@ -72,54 +72,41 @@ class SixPhiVector
              new PhiBase(0, x)
 
   clone: ->
-    new SixPhiVector(@v.map((x) -> x.clone()))
-
-  set: (list) ->
-    if list.length isnt 6
-      throw new Error("SixPhiVector.set requires 6 elements")
-    @v = for x in list
-          if x instanceof PhiBase 
-            x 
-          else 
-            new PhiBase(0, x)
-    @
+    new SixPhiVector(@v.map((x) -> x.clone()),@scaleFactor)
 
   add: (other) ->
-    new SixPhiVector(@v.map((x, i) -> x.add(other.v[i])))
+    myScale = @scaleFactor
+    new SixPhiVector(@v.map((x, i) -> x.mul(myScale).add(other.v[i].mul(other.scaleFactor) )), @scaleFactor.mul(other.scaleFactor) )
 
   sub: (other) ->
-    new SixPhiVector(@v.map((x, i) -> x.sub(other.v[i])))
+    myScale = @scaleFactor
+    new SixPhiVector(@v.map((x, i) -> x.scale(myScale).sub(other.v[i].scale(other.scaleFactor) )),@scaleFactor.mul(other.scaleFactor))
 
   equals: (other)->
     result = true
     @v.map( (x,i) -> result= result and x.equals other.v[i] )
-    return result
+    return result and @scaleFactor == other.scaleFactor
 
   scale: (c) ->
-    new SixPhiVector(@v.map((x) -> x.scale(c)))
-
+    myScale = @scaleFactor
+    return new SixPhiVector(@v.map((x) -> x),@scaleFactor.scale(c))
+      
   negate: ->
-    new SixPhiVector(@v.map((x) -> x.negate()))
+    new SixPhiVector(@v.map((x) -> x.negate()),@scaleFactor)
 
   dot: (other) ->
     result = p(0, 0)
+    dotScale=@scaleFactor.mul(other.scaleFactor)
     for i in [0..5]
       for j in [0..5]
         result = result.add(@v[i].mul(other.v[j]).mul(G[i][j]))
-    result.scale(G_SCALE)
+    result.div(dotScale).scale(G_SCALE)
 
   magnitudeSquared: ->
     @dot(@)
 
   magnitude: ->
     @magnitudeSquared().toFloat() ** 0.5
-
-  normalize: ->
-    mag = @magnitude()
-    if mag == 0
-      throw new Error("Cannot normalize a zero vector")
-    scaleFactor = 1 / mag
-    @scale(scaleFactor)
 
   round: ->
     new SixPhiVector(
@@ -129,13 +116,14 @@ class SixPhiVector
     )
 
   toFloatArray: ->
-    @v.map((x) -> x.toFloat())
+    sF=@scaleFactor
+    @v.map((x) -> x.div(sF).toFloat())
 
   toName: ->
-    '[' + @v.map((x) -> x.toName()).join(', ') + ']'
+    '[' + @v.map((x) -> x.toName()).join(', ') + '|' + @scaleFactor.toName() + ']'
 
   toString: ->
-    '[' + @v.map((x) -> x.toString()).join(', ') + ']'
+    '[' + @v.map((x) -> x.toString()).join(', ') + '|' + @scaleFactor.toName() + ']'
 
   @fromCartesian: (x, y, z) ->
     v = for b in sixBases
@@ -152,32 +140,32 @@ class SixPhiVector
   
   sixPhiToCartesianDisplay: ()->
     [a, b, c, d, e, f] = @v
+    scaleResult = p(2,4).mul(@scaleFactor)
     return [
-      (e.sub(f).add(p(1,0).mul(a.add(b)))).div(p(2,4)).toFloat(), 
-      (c.sub(d).add(p(1,0).mul(e.add(f)))).div(p(2,4)).toFloat(),
-      (a.sub(b).add(p(1,0).mul(c.add(d)))).div(p(2,4)).toFloat()
+      (e.sub(f).add(p(1,0).mul(a.add(b)))).div(scaleResult,true).toFloat(), 
+      (c.sub(d).add(p(1,0).mul(e.add(f)))).div(scaleResult,true).toFloat(),
+      (a.sub(b).add(p(1,0).mul(c.add(d)))).div(scaleResult,true).toFloat()
     ]
 
-  reflect = (v, k) ->
-    u = [0,0,0,0,0,0]; u[k] = p(0,1)  # symbolic unit
+  reflect: (k) ->
+    v=@.v
+    u = new SixPhiVector [0,0,0,0,0,0]
+    u.v[k] = p(0,1)  # symbolic unit
     dotVU = p(0,0); dotUU = p(0,0)
     for i in [0...6]
       for j in [0...6]
-        dotVU = dotVU.add( v[i].mul(G[i][j]).mul(u[j]) )
-        dotUU = dotUU.add( u[i].mul(G[i][j]).mul(u[j]) )
+        dotVU = dotVU.add( v[i].mul(G[i][j]).mul(u.v[j]) )
+        dotUU = dotUU.add( u.v[i].mul(G[i][j]).mul(u.v[j]) )
 
-    scale = dotVU.div(dotUU)
+    # Multiply numerator to project and subtract 2×proj from v
+    numerator = dotVU.mul(p(0,2))  # projection scaled by 2
 
     reflected = []
     for i in [0...6]
-      projComponent = u[i].mul(scale)
-      reflected[i] = v[i].sub(projComponent.mul(p(0,2)))
-    reflected
+      proj = u.v[i].mul(numerator)
+      reflected[i] = v[i].sub(proj)
+    new SixPhiVector reflected, @scaleFactor.mul(dotUU) 
 
-  reflect: ( faceID ) ->
-    r = new sixPhiVector @.v
-    r.v[faceID] = r.v[faceID].negate()
-    r
 
 G_SCALE = 3 / buildReferenceVector().dot(buildReferenceVector()).toFloat()
 
