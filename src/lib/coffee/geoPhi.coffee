@@ -176,17 +176,12 @@ export class GeoPhi
     z = decode[baseSym[2]]
 
     # apply reflections in order
-    #for face in reflectSeq
-    #  faceIndex = face.charCodeAt(0) - 'A'.charCodeAt(0)
-    #  [x, y, z] = reflect3PhiAcrossPlane [x, y, z], faceIndex
+    for face in reflectSeq
+      faceIndex = face.charCodeAt(0) - 'A'.charCodeAt(0)
+      [x, y, z] = reflect3PhiAcrossPlane [x, y, z], faceIndex
 
     # create six-basis vector
     v = SixPhiVector.fromPhiPoint(x, y, z)
-
-    # apply symbolic reflections, not Cartesian
-    for face in reflectSeq
-      faceIndex = face.charCodeAt(0) - 'A'.charCodeAt(0)
-      v = v.reflect(faceIndex)
 
     # build canonical key
     reflectStr = reflectSeq.join('')

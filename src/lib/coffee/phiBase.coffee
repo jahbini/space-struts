@@ -64,9 +64,6 @@ class PhiBase
     resultP = newNumerator.p / denomValue
     resultN = newNumerator.n / denomValue
 
-    if !allow && (not Number.isInteger(resultP) or not Number.isInteger(resultN))
-      debugger
-      console.log "Notice: Non-integer PhiBase division result:", @, newDenominator
     new PhiBase(resultP, resultN)
 
   equals: (other) ->

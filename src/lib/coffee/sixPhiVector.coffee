@@ -147,6 +147,23 @@ class SixPhiVector
       (a.sub(b).add(p(1,0).mul(c.add(d)))).div(scaleResult,true).toFloat()
     ]
 
+  reflectSymbolic: (faceChar) ->
+    swapPairs =
+      A: [0, 1]
+      B: [2, 3]
+      C: [4, 5]
+      D: [0, 2]
+      E: [1, 4]
+      F: [3, 5]
+
+    [i, j] = swapPairs[faceChar]
+    newV = @v.slice()
+    tmp = newV[i]
+    newV[i] = newV[j]
+    newV[j] = tmp
+
+    new SixPhiVector(newV, @scaleFactor)
+
   reflect: (k) ->
     v=@.v
     u = new SixPhiVector [0,0,0,0,0,0]
