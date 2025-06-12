@@ -43,11 +43,11 @@ export class GeoPhi
         r.ID=s.ID
       r
 
-  normalizeXYZ: (pointsV6) ->
+  @normalizeXYZ: (pointsV6) ->
     pointsXYZ = []
     for s in pointsV6
       [x,y,z] = s.sixPhiToCartesianDisplay()
-      pointsXYZ.push P(x,y,z)
+      pointsXYZ.push [x,y,z]
     pointsXYZ 
 
   
@@ -121,6 +121,31 @@ export class GeoPhi
   }
   p=(a,b) -> new PhiBase(a,b)
 
+  ###
+  #  These are the points that sixDotter found.
+  # they formed an amazing star of golden triangles
+  ###
+  starSixVector = [
+    { name: "-8,-8,0,0,-5,5", vector: (new SixPhiVector([-8,-8,0,0,-5,5])), P:[-18, 0, 0] }
+    { name: "-9,-4,-4,-4,-4,4", vector: (new SixPhiVector([-9,-4,-4,-4,-4,4])), P:[-14.5, 0, -9] }
+    { name: "-4,-9,4,4,-4,4", vector: (new SixPhiVector([-4,-9,4,4,-4,4])), P:[-14.5, 0, 9] }
+    { name: "-4,-4,-4,4,-9,-4", vector: (new SixPhiVector([-4,-4,-4,4,-9,-4])), P:[-9, -14.5, 0] }
+    { name: "-4,-4,4,-4,4,9", vector: (new SixPhiVector([-4,-4,4,-4,4,9])), P:[-9, 14.5, 0] }
+    { name: "0,0,-5,5,-8,-8", vector: (new SixPhiVector([0,0,-5,5,-8,-8])), P:[0, -18, 0] }
+    { name: "-4,4,-9,-4,-4,-4", vector: (new SixPhiVector([-4,4,-9,-4,-4,-4])), P:[0, -9, -14.5] }
+    { name: "4,-4,4,9,-4,-4", vector: (new SixPhiVector([4,-4,4,9,-4,-4])), P:[0, -9, 14.5] }
+    { name: "-5,5,-8,-8,0,0", vector: (new SixPhiVector([-5,5,-8,-8,0,0])), P:[0, 0, -18] }
+    { name: "0,0,0,0,0,0", vector: (new SixPhiVector([0,0,0,0,0,0])), P:[0, 0, 0] }
+    { name: "5,-5,8,8,0,0", vector: (new SixPhiVector([5,-5,8,8,0,0])), P:[0, 0, 18] }
+    { name: "-4,4,-4,-9,4,4", vector: (new SixPhiVector([-4,4,-4,-9,4,4])), P:[0, 9, -14.5] }
+    { name: "4,-4,9,4,4,4", vector: (new SixPhiVector([4,-4,9,4,4,4])), P:[0, 9, 14.5] }
+    { name: "0,0,5,-5,8,8", vector: (new SixPhiVector([0,0,5,-5,8,8])), P:[0, 18, 0] }
+    { name: "4,4,-4,4,-4,-9", vector: (new SixPhiVector([4,4,-4,4,-4,-9])), P:[9, -14.5, 0] }
+    { name: "4,4,4,-4,9,4", vector: (new SixPhiVector([4,4,4,-4,9,4])), P:[9, 14.5, 0] }
+    { name: "4,9,-4,-4,4,-4", vector: (new SixPhiVector([4,9,-4,-4,4,-4])), P:[14.5, 0, -9] }
+    { name: "9,4,4,4,4,-4", vector: (new SixPhiVector([9,4,4,4,4,-4])), P:[14.5, 0, 9] }
+    { name: "8,8,0,0,5,-5", vector: (new SixPhiVector([8,8,0,0,5,-5])), P:[18, 0, 0] }
+  ]
   basisNormals3Phi = [
     # Face A
     { x: p(1, 0), y: p(0, 1), z: p(0, 0) },     # (φ, 1, 0)
@@ -160,12 +185,25 @@ export class GeoPhi
     [decode['f'], decode['p'],decode['z']],
   ]; #// Plane defined by a face of the dodecahedron
 
+  createPointsFromSixVector: (list,shapeName="Star")->
+    ## formPointsFromPhi: (shape, shapeName = "") ->
+    debugger
+    for k of list
+      item = list[k]
+      v = item.vector
+      v['ID'] = "#"+item.name
+      v['d'] = v.magnitude().toFixed(3)
+      v['shapeName'] =  shapeName
+
+      # cache it
+      M.saveThis("#"+item.name, v)
+      v
   ###
   # createPhiPoint: builds a SixPhiVector from a 3-char code with optional reflection suffix
   # side-effect: caches in Memo using canonical key: <base>|<reflections>
   ###
   @createPhiPoint = (ptxt, shapeName = "") ->
-    return null unless m = ptxt.match /^#([zZoOpPfF]{3})(?:~([A-F]+))?$/
+    return M.MM[ptxt]?.value unless m = ptxt.match /^#([zZoOpPfF]{3})(?:~([A-F]+))?$/
 
     baseSym = m[1]
     reflectSeq = (m[2] or "").split('')  # e.g., "ABA" → ['A','B','A']
@@ -201,10 +239,6 @@ export class GeoPhi
     # cache it
     M.saveThis(canonicalKey, v)
     return v
-  ###
-  # createPhiPoint: builds a SixPhiVector from a 3-char code
-  # side-effect: caches in Memo with key ptxt
-  ###
 
   ###
   # formPointsFromPhi: splits an encoded shape string or array and creates points
@@ -310,12 +344,12 @@ export class GeoPhi
     for i in points
       for j in segments
         continue unless j?.ID
-        [leg0,leg1]= j.ID.split "-"
+        [leg0,leg1]= j.path
         continue if  i.ID== leg0 || i.ID == leg1
         d = @angleBetween i.ID,j.ID
         ID="#{i.ID}<#{leg0}-#{leg1}"
-        seg0Vector = M.MM[leg0].value
-        seg1Vector = M.MM[leg1].value
+        seg0Vector = leg0
+        seg1Vector = leg1
         path= [seg0Vector,i,seg1Vector]
         M.saveThis ID, {ID,path,d}
         biVectors[ID]=M.MM[ID]
@@ -384,9 +418,9 @@ export class GeoPhi
         for j in [2..3]
           all.push @createTriangle itms[i],itms[i+1],itms[i+j],sa
     all.flat()
-
   constructor: ->
     # initialize polyhedra points
+
     @Polyhedra =
       Tetrahedron1: @formPointsFromPhi(tetrahedron1, "tetrahedron")
       Octahedron:    @formPointsFromPhi(octahedron,    "octahedron")
@@ -396,6 +430,7 @@ export class GeoPhi
       Tetrahedron2:  @formPointsFromPhi(tetrahedron2,  "tetrahedron")
       Icosahedron2:  @formPointsFromPhi(icosahedron2,  "icosahedron")
       Dodecahedron2: @formPointsFromPhi(dodecahedron2, "dodecahedron")
+      Star:          @createPointsFromSixVector( starSixVector, "Star")
 
     @Faces=[
      "#ooO-#zfP-#OoO-#Fpz-#fpz",  # Face A
@@ -413,24 +448,25 @@ export class GeoPhi
 
     ]
 
-    # create the fiboTriangles on each of the 12 faces
     reflectedFaces = for mirror in [0..0]
       for face in @Faces
         @reflect face,mirror
     @Faces = [@Faces,reflectedFaces.flat()].flat()  
 
-    # build segments
     Melements = _(M.MM).filter (item, key) -> key.match /^#([zZoOpPfF]{3})(?:~([A-F]+))?$/
     Melements = Melements.map (item, key) -> item.value
     @allPoints = Melements
-    {segmentNames, segmentsByMagnitude} =
-      @createSegments(Melements)
+
+    # build segments
+    {segmentNames, segmentsByMagnitude} = @createSegments(Melements)
     @segmentNames = segmentNames
     @segmentsByMagnitude = segmentsByMagnitude
+
+    # create the fiboTriangles on each of the 12 faces
     @fiboTriangles= @createFiboTriangles @Faces
     {@cliques,@cliqueNames} = createCliques @
 
-testing = true
+testing = false
 if testing
   testGeo = new GeoPhi()
 
@@ -471,7 +507,7 @@ if testing
   cleanData = (rawData) ->
     rawData.map (item) ->
       item.value
-  writeJsonFile 'fiboTriangles.json', cleanData testGeo.fiboTriangles
+  #writeJsonFile 'fiboTriangles.json', cleanData testGeo.fiboTriangles
   #writeJsonFile 'allPoints.json', testGeo.allPoints
   #writeJsonFile 'segments.json', testGeo.segmentsByMagnitude
   #writeJsonFile 'cliques.json', testGeo.cliques

@@ -24,11 +24,11 @@
     let testzPhi=PhiBase.fromFloat(testz)
     let testv= SixPhiVector.fromPhiPoint( testxPhi, testyPhi, testzPhi );
     let textxyz= testv.sixPhiToCartesianDisplay() 
-    if ( true) {    
+    if ( false) {    
       const ONE=new PhiBase(0,1);
       steps = [ new PhiBase(0,-1), ZERO, ONE, new PhiBase(1,-1), new PhiBase(1,0), new PhiBase(1,1), new PhiBase(2,-1), new PhiBase(2,0),new PhiBase(2,1) ]
-      steps = [ new PhiBase(0,-1), ZERO, ONE, new PhiBase(1,-1), new PhiBase(1,0)]
       steps = [  ZERO, ONE, new PhiBase(1,-1)]
+      steps = [ new PhiBase(0,-1), ZERO, ONE, new PhiBase(1,-1), new PhiBase(1,0)]
       const scanLimit = steps.length
       for (i=0; i<=scanLimit; i++){
         steps[i + scanLimit] = steps[i].negate();
@@ -45,8 +45,8 @@
         }
       }
      } else {
-      const range = 4;
-      const step = phi;
+      const range = 3;
+      const step = 0.5;
       for (let x = -range; x <= range; x += step) {
         let xPhi=PhiBase.fromFloat(x)
         for (let y = -range; y <= range; y += step) {
@@ -83,14 +83,20 @@
       diff += (p1[2] - p2[2])^2;
       return Math.sqrt(diff);
     }
+    let maxDist = 0;
+    let minDist = 1000;
     for (let i = 0; i < n; i++) {
       let iPushed = 0;
-      for (let j = 0; j < n; j++) {
-        for (let k = 0; k < n; k++) {
-          const P1 = points[i].P, P2 = points[j].P, P3 = points[k].P;
-          const d12 = distanceTo(P1,P2);
+      for (let j = i+1; j < n; j++) {
+        const P1 = points[i].P, P2 = points[j].P;
+        const d12 = distanceTo(P1,P2);
+        if (d12 > 1.5 ) continue
+        for (let k = j+1; k < n; k++) {
+          const P3 = points[k].P;
           const d23 = distanceTo(P2,P3);
           const d31 = distanceTo(P3,P1);
+          if (d12 < minDist) { minDist=d12 };
+          if (d12 > maxDist) { maxDist=d12 };
           // Identify candidate isosceles triangle.
           let dual, oppo;
           if (Math.abs(d12 - d31) < 0.1*d12) {
@@ -102,17 +108,20 @@
           } else {
             continue;
           }
+          //if( i != 90 && oppo < 4 ) {continue; }
           // Check if ratio is approximately φ (or its reciprocal).
           const ratio = oppo / dual;
+          //if (ratio > 1) continue;
           if (Math.abs(ratio - phi)/phi < tolRatio || Math.abs((1/ratio) - phi)/phi < tolRatio) {
             triangles.push([points[i].v, points[j].v, points[k].v]);
             iPushed++;
           }
         }
       }
-      console.log("Fibo on i=",i,iPushed);
+      //console.log("Fibo on i=",i,iPushed);
     }
     console.log("Number of triangles",triangles.length);
+    console.log("Max and  Min length",maxDist,minDist);
     return triangles;
   }
 

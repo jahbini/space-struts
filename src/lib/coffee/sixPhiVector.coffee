@@ -2,7 +2,6 @@
 # Full six-basis vector math, symbolic PhiBase style
 
 import { PhiBase, ZERO , ONE } from './phiBase.coffee'
-import { GeoPhi } from './geoPhi.coffee'
 
 PHI=PhiBase.PHI
 # set the scaling factor for the dot product to one for calibration
@@ -61,7 +60,7 @@ buildReferenceVector = ->
     p(1,-1), p(1,1), p(1,-1)
   ])
 
-class SixPhiVector
+export class SixPhiVector
   constructor: (list,@scaleFactor=PhiBase.ONE) ->
     if list.length isnt 6
       throw new Error("SixPhiVector must have exactly 6 elements")
@@ -188,7 +187,7 @@ G_SCALE = 3 / buildReferenceVector().dot(buildReferenceVector()).toFloat()
 
 # Input: Cartesian coordinates (x, y, z)
 # Output: { sixPhiVector, residual: [dx, dy, dz], distance }
-quantizedFromCartesian = (x, y, z) ->
+export quantizedFromCartesian = (x, y, z) ->
   v = new SixPhiVector(SixPhiVector.fromCartesian(x, y, z))  # Best symbolic approximation
   [xp, yp, zp] = v.toCartesian()
 
@@ -204,8 +203,8 @@ quantizedFromCartesian = (x, y, z) ->
     distance: distance
   }
 # Useful constant
-ZERO6 = new SixPhiVector([ZERO, ZERO, ZERO, ZERO, ZERO, ZERO])
-export { quantizedFromCartesian, SixPhiVector, ZERO6 }
+export ZERO6 = new SixPhiVector([ZERO, ZERO, ZERO, ZERO, ZERO, ZERO])
+#export { quantizedFromCartesian, SixPhiVector, ZERO6 }
 
 testing = false
 if testing

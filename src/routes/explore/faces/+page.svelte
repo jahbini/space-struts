@@ -203,8 +203,8 @@ initializeContext= ()->
     cullBackfaces: false
 
   if svgSize < 300
-    scene1.camera.translate -200,200,-300
-    scene2.camera.translate -200,200,-300
+    scene1.camera.translate -200,200,-1000
+    scene2.camera.translate -200,200,-1000
     scene2.camera.roty 0.05
   else 
     scene1.camera.translate 0,0,-100

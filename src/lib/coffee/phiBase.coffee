@@ -85,7 +85,7 @@ class PhiBase
     parts.push("#{@n}") if @n != 0
     parts.join(' + ') or '0'
 
-  @fromFloat: (num, tolerance = 1e-8) ->
+  @fromFloat1: (num, tolerance = 1e-8) ->
     neg = false
     if num < 0
       neg = true
@@ -111,6 +111,34 @@ class PhiBase
       return best.scale(-1)  # Negate the result if input was negative
     else
       return best
+ 
+  @fromFloat: (num, tolerance = 1e-6, maxOrder = 20) ->
+    best = { p: 0, n: 0, value: 0, error: Infinity };
+
+    F = [0, 1]; # Fibonacci seed
+    for k in [ 2 .. maxOrder]
+      F[k] = F[k - 1] + F[k - 2];
+
+    for i in [ 2 .. maxOrder]
+      p = F[i];
+      n = -F[i + 1];
+
+      for delta in [ -2 .. 2]
+        testP = p + delta;
+        testN = n + Math.round( num - testP * PHI );
+
+        val = testP * PHI + testN;
+        error = Math.abs(val - num);
+
+        if (error < best.error)
+          best = new PhiBase testP, testN
+          best.value = val
+          if error < tolerance
+            return best;
+      
+    return best;
+ 
+
 # Useful constants
 ZERO = new PhiBase(0, 0)
 ONE  = new PhiBase(0, 1)

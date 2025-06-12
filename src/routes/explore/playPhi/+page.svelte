@@ -204,7 +204,6 @@ splitName = (longName)->
   return value
 
 useTriangle=(event)->
-  debugger
   triangle = G.moveTriangle pageState.activeClique,pageState.activeCliqueTriangle
   for seg in triangle.segments
     pageState.openSegments.push seg
