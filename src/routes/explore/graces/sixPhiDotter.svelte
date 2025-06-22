@@ -108,7 +108,6 @@
           } else {
             continue;
           }
-          //if( i != 90 && oppo < 4 ) {continue; }
           // Check if ratio is approximately φ (or its reciprocal).
           const ratio = oppo / dual;
           //if (ratio > 1) continue;
