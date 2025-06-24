@@ -1,7 +1,7 @@
 import { Memo } from '$lib/coffee/memo.coffee'
 import _ from 'underscore'
 import { ONE, ZERO, PHI, PhiBase }  from '$lib/coffee/phiBase.coffee'
-import { SixPhiVector, ZERO6 } from '$lib/coffee/sixPhiVector.coffee'
+import {ThreePhiVector, SixPhiVector, ZERO6 } from '$lib/coffee/sixPhiVector.coffee'
 
 export M = new Memo()
 cliques= {}
@@ -60,7 +60,6 @@ export class GeoPhi
     tMidPointV6 = M.MM[offsetSegment].value.midPoint
     sMidPointV6 = segment.midPoint
     path = path.map( (p) -> p.sub(tMidPointV6).add(sMidPointV6) )
-    debugger
     s1=@moveSegment triangle.segments[0],[path[0],path[1]],sID
     s2=@moveSegment triangle.segments[1],[path[1],path[2]],sID
     s3=@moveSegment triangle.segments[2],[path[0],path[2]],sID
@@ -73,9 +72,9 @@ export class GeoPhi
     {value}=M.saveThis ID, {ID, face, segments,path}
     value
 
-  createCliques = (G) ->
-    return [] unless G.fiboTriangles.length
-    cantidates = G.fiboTriangles.slice 0
+  createCliques: (triangles) ->
+    return [] unless triangles.length
+    cantidates = triangles.slice 0
     cliques={}
     for  masterTriangle in cantidates
       for s,idx in masterTriangle.value.segments
@@ -187,7 +186,6 @@ export class GeoPhi
 
   createPointsFromSixVector: (list,shapeName="Star")->
     ## formPointsFromPhi: (shape, shapeName = "") ->
-    debugger
     for k of list
       item = list[k]
       v = item.vector
@@ -240,6 +238,17 @@ export class GeoPhi
     M.saveThis(canonicalKey, v)
     return v
 
+  @createPhiRaw = (ID,v,C3,shapeName="Search") ->
+    # reuse existing if already created
+    if existing = M.theLowdown(ID)?.value
+      existing.shapeName[shapeName] = shapeName
+      return existing
+
+    v.d = v.magnitude().toFixed(3)
+    v.ID=ID
+    v.C3=C3
+    v.shapeName = { [shapeName]: shapeName }
+    M.saveThis(ID,v )
   ###
   # formPointsFromPhi: splits an encoded shape string or array and creates points
   ###
@@ -418,6 +427,27 @@ export class GeoPhi
         for j in [2..3]
           all.push @createTriangle itms[i],itms[i+1],itms[i+j],sa
     all.flat()
+
+  # Given an array of SixPhiVector points and a 3-axis triple (e.g. ['A','Y','E']),
+  # return a new array of SixPhiVector where each point is reprojected and expanded
+  selectAndFlip = (points, axes) ->
+    # points: [SixPhiVector], axes: ['A','Y','E'] or ['X','C','D'], etc.
+    points.map (p) ->
+      three = p.selectTriple axes    # -> ThreePhiVector
+      three.toSixPhi()               # -> SixPhiVector
+
+  # Given an array of SixPhiVector points and multiple triples,
+  # return a map of tripleName -> array of [u,v,w] coords in that basis
+  generateTransformedShapes = (points, triples) ->
+    # points: [SixPhiVector], triples: [ ['X','C','D'], ['A','Y','E'], ... ]
+    result = {}
+    for triple in triples
+      key = triple.join ''
+      result[key] = points.map (p) ->
+        tv = p.selectTriple triple
+        tv.coords                        # [u, v, w] in PhiBase or Float for XYZ
+    result
+
   constructor: ->
     # initialize polyhedra points
 
@@ -464,7 +494,7 @@ export class GeoPhi
 
     # create the fiboTriangles on each of the 12 faces
     @fiboTriangles= @createFiboTriangles @Faces
-    {@cliques,@cliqueNames} = createCliques @
+    {@cliques,@cliqueNames} = @createCliques @fiboTriangles
 
 testing = false
 if testing

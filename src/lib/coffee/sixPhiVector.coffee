@@ -203,6 +203,27 @@ export quantizedFromCartesian = (x, y, z) ->
     distance: distance
   }
 # Useful constant
+  # --- NinePhi selection & flip methods ---
+  # Project onto one of the 9 axes: A–F or X/Y/Z
+  project: (axis) ->
+    if axis in ['X','Y','Z']
+      coords = @sixPhiToCartesianDisplay()
+      idx = {X:0, Y:1, Z:2}[axis]
+      coords[idx]
+    else
+      idx = {A:0, B:1, C:2, D:3, E:4, F:5}[axis]
+      @v[idx]
+
+  # Pick any 3 axes and return a ThreePhiVector holding those coords
+  selectTriple: (axes) ->
+    coords = axes.map (axis) -> @project(axis)
+    new ThreePhiVector(coords, axes)
+
+  # Extract and re-embed via a 3-axis triple
+  transformTriple: (axes) ->
+    three = @selectTriple axes
+    three.toSixPhi()
+
 export ZERO6 = new SixPhiVector([ZERO, ZERO, ZERO, ZERO, ZERO, ZERO])
 #export { quantizedFromCartesian, SixPhiVector, ZERO6 }
 
@@ -247,3 +268,22 @@ if testing
   console.log "distance² = #{mag2.toName()} → float: #{mag2.toFloat()}"
   console.log "All G matrix and dot product checks complete."
 
+
+# --- ThreePhiVector wrapper ---
+export class ThreePhiVector
+  constructor: (@coords, @axes) ->
+    # @coords = [u, v, w]; @axes = ['A','Y','Z'] etc.
+
+  # Expand back to full SixPhiVector
+  toSixPhi: ->
+    vals = [ZERO, ZERO, ZERO, ZERO, ZERO, ZERO]
+    for idx, axis in @axes
+      val = @coords[idx]
+      if axis in ['A','B','C','D','E','F']
+        mapIdx = {A:0, B:1, C:2, D:3, E:4, F:5}[axis]
+        vals[mapIdx] = val
+      else
+        basis = SixPhiVector::"#{axis}_basis"
+        for j in [0..5]
+          vals[j] = vals[j].add basis[j].mul(val)
+    new SixPhiVector(vals)

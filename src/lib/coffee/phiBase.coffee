@@ -75,9 +75,12 @@ class PhiBase
     @p * PHI + @n
 
   toName: ->
-    ee = (xx) -> Math.trunc(xx*1000)
     ee=(xx)->Math.sign(xx)*Math.round(Math.abs(xx)*1000)
+    ee = (xx) -> Math.trunc(xx*1000)
     "#{ee(@p)}φ," + "#{ee(@n)}"
+
+  toID: ->
+    "P(" + @p + "," + @n + ")"
 
   toString: ->
     parts = []
