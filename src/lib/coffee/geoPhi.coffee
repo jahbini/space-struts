@@ -86,13 +86,51 @@ export class GeoPhi
         if cliques[cliqueName]?
           cliques[cliqueName][masterTriangle.value.ID]=[s,possiblePoint]
         else
-          cliques[cliqueName] = {"#{masterTriangle.value.ID}":[s,possiblePoint]} 
+          newClique = {"#{masterTriangle.value.ID}":[s,possiblePoint]}
+          # tag the clique with the dodecahedral mirror plane(s) it lies in
+          newClique.planes = @planesContaining vetricDir3Phi(sV)
+          cliques[cliqueName] = newClique
         cliques[cliqueName2] = cliques[cliqueName]
 
     cnames = for s of cliques
       s
     cliqueNames = cnames.slice()
     return {cliques,cliqueNames}
+
+  # Which of the 15 dodecahedral mirror planes (Ih) contain a 3-D direction:
+  # exact test dir·normal == 0 in Z[φ]. Returns the plane labels (e.g. "E+F").
+  planesContaining: (dir3) ->
+    labels = []
+    for plane in @mirrorPlanes
+      n = plane.v
+      dot = dir3.x.mul(n.x).add(dir3.y.mul(n.y)).add(dir3.z.mul(n.z))
+      labels.push plane.label if dot.p == 0 and dot.n == 0
+    labels
+
+  # Candidate apex vertices that complete a golden triangle or golden gnomon on
+  # the edge (p1, p2), both SixPhiVector vertices. The apex is found by adding
+  # each neighbour-star offset to p1 and keeping those whose three side lengths
+  # form {s,φs,φs} (golden) or {s,s,φs} (gnomon). All exact in Z[φ].
+  # Returns [{ apex: SixPhiVector, cart: {x,y,z}, kind: 'golden'|'gnomon' }].
+  goldenApexCandidates: (p1, p2) ->
+    c1 = cartesian3Phi p1
+    c2 = cartesian3Phi p2
+    edgeClass = lengthClass3Phi len2_3Phi(vsub3(c2, c1))
+    return [] unless edgeClass
+    found = {}
+    for star in @neighborStar
+      apexCart = vadd3 c1, star.offset
+      d2Class = lengthClass3Phi len2_3Phi(vsub3(apexCart, c2))
+      continue unless d2Class
+      kind = robinsonKind edgeClass, star.lenClass, d2Class
+      continue unless kind
+      key = vecKey3Phi apexCart
+      unless found[key]
+        found[key] =
+          cart: apexCart
+          kind: kind
+          apex: SixPhiVector.fromPhiPoint(apexCart.x, apexCart.y, apexCart.z)
+    (val for own key, val of found)
 
 
   # Encoded shape definitions (same as Geo)
@@ -177,6 +215,124 @@ export class GeoPhi
     dz = n.z.mul(scale).mul(p(0,2))
 
     [x.sub(dx), y.sub(dy), z.sub(dz)]
+
+  # The six basisNormals3Phi are the 5-fold (face-center) axes A–F. They are NOT
+  # mirror planes, and reflections perpendicular to them do not close into a
+  # finite group. The 15 mirror planes of the icosahedral group Ih have normals
+  # nX ± nY: each 2-fold (edge-midpoint) axis is the sum of two adjacent 5-fold
+  # axes, giving exactly C(6,2)=15 distinct axes whose reflections close to Ih.
+  axisKey3Phi = (v) ->
+    comps = [v.x, v.y, v.z]
+    i = 0
+    i++ while i < 3 and Math.abs(comps[i].toFloat()) < 1e-9
+    c0 = comps[i]
+    (comps.map (c) -> c.div(c0).toID()).join('|')
+
+  computeMirrorNormals = ->
+    letters = ['A', 'B', 'C', 'D', 'E', 'F']
+    seen = {}
+    out = []
+    addAxis = (v, label) ->
+      key = axisKey3Phi v
+      unless seen[key]
+        seen[key] = true
+        out.push { v, label }
+    for i in [0...6]
+      for j in [i + 1...6]
+        a = basisNormals3Phi[i]
+        b = basisNormals3Phi[j]
+        addAxis { x: a.x.add(b.x), y: a.y.add(b.y), z: a.z.add(b.z) }, "#{letters[i]}+#{letters[j]}"
+        addAxis { x: a.x.sub(b.x), y: a.y.sub(b.y), z: a.z.sub(b.z) }, "#{letters[i]}-#{letters[j]}"
+    out
+
+  # Exact 3-D direction of a segment's six-vector (inverse-map numerators). The
+  # common scale factor drops out of the perpendicularity test, so we skip it.
+  vetricDir3Phi = (vetric) ->
+    [a, b, c, d, e, f] = vetric.v
+    {
+      x: e.sub(f).add(p(1, 0).mul(a.add(b)))
+      y: c.sub(d).add(p(1, 0).mul(e.add(f)))
+      z: a.sub(b).add(p(1, 0).mul(c.add(d)))
+    }
+
+  # --- Golden-triangle hull primitives ---------------------------------------
+  # Robinson tiles use two edge lengths in ratio φ: short s = 2/φ (dodecahedron
+  # edge) and long φs = 2 (icosahedron edge). A golden triangle (36-72-72) has
+  # sides {s,φs,φs}; a golden gnomon (108-36-36) has {s,s,φs}. The complete set
+  # of neighbour offsets at each length is the Ih orbit of one seed edge vector
+  # (reflections through individual planes only give fragments of that orbit).
+  edgeSeedShort = { x: p(0, 1), y: p(-1, 2), z: p(-1, 1) }   # |·| = 2/φ
+  edgeSeedLong  = { x: p(0, 0), y: p(0, 2),  z: p(0, 0) }    # |·| = 2
+  goldenShort2  = p(-4, 8)   # s²  = (2/φ)²
+  goldenLong2   = p(0, 4)    # φs² = 2²
+
+  vadd3 = (u, w) -> { x: u.x.add(w.x), y: u.y.add(w.y), z: u.z.add(w.z) }
+  vsub3 = (u, w) -> { x: u.x.sub(w.x), y: u.y.sub(w.y), z: u.z.sub(w.z) }
+  len2_3Phi = (v) -> v.x.mul(v.x).add(v.y.mul(v.y)).add(v.z.mul(v.z))
+  vecKey3Phi = (v) -> "#{v.x.toID()}|#{v.y.toID()}|#{v.z.toID()}"
+
+  # reflect a 3-D vector across the plane with the given (any-scale) normal
+  reflectVec3Phi = (vec, n) ->
+    dot = n.x.mul(vec.x).add(n.y.mul(vec.y)).add(n.z.mul(vec.z))
+    nn = n.x.mul(n.x).add(n.y.mul(n.y)).add(n.z.mul(n.z))
+    scale = dot.div(nn)
+    two = p(0, 2)
+    {
+      x: vec.x.sub(two.mul(scale).mul(n.x))
+      y: vec.y.sub(two.mul(scale).mul(n.y))
+      z: vec.z.sub(two.mul(scale).mul(n.z))
+    }
+
+  # orbit of a vector under Ih, reached by reflecting through the 15 mirror
+  # normals until closure (exact; each golden seed yields 30 vectors)
+  orbit3Phi = (vec, normals) ->
+    seen = {}
+    out = []
+    seen[vecKey3Phi vec] = true
+    out.push vec
+    frontier = [vec]
+    while frontier.length
+      nextF = []
+      for v in frontier
+        for n in normals
+          r = reflectVec3Phi v, n
+          key = vecKey3Phi r
+          unless seen[key]
+            seen[key] = true
+            out.push r
+            nextF.push r
+      frontier = nextF
+    out
+
+  buildNeighborStar = (mirrorPlanes) ->
+    normals = (plane.v for plane in mirrorPlanes)
+    star = []
+    for o in orbit3Phi(edgeSeedShort, normals)
+      star.push { offset: o, lenClass: 's' }
+    for o in orbit3Phi(edgeSeedLong, normals)
+      star.push { offset: o, lenClass: 'L' }
+    star
+
+  # exact Cartesian (display frame) of a six-vector point
+  cartesian3Phi = (sixVec) ->
+    [a, b, c, d, e, f] = sixVec.v
+    sr = p(2, 4).mul(sixVec.scaleFactor)
+    {
+      x: (e.sub(f).add(p(1, 0).mul(a.add(b)))).div(sr)
+      y: (c.sub(d).add(p(1, 0).mul(e.add(f)))).div(sr)
+      z: (a.sub(b).add(p(1, 0).mul(c.add(d)))).div(sr)
+    }
+
+  lengthClass3Phi = (l2) ->
+    if l2.equals goldenShort2 then 's'
+    else if l2.equals goldenLong2 then 'L'
+    else null
+
+  robinsonKind = (a, b, c) ->
+    sig = [a, b, c].sort().join('')
+    if sig is 'LLs' then 'golden'
+    else if sig is 'Lss' then 'gnomon'
+    else null
 
   planeVertices = [
     [decode['z'], decode['f'],decode['P']],
@@ -494,6 +650,10 @@ export class GeoPhi
 
     # create the fiboTriangles on each of the 12 faces
     @fiboTriangles= @createFiboTriangles @Faces
+    # 15 mirror planes of Ih (normals = nX ± nY of the six face-normal axes)
+    @mirrorPlanes = computeMirrorNormals()
+    # 60 nearest-neighbour offsets (Ih orbits of the short & long golden edges)
+    @neighborStar = buildNeighborStar(@mirrorPlanes)
     {@cliques,@cliqueNames} = @createCliques @fiboTriangles
 
 testing = false

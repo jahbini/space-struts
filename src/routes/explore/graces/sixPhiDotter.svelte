@@ -7,6 +7,7 @@
   import { quantizedFromCartesian, SixPhiVector } from '$lib/coffee/sixPhiVector.coffee'; 
   let container;
 
+  const G= new GeoPhi();
   console.log("phibase",PhiBase);
   // Golden ratio and related constant.
   const phi = PhiBase.PHI;
@@ -114,6 +115,7 @@
           //if (ratio > 1) continue;
           if (Math.abs(ratio - phi)/phi < tolRatio || Math.abs((1/ratio) - phi)/phi < tolRatio) {
             triangles.push([points[i].v, points[j].v, points[k].v]);
+            G.addTriangleAndRegisterCliques(points[i].v, points[j].v, points[k].v);
             iPushed++;
           }
         }

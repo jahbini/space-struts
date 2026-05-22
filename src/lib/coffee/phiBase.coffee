@@ -1,92 +1,127 @@
 # phiBase.coffee
-# Represents numbers of the form (p * φ + n)
+# Represents numbers of the form (p * φ + n) / d  —  exact elements of Q(φ).
+# d defaults to 1, so an integer pair P(p, n) is the lattice element pφ + n.
+# Division is exact (conjugate / algebraic-norm); a result with d == 1 lies in
+# Z[φ], a result with d > 1 has left the integer lattice (membership test).
 
 PHI = (1 + Math.sqrt(5)) / 2
 
+igcd = (a, b) ->
+  a = Math.abs(a); b = Math.abs(b)
+  while b != 0
+    [a, b] = [b, a % b]
+  a
+
 class PhiBase
-  constructor: (p, n) ->
+  constructor: (p, n, d = 1) ->
     @p = p
     @n = n
+    @d = d
+    @_reduce()
 
-  PhiBase.PHI=PHI
-  # Useful constants
+  PhiBase.PHI = PHI
   PhiBase.ZERO = new PhiBase(0, 0)
   PhiBase.ONE = new PhiBase(0, 1)
 
+  # Canonicalize the fraction: positive denominator, lowest terms. The d == 1
+  # case (the overwhelming majority) returns immediately at zero cost, so plain
+  # integer/float PhiBase numbers behave exactly as before.
+  _reduce: ->
+    return this if @d == 1
+    throw new Error("PhiBase denominator zero") if @d == 0
+    if @d < 0
+      @p = -@p; @n = -@n; @d = -@d
+    if Number.isInteger(@p) and Number.isInteger(@n) and Number.isInteger(@d)
+      g = igcd(igcd(@p, @n), @d)
+      if g > 1
+        @p /= g; @n /= g; @d /= g
+    this
 
   clone: ->
-    new PhiBase(@p, @n)
+    new PhiBase(@p, @n, @d)
+
+  # true when the value is an integer lattice element of Z[φ] (no denominator)
+  inLattice: ->
+    @d == 1
 
   add: (other) ->
-    new PhiBase(@p + other.p, @n + other.n)
+    if @d == 1 and other.d == 1
+      return new PhiBase(@p + other.p, @n + other.n)
+    new PhiBase(@p * other.d + other.p * @d, @n * other.d + other.n * @d, @d * other.d)
 
   sub: (other) ->
-    new PhiBase(@p - other.p, @n - other.n)
+    if @d == 1 and other.d == 1
+      return new PhiBase(@p - other.p, @n - other.n)
+    new PhiBase(@p * other.d - other.p * @d, @n * other.d - other.n * @d, @d * other.d)
 
   negate: ->
-    new PhiBase(-@p, -@n)
+    new PhiBase(-@p, -@n, @d)
 
   scale: (c) ->
     if c instanceof PhiBase
       @mul(c)
     else
-      new PhiBase(@p * c, @n * c)
+      new PhiBase(@p * c, @n * c, @d)
 
   step: (incr=1) ->
     phiValue = (this.p + 1) * PhiBase.PHI; # φ as static or imported
     nIncr = this.n + incr
-    if (nIncr < phiValue) 
+    if (nIncr < phiValue)
       return new PhiBase(this.p, nIncr)
-    else 
+    else
       return new PhiBase(this.p + 1, this.n)
 
   mul: (other) ->
-    # (p1 * φ + n1) * (p2 * φ + n2) = (p1*n2 + n1*p2 + p1*p2) * φ + (n1*n2 + p1*p2)
+    # (p1 φ + n1)(p2 φ + n2) = (p1 n2 + n1 p2 + p1 p2) φ + (n1 n2 + p1 p2),
+    # using φ² = φ + 1; denominators multiply.
+    if @d == 1 and other.d == 1
+      return new PhiBase(
+        @p * other.n + @n * other.p + @p * other.p,
+        @n * other.n + @p * other.p)
     new PhiBase(
       @p * other.n + @n * other.p + @p * other.p,
-      @n * other.n + @p * other.p
-    )
+      @n * other.n + @p * other.p,
+      @d * other.d)
 
+  # algebraic conjugate of the numerator: pφ+n ↦ -pφ+(p+n)
   conjugate: ->
-    new PhiBase(-@p, @p + @n)
+    new PhiBase(-@p, @p + @n, @d)
 
-  div: (other , allow = false) ->
-    if other.p == 0 and other.n ==1
-     return @clone()
-    # Phi-algebra division
-    phiMinusOne = new PhiBase(1, -1)
-    newNumerator = @mul(phiMinusOne)
-    newDenominator = other.mul(phiMinusOne)
-    denomValue = newDenominator.toFloat()
-    if denomValue == 0
-      throw new Error("Division by zero in PhiBase")
+  # algebraic norm of the numerator: N(pφ+n) = n² + np − p²  (a rational integer)
+  norm: ->
+    @n * @n + @n * @p - @p * @p
 
-    resultP = newNumerator.p / denomValue
-    resultN = newNumerator.n / denomValue
-
-    new PhiBase(resultP, resultN)
+  div: (other) ->
+    return @clone() if other.p == 0 and other.n == 1 and other.d == 1
+    throw new Error("Division by zero in PhiBase") if other.p == 0 and other.n == 0
+    # (a/da) / (b/db) = (a · conj(b) · db) / (N(b) · da)
+    cp = -other.p
+    cn = other.p + other.n
+    numP = @p * cn + @n * cp + @p * cp
+    numN = @n * cn + @p * cp
+    bNorm = other.n * other.n + other.n * other.p - other.p * other.p
+    new PhiBase(numP * other.d, numN * other.d, bNorm * @d)
 
   equals: (other) ->
-    ee = (xx) -> Math.trunc(xx*1000)
-    ee=(xx)->Math.sign(xx)*Math.round(Math.abs(xx)*1000)
-    ee(@p) == ee(other.p) and ee(@n) == ee(other.n)
+    Math.abs(@toFloat() - other.toFloat()) < 1e-9
 
   toFloat: ->
-    @p * PHI + @n
+    (@p * PHI + @n) / @d
 
   toName: ->
-    ee=(xx)->Math.sign(xx)*Math.round(Math.abs(xx)*1000)
-    ee = (xx) -> Math.trunc(xx*1000)
-    "#{ee(@p)}φ," + "#{ee(@n)}"
+    ee = (xx) -> Math.trunc(xx * 1000)
+    base = "#{ee(@p)}φ,#{ee(@n)}"
+    if @d == 1 then base else base + "/#{@d}"
 
   toID: ->
-    "P(" + @p + "," + @n + ")"
+    if @d == 1 then "P(#{@p},#{@n})" else "P(#{@p},#{@n},#{@d})"
 
   toString: ->
     parts = []
     parts.push("#{@p}φ") if @p != 0
     parts.push("#{@n}") if @n != 0
-    parts.join(' + ') or '0'
+    body = parts.join(' + ') or '0'
+    if @d == 1 then body else "(#{body}) / #{@d}"
 
   @fromFloat1: (num, tolerance = 1e-8) ->
     neg = false
@@ -114,7 +149,7 @@ class PhiBase
       return best.scale(-1)  # Negate the result if input was negative
     else
       return best
- 
+
   @fromFloat: (num, tolerance = 1e-6, maxOrder = 20) ->
     best = { p: 0, n: 0, value: 0, error: Infinity };
 
@@ -138,9 +173,9 @@ class PhiBase
           best.value = val
           if error < tolerance
             return best;
-      
+
     return best;
- 
+
 
 # Useful constants
 ZERO = new PhiBase(0, 0)
