@@ -1,0 +1,64 @@
+<script>
+  import Hull from './hull.svelte';
+  import HullVisual from './hullVisual.svelte';
+  let vi = 0, ni = 0, show3D = false;
+</script>
+
+# The Golden-Triangle Hull
+
+<Hull bind:vi bind:ni bind:show3D />
+
+<HullVisual {vi} {ni} {show3D} />
+
+This is the destination of the whole journey: wrap any object in a skin made of
+**only two tiles** — the golden triangle and the golden gnomon — using exact
+golden arithmetic so the pieces always fit.
+
+## Two tiles, two angles
+
+```
+Golden triangle   36°–72°–72°   sides  s, φs, φs
+Golden gnomon    108°–36°–36°   sides  s, s,  φs
+```
+
+Both use the same two edge lengths in golden ratio: the short `s = 2/φ` and the
+long `φs = 2`. With sides `{s, φs, φs}` the angles come out `36-72-72`; with
+`{s, s, φs}` they come out `108-36-36`. Nothing else is allowed in the hull.
+
+## Placing the next tile
+
+Take any edge on the growing boundary. Its third corner — the **apex** — has to
+sit at a golden distance from *both* endpoints so the new triangle is a true
+Robinson tile. The engine finds every such apex by adding the
+nearest-neighbour star to one endpoint and keeping only the ones that complete
+`{s,φs,φs}` or `{s,s,φs}`.
+
+Step through edges in the panel: each one offers a fixed menu of candidate
+apexes — some **golden**, some **gnomon**, some landing on vertices that already
+exist, and some opening **new** ground to grow into. Every apex is an exact
+PhiBase point; no candidate is ever "almost" right.
+
+## From a menu to a hull
+
+That's the engine. Wrapping a *specific* object becomes a matter of **choosing**
+among these always-valid candidates — preferring the apex that faces outward,
+hugs the target surface, and doesn't collide with tiles already placed. Because
+every option is exact and on-lattice, the hull can grow indefinitely without
+ever drifting.
+
+That is the promise of golden space: **build as big as you want, and it always
+fits.**
+
+<div class="clear"></div>
+
+<style>
+  h1 { font-size: 1.5rem; margin: 0.5rem 320px 0.4rem 0; }
+  h2 { font-size: 1.05rem; margin: 0.9rem 320px 0.25rem 0; }
+  p  { font-size: 0.9rem; line-height: 1.4; margin: 0.35rem 320px 0.35rem 0; }
+  pre { font-size: 0.8rem; margin: 0.35rem 320px 0.35rem 0; white-space: pre-wrap; }
+  code { font-size: 0.85rem; }
+  .clear { clear: both; }
+  @media (max-width: 820px) {
+    h1, h2, p, pre { margin-right: 0; }
+  }
+</style>

@@ -1,7 +1,23 @@
-<script>
-  ///Users/jahbini/development/ucoa/space-struts/src/routes/(front)/how
-</script>
+# Golden Geometry — A Guided Path
 
-# Here You Can Find Out the Secrets That Make It So Easy
+Everything here is built in **golden space**: every coordinate is an exact
+golden number, and every tile is a golden triangle. Work through the lessons in
+order — each one builds the tool the next one needs.
 
+1. **[PhiBase — Exact Arithmetic](/learn/phiBase)** — the number system `p·φ + n`: add, multiply, exact division, and the lattice-membership test.
+2. **[The Fibonacci Spine](/learn/spine)** — powers of φ as exact integer pairs; multiply by adding indices.
+3. **[Six-basis ↔ Cartesian](/learn/sixBasis)** — six golden directions instead of three, mapped exactly both ways.
+4. **[Exact Reflections](/learn/reflections)** — folding space; reflected points land in `⅕Z[φ]`, exactly.
+5. **[The 15 Mirror Planes](/learn/planes)** — why the six face axes don't close, and the fifteen that generate `Ih`.
+6. **[The Nearest-Neighbour Star](/learn/neighbors)** — every neighbour reached by translation; nothing missed.
+7. **[The Golden-Triangle Hull](/learn/goldenHull)** — placing the next golden triangle or gnomon, exactly.
 
+Each lesson has a live, interactive panel running the **real** geometry code —
+so the numbers you see are the same ones the engine builds with.
+
+<style>
+  h1 { font-size: 1.6rem; margin: 0.6rem 0 0.5rem; }
+  p  { font-size: 0.95rem; line-height: 1.5; margin: 0.5rem 0; max-width: 44rem; }
+  ol { font-size: 0.95rem; line-height: 1.6; max-width: 44rem; }
+  li { margin: 0.3rem 0; }
+</style>

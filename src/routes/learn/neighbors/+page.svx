@@ -1,0 +1,62 @@
+<script>
+  import Neighbors from './neighbors.svelte';
+  import NeighborsVisual from './neighborsVisual.svelte';
+  let vi = 0, show3D = false;
+</script>
+
+# The Nearest-Neighbour Star
+
+<Neighbors bind:vi bind:show3D />
+
+<NeighborsVisual {vi} {show3D} />
+
+To grow a structure outward we keep asking the same question at every vertex:
+**where are my nearest neighbours?** Get that set wrong — miss even one — and
+the next triangle has nowhere to go.
+
+## Reflections were the wrong tool
+
+The early approach tried to *manufacture* neighbours by reflecting existing
+points. But reflections only ever produce a fragment of the neighbourhood, and
+a clique can only connect points that **already exist**. Both quietly miss the
+neighbours that aren't on the structure yet — which are exactly the ones you
+need in order to grow.
+
+## Neighbours come from translation
+
+The honest answer is a **translation**, not a reflection. Every nearest
+neighbour sits one golden edge away, and the complete set of edge directions is
+the **Ih orbit of a single edge vector**:
+
+- **30** directions at the short length `2/φ`
+- **30** directions at the long length `2`
+
+Add those offsets to any vertex and you get **every** candidate neighbour —
+complete by symmetry, exact in `Z[φ]`, nothing missed.
+
+## Built vs. new
+
+Step through the dodecahedron's vertices in the panel. Of the 30 short
+neighbours, only a handful are already part of the lone dodecahedron (its
+3 edges); the rest are **new** lattice sites waiting to be filled. Those "new"
+sites are precisely what the old clique-and-reflection method could never see.
+
+With the full neighbour set in hand, the final step is to decide which
+neighbours close a proper **golden triangle**.
+
+**→ The golden-triangle hull**
+
+<div class="clear"></div>
+
+<style>
+  h1 { font-size: 1.5rem; margin: 0.5rem 320px 0.4rem 0; }
+  h2 { font-size: 1.05rem; margin: 0.9rem 320px 0.25rem 0; }
+  p  { font-size: 0.9rem; line-height: 1.4; margin: 0.35rem 320px 0.35rem 0; }
+  ul { font-size: 0.9rem; line-height: 1.4; margin: 0.35rem 320px 0.35rem 1.2rem; }
+  pre { font-size: 0.8rem; margin: 0.35rem 320px 0.35rem 0; white-space: pre-wrap; }
+  code { font-size: 0.85rem; }
+  .clear { clear: both; }
+  @media (max-width: 820px) {
+    h1, h2, p, ul, pre { margin-right: 0; }
+  }
+</style>

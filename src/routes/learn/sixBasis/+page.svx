@@ -1,201 +1,74 @@
 <script>
-  import SixBasisVisualizer from './visualizer.svelte';
-  import SixStepper from './sixStepStepper.svelte';
-  import SixDotter from './sixDotter.svelte';
-  import Floater from '$lib/Floater.svelte'
-  import FloaterTest from '$lib/FloaterTest.svelte'
-  import { afterNavigate } from '$app/navigation';
-
-  afterNavigate(() => {
-    console.log("Navigated!");
-    console.log("Current floater DOM:", document.querySelector('.floater-expanded'));
-  });
-
-  const phi = (1 + Math.sqrt(5)) / 2;
-  
-  const sixBases = [
-    [phi, 0, 1],
-    [phi, 0, -1],
-    [0, 1, phi],
-    [0, -1, phi],
-    [1, phi, 0],
-    [-1, phi, 0]
-  ];
-
-  function sixBaseToCartesian(coords) {
-    let x = 0, y = 0, z = 0;
-    for (let i = 0; i < 6; i++) {
-      x += coords[i] * sixBases[i][0];
-      y += coords[i] * sixBases[i][1];
-      z += coords[i] * sixBases[i][2];
-    }
-    return { x, y, z };
-  }
-  
-  // Define a simple example of a triangle in six-basis notation
-  const sixBasisEdges = [
-    [[0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0]],  // B0
-    [[1, 0, 0, 0, 0, 0], [1, 0, 1, 0, 0, 0]],  // +B2
-    [[1, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]]   // back to origin
-  ];
-
-  const inputVectors = [
-    [-1, null, null, null, null, null],  // +B2
-    [0, null, null, null, null, null],
-    [1, null, null, null, null, null],  // B0
-    [2, null, null, null, null, null],
-    [3, null, -1, null, null, null],
-    [3, null, 0, null, null, null],
-    [3, null, 1, null, null, null],
-    [3, null, 2, null, null, null],
-    [3, 3, 2, null, null, null],
-    [3, 2, 2, null, null, null],
-    [3, 1, 2, null, null, null],
-    [3, 0, 2, null, null, null],
-    [2, 0, 2, null, null, null],
-    [1, 0, 2, null, null, null],
-    [0, 0, 2, null, null, null],
-    [0, 0, 1, null, null, null],
-    [0, 0, 0, null, null ,null]   // back to origin
-  ];
-  // Convert six-basis edges to Cartesian edges
-  const edges = sixBasisEdges.map(edge => [sixBaseToCartesian(edge[0]), sixBaseToCartesian(edge[1])]);
+  import SixCart from './sixCart.svelte';
+  import SixCartVisual from './sixCartVisual.svelte';
+  let sx = 'z', sy = 'O', sz = 'F', show3D = false;
 </script>
+
+# Six-basis ↔ Cartesian
+
+<SixCart bind:sx bind:sy bind:sz bind:show3D />
+
+<SixCartVisual {sx} {sy} {sz} {show3D} />
+
+A dodecahedron doesn't line up with the usual `x, y, z` axes — it lines up with
+**six golden directions**. So instead of three coordinates, every point gets
+**six**, and the panel on the right shows the exact two-way map.
+
+## The seven-symbol vocabulary
+
+Every coordinate of every Platonic and Kepler–Poinsot solid is one of just
+seven values, each an exact PhiBase number:
+
+```
+z = 0       O = 1      o = −1
+P = φ       p = −φ
+f = φ−1     F = 1−φ        (the two halves of ±1/φ)
+```
+
+A point like `#zOF` just means `x = z = 0`, `y = O = 1`, `z = F = 1−φ`.
+
+## Six directions instead of three
+
+The six basis vectors point along the dodecahedron's face-normal directions:
+
+```
+B₁=(φ,1,0)  B₂=(φ,−1,0)  B₃=(1,0,φ)
+B₄=(−1,0,φ) B₅=(0,φ,1)   B₆=(0,φ,−1)
+```
+
+A six-vector `[a,b,c,d,e,f]` of integers becomes a Cartesian point by
+
+```
+x = φ(a−b) + (e−f)
+y = (c−d) + φ(e+f)
+z = (a+b) + φ(c+d)
+```
+
+Because every term is an exact PhiBase number, the whole map is exact — and so
+is the way back. Pick any three symbols on the right and watch the point go to
+six-basis and return to **exactly** where it started.
+
+## Why six is worth it
+
+Three axes can't hold a dodecahedron without irrational fudging. Six golden
+directions hold it perfectly, with integer coordinates — and once you're in the
+six-basis, moving to a neighbour is just **adding 1** to one coordinate. That
+simplicity is what the geometry engine runs on.
+
+Next we put this map to work — folding space with **exact reflections**.
+
+**→ Reflections**
+
+<div class="clear"></div>
+
 <style>
-  .floater-row {
-    display: flex;
-    flex-direction: row;
-    gap: 1em;
-    justify-content: center;
-    align-items: flex-start;
-    margin: 2em 0;
-  }
-
-  .floater-with-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .floater-label {
-    margin-top: 0.5em;
-    font-size: 0.9em;
-    color: #ccc;
-    text-align: center;
+  h1 { font-size: 1.5rem; margin: 0.5rem 320px 0.4rem 0; }
+  h2 { font-size: 1.05rem; margin: 0.9rem 320px 0.25rem 0; }
+  p  { font-size: 0.9rem; line-height: 1.4; margin: 0.35rem 320px 0.35rem 0; }
+  pre { font-size: 0.8rem; margin: 0.35rem 320px 0.35rem 0; white-space: pre-wrap; }
+  code { font-size: 0.85rem; }
+  .clear { clear: both; }
+  @media (max-width: 820px) {
+    h1, h2, p, pre { margin-right: 0; }
   }
 </style>
-
-# Space Struts' New Six Basis Architecture
-
-
-<div>
-<div class="floater-row">
-  <div class="floater-with-label">
-    <Floater>
-      <SixBasisVisualizer />
-    </Floater>
-    <div class="floater-label">6-Basis Preview</div>
-  </div>
-
-  <div class="floater-with-label">
-    <Floater>
-<SixStepper animationSpeed={750} inputVectors={inputVectors}  />
-    </Floater>
-    <div class="floater-label">Intersection Points</div>
-  </div>
-
-  <div class="floater-with-label">
-    <Floater>
-<SixDotter   />
-    </Floater>
-    <div class="floater-label">The Six Basis Crystal</div>
-  </div>
-</div>
-</div>
-
-
-## Introduction
-
-This document presents the logical foundations behind a geometric conversion system that uses a six–basis representation for points in space. The six–basis vectors are derived from the geometry of a dodecahedron and are designed to map points onto a φ–lattice, where every coordinate can be expressed as an integer plus the golden ratio (φ) multiplied by another integer. This system is particularly useful for engineering applications—such as designing large space structures—where each triangular element can be uniquely addressed.
-
-## Definition of the Six–Basis
-
-We define the six basis vectors as follows:
-
-- **B₁** = [φ,  0,  1]
-- **B₂** = [φ,  0, -1]
-- **B₃** = [0,   1, φ]
-- **B₄** = [0,  -1, φ]
-- **B₅** = [1,  φ,  0]
-- **B₆** = [-1, φ,  0]
-
-Here, φ (phi) is the golden ratio:  
-  φ = (1 + √5) / 2
-
-This choice of basis has several benefits:
-- **Symmetry and Parity:** The basis maintains a consistent parity which makes operations like addition more intuitive.
-- **Geometric Consistency:** The vectors are aligned with significant geometric features of the dodecahedron, ensuring that when combined they represent the underlying φ–lattice.
-- **Integer Addressing:** The mapping ensures that every point in the lattice can be expressed with integer coordinates in the six–basis representation.
-
-## Forward Conversion: Six–Basis to Cartesian
-
-A point is represented by a six–vector of integers:  
-  **[a, b, c, d, e, f]**
-
-Using the chosen basis, the Cartesian coordinates (x, y, z) are determined by summing the contributions from each basis vector. For this system, the conversion is given by:
-
-- **x** = φ · (a + b) + (e − f)
-- **y** = (c − d) + φ · (e + f)
-- **z** = (a − b) + φ · (c + d)
-
-This mapping is derived by treating each component of the six–vector as a scaling factor for its corresponding basis vector and then summing their contributions. The structure of the conversion guarantees that the resulting Cartesian coordinates lie on a φ–lattice.
-
-## Inverse Conversion: Cartesian to Six–Basis
-
-The reverse mapping assumes that each Cartesian coordinate is exactly expressible in the form:
-  **value = (integer part) + φ × (phi part)**
-
-Let:
-- x = X₀ + φ · X₁
-- y = Y₀ + φ · Y₁
-- z = Z₀ + φ · Z₁
-
-By comparing the coefficients from the forward mapping, we obtain the inverse relationships:
-
-- **a** = (X₁ + Z₀) / 2  
-- **b** = (X₁ − Z₀) / 2  
-- **c** = (Y₀ + Z₁) / 2  
-- **d** = (Z₁ − Y₀) / 2  
-- **e** = (X₀ + Y₁) / 2  
-- **f** = (Y₁ − X₀) / 2
-
-This inversion is unique provided that the Cartesian coordinates lie exactly on the φ–lattice. It ensures that the six–basis representation consists solely of integers.
-
-## Representation of Dodecahedron Vertices
-
-A regular dodecahedron has 20 vertices that can be grouped into two categories based on their Cartesian representations:
-
-### Group A (8 Vertices)
-- These vertices correspond to Cartesian points of the form (±2, ±2, ±2).
-- When expressed in the φ–lattice, the conversion yields six–basis vectors with entries that are ±1.
-- The symmetry inherent in these vertices makes their six–basis representations particularly straightforward.
-
-### Group B (12 Vertices)
-- These vertices are derived from cyclic permutations of points of the form (0, ±(2/φ), ±(2φ)).
-- Expressing these vertices in their φ–representation (integer part plus φ times an integer) allows the inverse conversion to yield integer six–basis vectors.
-- The resulting six–basis addresses are unique and consistent with the underlying geometry.
-
-In both groups, the design ensures that every vertex is mapped to a unique six–vector, thereby assigning a precise geometric “address” to each vertex.
-
-## Conclusion
-
-The six–basis conversion system provides an elegant and robust framework for mapping between a six-dimensional integer representation and standard Cartesian coordinates. The careful selection of basis vectors aligned with the dodecahedron's geometry ensures that all points—especially the vertices of the dodecahedron—can be uniquely and precisely addressed using integers. This approach not only supports theoretical explorations in higher-dimensional geometry but also lays the groundwork for practical engineering applications, such as constructing large-scale structures in space.
-
-The logical derivation presented here offers insight into:
-- The choice of basis vectors and their symmetry.
-- The linear combination method used for forward mapping.
-- The inversion process that recovers the six–basis from the Cartesian φ–lattice representation.
-- The practical representation of dodecahedron vertices in a form suitable for both visualization and engineering.
-
-This system forms a solid mathematical and geometric basis for further exploration and application in areas requiring precise spatial addressing on a φ–lattice.
-
