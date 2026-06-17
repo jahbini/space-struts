@@ -1,0 +1,201 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+}
+
+\newcommand{\phigold}{\varphi}
+\newcommand{\Zphi}{\mathbb{Z}[\phigold]}
+
+\title{SixMesh: Edges and Addresses in SixPhi Space}
+\author{James A. Hinds (Jim) \and Claude (Opus 4.7)}
+\date{2026-06-17}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A working chat log exploring the geometric structure of the
+\texttt{space-struts} project's SixPhi coordinate system: how the six
+icosahedral face-normal axes interact, the exact metric tensor \(G\), the
+signed pattern of its entries, and the consequence that every edge in a
+structure built from golden triangles carries a finite-alphabet
+\emph{address} in SixPhi space.
+\end{abstract}
+
+\section{Setup: the project context}
+
+\texttt{space-struts} is a live SvelteKit site exploring an exact
+golden-ratio geometry system (``PhiBase'') and constructions of dodecahedral
+and quasicrystal structures from golden triangles. Canonical modules:
+
+\begin{itemize}
+  \item \texttt{src/lib/coffee/phiBase.coffee} --- exact arithmetic in
+        \(\Zphi\): \(P(p,n)/d = (p\phigold + n)/d\).
+  \item \texttt{src/lib/coffee/sixPhiVector.coffee} --- the six-basis vectors.
+  \item \texttt{src/lib/coffee/geoPhi.coffee} --- the geometry engine
+        (\texttt{GeoPhi} class, the 15 mirror planes, neighbor star,
+        golden-apex completion).
+\end{itemize}
+
+\section{The six basis vectors}
+
+The six SixPhi basis directions are the face-normals of the icosahedron
+(the 5-fold axes \(A\)--\(F\)):
+
+\[
+\begin{aligned}
+b_0 &= (\phigold,\,0,\,1)   & b_1 &= (\phigold,\,0,\,-1) \\
+b_2 &= (0,\,1,\,\phigold)   & b_3 &= (0,\,-1,\,\phigold) \\
+b_4 &= (1,\,\phigold,\,0)   & b_5 &= (-1,\,\phigold,\,0)
+\end{aligned}
+\]
+
+with antipodal pairing \((0\!\leftrightarrow\!1),\ (2\!\leftrightarrow\!3),\
+(4\!\leftrightarrow\!5)\).
+
+\section{The observation: every step has a fixed shadow}
+
+\textbf{Jim's observation.}\quad
+\emph{Each movement of \(1\) or \(\phigold\) along an axis adds some fixed
+result along that axis, and the other five SixPhi axes would each get some
+fixed result for that movement.}
+
+This is exactly the Gram matrix
+\(G_{ij} = b_i \cdot b_j\). Computing exactly:
+\begin{itemize}
+  \item Diagonal: \(b_k \cdot b_k = \phigold^2 + 1 = \phigold + 2 = P(1,2)\).
+        (The same \(\phigold+2\) whose algebraic norm is \(5\), giving the
+        reflection denominator.)
+  \item Off-diagonal: \(b_i \cdot b_j = \pm\phigold = P(\pm 1, 0)\) for every
+        \(i \neq j\).
+\end{itemize}
+
+So a unit step along axis \(k\) contributes \(\pm\phigold\) to each other
+axis; a step of \(\phigold\) along \(k\) contributes
+\(\pm\phigold^2 = \pm(\phigold+1)\); and the move registers \(\phigold+2\)
+on \(k\) itself.
+
+\section{The full signed \texorpdfstring{$G$}{G} table}
+
+\[
+G \;=\;
+\begin{array}{c|cccccc}
+        & b_0      & b_1      & b_2      & b_3      & b_4      & b_5      \\ \hline
+b_0     & \phigold{+}2 & +\phigold    & +\phigold    & +\phigold    & +\phigold    & -\phigold    \\
+b_1     & +\phigold    & \phigold{+}2 & -\phigold    & -\phigold    & +\phigold    & -\phigold    \\
+b_2     & +\phigold    & -\phigold    & \phigold{+}2 & +\phigold    & +\phigold    & +\phigold    \\
+b_3     & +\phigold    & -\phigold    & +\phigold    & \phigold{+}2 & -\phigold    & -\phigold    \\
+b_4     & +\phigold    & +\phigold    & +\phigold    & -\phigold    & \phigold{+}2 & +\phigold    \\
+b_5     & -\phigold    & -\phigold    & +\phigold    & -\phigold    & +\phigold    & \phigold{+}2 \\
+\end{array}
+\]
+
+Stripped to its off-diagonal sign pattern:
+
+\[
+\begin{array}{c|cccccc}
+   & 0 & 1 & 2 & 3 & 4 & 5 \\ \hline
+0  & \cdot & + & + & + & + & - \\
+1  & +     & \cdot & - & - & + & - \\
+2  & +     & -     & \cdot & + & + & + \\
+3  & +     & -     & +     & \cdot & - & - \\
+4  & +     & +     & +     & -     & \cdot & + \\
+5  & -     & -     & +     & -     & +     & \cdot \\
+\end{array}
+\]
+
+\paragraph{Structural notes.}
+\begin{itemize}
+  \item Every row has exactly \textbf{4 plus} and \textbf{1 minus} off the
+        diagonal.
+  \item Per-row off-diagonal sums alternate by antipodal pair:
+        \(r_0,r_2,r_4 = +3\phigold\); \(r_1,r_3,r_5 = -\phigold\).
+  \item The lone minus in row \(k\) traces a perfect matching across the
+        three antipodal pairs: \(0\!\leftrightarrow\!5,\
+        1\!\leftrightarrow\!2,\ 3\!\leftrightarrow\!4\) (three
+        transpositions).
+  \item Because every off-diagonal is \(\pm\phigold\), the matrix has only
+        two distinct entries up to sign --- this is why pure six-basis
+        translation stays in \(\Zphi\) and never leaks into
+        \(\tfrac{1}{5}\Zphi\).
+\end{itemize}
+
+\section{Edges as SixPhi addresses}
+
+\textbf{Jim's next move.}\quad
+\emph{Imagine a structure made of our triangles, always laid out in SixPhi
+space, each edge connecting two vertices, each with their coordinates in
+SixPhi. Each edge would then have an ``address'' in SixPhi space.}
+
+Define the edge address as the displacement
+\(\Delta = v_2 - v_1\) in SixPhi coordinates. Two edges are translation
+equivalent iff they share an address (up to sign). Every edge factors into:
+
+\begin{enumerate}
+  \item \textbf{Direction class} --- one of 30 unsigned neighbor-star
+        directions.
+  \item \textbf{Length class} --- short \(s = 2/\phigold\) or long
+        \(L = 2\) (the only two edge lengths a golden triangle or gnomon
+        admits).
+  \item \textbf{Sign} --- orientation along the direction.
+\end{enumerate}
+
+This alphabet is already in the codebase: \texttt{GeoPhi.neighborStar} is
+the \emph{finite alphabet of edge addresses}, \(60 = 30 + 30\): the two
+\(I_h\) orbits of the golden edge vectors (short \(s\) and long \(L\)).
+
+\subsection{Consequences}
+
+\begin{description}
+  \item[Compression.] A structure reduces to a vertex list plus an edge
+        list of triples \((\text{idx}_a, \text{idx}_b,
+        \text{neighborStarIndex})\) --- displacement is redundant with the
+        address.
+  \item[Cheap invariants.] ``How many short edges along direction \(k\)?''
+        is a histogram over a 60-bin alphabet. Two structures are
+        translation-congruent iff edge-address histograms match (necessary;
+        sufficient with one vertex fixed).
+  \item[Closure.] A triangle \((a,b,c)\) is golden iff its three edge
+        addresses sum to zero in SixPhi \emph{and} length classes form
+        \(\{s,L,L\}\) (triangle) or \(\{s,s,L\}\) (gnomon).
+        \texttt{goldenApexCandidates} essentially solves: given two
+        addresses, what third address closes a legal golden tile?
+  \item[Plane signatures lift to edges.] Each neighbor-star direction lies
+        in a subset of the 15 mirror planes (via the exact
+        \texttt{planesContaining} test), so every edge inherits a plane
+        signature; a structure inherits the intersection of its edges'
+        signatures --- a fingerprint of which \(I_h\) symmetries it
+        respects.
+  \item[\(\Zphi\) vs.\ \(\tfrac{1}{5}\Zphi\).] Pure edge-star translation
+        keeps addresses in \(\Zphi\). Reflection across any of the 15
+        mirror planes drops the new edges into \(\tfrac{1}{5}\Zphi\) (norm
+        of \(\phigold+2\) is 5). The address itself tells you which regime
+        you're in.
+\end{description}
+
+\section{Open directions}
+
+\begin{itemize}
+  \item Enumerate the 60 neighbor-star addresses as a labeled table
+        (direction \(\times\) length \(\times\) mirror-plane signature).
+  \item Sketch the edge-list data structure as a small CoffeeScript helper
+        in \texttt{geoPhi.coffee}.
+  \item Work out the triangle-closure algebra: given addresses
+        \((\alpha,\beta)\), enumerate the closing \(\gamma\) with
+        \(\alpha+\beta+\gamma=0\) and lengths in \(\{s,L,L\}\) or
+        \(\{s,s,L\}\).
+\end{itemize}
+
+\end{document}

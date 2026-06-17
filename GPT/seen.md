@@ -71,7 +71,7 @@ The canvas `width`/`height` **attributes** are the bitmap size (what
 | Context | `seen.Context(elOrId, scene)` → `ctx.render()` | picks Svg vs Canvas by tagName |
 | Drag | `new seen.Drag(elOrId,{inertia:true})` | `.on('drag.rotate', e => …)` |
 | Rotate | `seen.Quaternion.xyToTransform(x, y)` | feed `...e.offsetRelative` |
-| Material | `new seen.Material(seen.Colors.hex('#rrggbb'))` | set `mat.a` for alpha (0–255) |
+| Material | `new seen.Material(seen.Colors.hex('#rrggbb'))` | **alpha lives on `mat.color.a`, not `mat.a`** — see Gotchas |
 | Color | `seen.Colors.hex('#rrggbb')` / `seen.C(r,g,b,a)` | |
 | Shapes | `seen.Shapes.tetrahedron()`, `.cube()`, `.icosahedron()`, `.sphere(subdiv)`, `.pyramid()`, `.text(str,opts)` | tetra fits a 2×2×2 cube |
 | **Path/polygon** | `seen.Shapes.path([p1,p2,p3,p4])` | **takes an ARRAY** of points, not varargs |
@@ -83,6 +83,31 @@ The canvas `width`/`height` **attributes** are the bitmap size (what
   array and is the working one.
 - **`window.seen` may be undefined on first tick** — always guard with a
   `setTimeout` retry (the playground does `if !seen then setTimeout onMount,50`).
+- **Material alpha lives on `mat.color.a`, NOT `mat.a`.** Setting `mat.a = 0x80`
+  silently does nothing — render shading reads `@color.a`
+  (`seen.m.coffee` ~L812: `color.a = @color.a` inside `Material::render`).
+  And `seen.Colors.hex('#rrggbb')` constructs a Color without alpha, defaulting
+  to `0xFF` (opaque). To get a 50%-transparent fill:
+  ```coffee
+  c = seen.Colors.hex('#d4af37')
+  c.a = 0x80                          # set alpha on the COLOR
+  mat = new seen.Material(c)
+  path.fill mat
+  ```
+  Or use `seen.C(r, g, b, a)` which takes alpha as the 4th arg.
+- **Backface culling requires consistent winding.** `cullBackfaces = true` on a
+  path culls when the projected normal's z ≥ 0 (model-space outward normal
+  pointing toward camera survives). If your triangle source sorts/randomises
+  vertex order (e.g. `geoPhi.createTriangle` sorts the path), half your
+  triangles will be wound the wrong way and get culled when they shouldn't.
+  Re-orient explicitly before rendering: compute `(b-a)×(c-a)` and flip
+  `[a,c,b]` when the dot with the outward direction is negative. Example in
+  `src/routes/explore/teapot/+page.svelte` (`orientOutward`).
+- **`scene.cullBackfaces` and `surface.cullBackfaces` AND together** (with
+  normal.z). Render keeps a surface when `(!scene.cullBackfaces ||
+  !surface.cullBackfaces || normal.z < 0)`. So leaving the scene flag on but
+  setting `surface.cullBackfaces = false` per shape is the way to mix culled
+  panels with see-through ones (e.g. golden hull culled, teapot mesh not).
 - Working example to copy: `src/routes/explore/playground/+page.svelte`
   (CoffeeScript). It does Scene + Viewport + Context + Drag + wireframes.
 - A glyph at a point: `seen.Shapes.tetrahedron()` → `.scale(sz)` → `.translate(x,y,z)`
