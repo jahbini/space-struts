@@ -1,0 +1,47 @@
+{
+  "_comment": "Robinson piece definitions. Edges and angles in PhiBase. Vertices listed CCW. The 'apex' is the vertex with the unique angle (36 for T, 108 for G).",
+  "_format": "kind: { vertices: [{label, angle_deg}, ...], edges: [{from, to, length_phibase: [n, p]}, ...] }",
+
+  "T": {
+    "name": "acute Robinson (golden triangle)",
+    "vertices": [
+      { "label": "A", "angle_deg":  36, "role": "apex" },
+      { "label": "B", "angle_deg":  72, "role": "base" },
+      { "label": "C", "angle_deg":  72, "role": "base" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B", "length": [0, 1], "_eq": "phi" },
+      { "from": "B", "to": "C", "length": [1, 0], "_eq": "1 (short, opposite apex)" },
+      { "from": "C", "to": "A", "length": [0, 1], "_eq": "phi" }
+    ]
+  },
+
+  "G": {
+    "name": "obtuse Robinson (golden gnomon)",
+    "vertices": [
+      { "label": "A", "angle_deg": 108, "role": "apex" },
+      { "label": "B", "angle_deg":  36, "role": "base" },
+      { "label": "C", "angle_deg":  36, "role": "base" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B", "length": [1, 0], "_eq": "1" },
+      { "from": "B", "to": "C", "length": [0, 1], "_eq": "phi (long, opposite apex)" },
+      { "from": "C", "to": "A", "length": [1, 0], "_eq": "1" }
+    ]
+  },
+
+  "_orientations": {
+    "comment": "Each piece can be placed in 10 distinct orientations (rotations by 36 degrees), and mirrored. The WFC enumerates over kind * rotation * mirror when computing legalPieces at an open edge. Snap to the edge by matching one of the piece's three edges to the open edge (length AND scale must match).",
+    "rotation_step_deg": 36,
+    "rotation_count": 10,
+    "mirror": true
+  },
+
+  "_attachment_protocol": {
+    "step_1": "Given open edge e with endpoints v0, v1 and length L (in PhiBase): enumerate piece edges with matching length L.",
+    "step_2": "For each matching piece-edge, two rotational placements per side of e (left/right of CCW direction). Reject if the side is already occupied.",
+    "step_3": "For each remaining placement, check legality: candidate brings angle_at_v0 and angle_at_v1; both must extend the existing vertex words legally per vertexWords.json rules.",
+    "step_4": "Check geometric non-overlap with already-placed pieces (exact in PhiBase).",
+    "step_5": "Return the surviving placements as the superposition for edge e."
+  }
+}

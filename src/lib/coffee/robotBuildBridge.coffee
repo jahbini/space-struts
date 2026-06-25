@@ -15,6 +15,7 @@ import * as rb from './robotBuild.coffee'
 import { shellEnclosing, PHI } from './phiShells.coffee'
 import { SixPhiVector } from './sixPhiVector.coffee'
 import { GeoPhi } from './geoPhi.coffee'
+import { teapotVerts, teapotTris } from './teapotMesh.coffee'
 
 # Convert a SixPhiVector to a Cartesian float triple.
 sixPhiToCart = (v) -> v.sixPhiToCartesianDisplay()
@@ -436,12 +437,48 @@ export buildVoxelHull = (G, teapotRadialDistance, opts = {}) ->
 
   cubeCenter = (i, j, k) -> [i * 2 * s, j * 2 * s, k * 2 * s]
 
+  # Cube is "filled" if its center OR any of its 8 corners sits inside the
+  # teapot's surface. The corner check is what catches thin features
+  # (spout, handle, lid stem): cubes whose centers land just outside the
+  # surface but whose volume overlaps the teapot still get classified as
+  # filled, so the hull covers those features. This also stops hut faces
+  # from slicing through the teapot, because the dual case — a neighbour
+  # cube classified empty when part of it actually contains teapot mesh —
+  # also gets caught by the corner test.
+  cubeIsFilled = (i, j, k) ->
+    return true if isInside(cubeCenter(i, j, k))
+    for dx in [-s, +s]
+      for dy in [-s, +s]
+        for dz in [-s, +s]
+          c = cubeCenter(i, j, k)
+          return true if isInside([c[0] + dx, c[1] + dy, c[2] + dz])
+    false
+
   occ = {}
   keyFn = (i, j, k) -> "#{i},#{j},#{k}"
   for i in [-range..range]
     for j in [-range..range]
       for k in [-range..range]
-        occ[keyFn(i, j, k)] = isInside(cubeCenter(i, j, k))
+        occ[keyFn(i, j, k)] = cubeIsFilled(i, j, k)
+
+  # Feature pass: force-fill the cube containing each teapot mesh point
+  # (vertices + triangle centroids). The body of the teapot is already
+  # covered by the center/corner classifier; this catches the THIN
+  # features that the regular voxel grid misses — the spout tip, handle
+  # arch, and lid stem all have surface points whose cubes the radial
+  # classifier wouldn't otherwise flag.
+  cubeForPoint = ([x, y, z]) ->
+    i: Math.round(x / (2 * s)), j: Math.round(y / (2 * s)), k: Math.round(z / (2 * s))
+  forceFill = (p) ->
+    { i, j, k } = cubeForPoint(p)
+    return if i < -range or i > range or j < -range or j > range or k < -range or k > range
+    occ[keyFn(i, j, k)] = true
+  forceFill(p) for p in teapotVerts
+  for [iA, iB, iC] in teapotTris
+    a = teapotVerts[iA]
+    b = teapotVerts[iB]
+    c = teapotVerts[iC]
+    forceFill [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3]
   isOcc = (i, j, k) -> occ[keyFn(i, j, k)] ? false
 
   state = rb.createEmptyState()

@@ -47,6 +47,14 @@ were deleted**. Use the `$lib/coffee/*.coffee` versions.
   and the **approved lesson-visual pattern** (calc in sidebar + `seen` visual in
   the left column, toggled by a checkbox). Copy this pattern for any page with
   visual needs.
+- [`wfc-robinson.md`](wfc-robinson.md) — the 2D Robinson-tile WFC fill at
+  `/explore/puzzle`. Documents the **(e₀, e₇₂) non-orthogonal basis** for
+  exact PhiBase 2D arithmetic, the heuristic stack, and the recurring
+  "pick the right primitive" lesson.
+- [`voxel-hull.md`](voxel-hull.md) — the **technique for wrapping an
+  arbitrary 3D object in a golden-tile hull**. Cubic lattice, hut cells,
+  4-rule classifier (center + corners + mesh-vertex + triangle-centroid).
+  Only the classifier is shape-specific; everything else is reusable.
 
 ## Conventions that matter
 

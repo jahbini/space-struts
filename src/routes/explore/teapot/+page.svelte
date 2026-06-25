@@ -1,9 +1,17 @@
 <script lang="coffeescript" type="text/coffeescript">
 import '$lib/seen.m.coffee'                    # side-effect: window.seen
 import { onMount, onDestroy } from 'svelte'
+import { PhiBase } from '$lib/coffee/phiBase.coffee'
 import { GeoPhi } from '$lib/coffee/geoPhi.coffee'
 import { teapotSeenModel, teapotRadialDistance } from '$lib/coffee/teapotMesh.coffee'
 import { createBridge, pickDodecahedronSeeds, buildVoxelHull } from '$lib/coffee/robotBuildBridge.coffee'
+import { buildWfcDodecSurface, extractDodecPentagons, wfcFillPentagon } from '$lib/coffee/teapotWfc.coffee'
+import { buildSingleDodec3D } from '$lib/coffee/dodecWfc3D.coffee'
+import { init as initAngles } from '$lib/coffee/wfc/anglePalette.coffee'
+import { init as initWords } from '$lib/coffee/wfc/vertexWords.coffee'
+import { init as initRobinson } from '$lib/coffee/wfc/robinson.coffee'
+
+console.log 'teapot: script loaded'
 
 CANVAS_SIZE  = 520
 MODEL_SCALE  = 220        # 1 unit (teapot bounding sphere) -> 220 px in scene
@@ -103,7 +111,21 @@ timerId = null
 status    = 'idle'
 triCount  = 0
 vertCount = 0
-currentN  = 0             # phi-shell level. 0 = uniform dodec; -1, -2 ... = tighter
+currentN  = 0             # phi-shell level. 0 = canonical Robinson size; -1, -2 ... = smaller tiles
+wfcReady  = false         # has the WFC palette/words/templates finished loading?
+showTeapot  = true        # toggle the teapot mesh visibility
+transparent = false       # toggle ~10% alpha on the WFC tiles
+
+# Map currentN to a Robinson-tile scale for WFC mode. n=0: tileScale 1
+# (canonical Robinson size — each pentagon gets a single big T). n=-1:
+# tileScale 1/φ. n=-2: 1/φ². Each rung gives ~φ² more decisions per face.
+tileScaleForN = (n) ->
+  # Start from 1 and multiply by (φ−1) for each rung down.
+  pb = new PhiBase(0, 1)
+  step = new PhiBase(1, -1)   # 1/φ
+  for _ in [0...Math.abs(n)]
+    pb = pb.mul(step)
+  pb
 
 # ---------- scene helpers ----------
 addTeapotTo = (parent)->
@@ -145,9 +167,10 @@ triangleSeenPath = ([ia, ib, ic], verts, faceIdx = 0, preWound = false)->
   pc = seen.P c[0]*MODEL_SCALE, c[1]*MODEL_SCALE, c[2]*MODEL_SCALE
   path = seen.Shapes.path [pa, pb, pc]
   path.cullBackfaces = true
-  fillHex = FACE_COLORS[faceIdx % FACE_COLORS.length]
-  fillColor = seen.Colors.hex(fillHex)
-  fillColor.a = 0x80                  # 50% — alpha lives on Color, NOT Material
+  # Uniform white. Alpha tracks the `transparent` toggle: ~10% when set,
+  # ~88% otherwise. Alpha lives on the Color object, NOT the Material.
+  fillColor = seen.Colors.hex('#ffffff')
+  fillColor.a = if transparent then 0x1a else 0xE0
   mat = new seen.Material fillColor
   path.fill mat
   path.surfaces[0].fillMaterial = mat
@@ -175,28 +198,58 @@ robotGlyphAt = ([cx, cy, cz])->
 # Build the seed structure for the current phi-shell level. n=0 is the
 # regular dodecahedron at r=√3; n<0 is the band-filtered irregular hull
 # whose vertices sit in (phi^n, phi^(n+1)) above the teapot surface.
+# When showWfc is on, each pentagonal face gets the 2D Robinson-WFC fill.
+# Convert the dodecWfc3D output (array of { verts: [[x,y,z]×3], kind, faceIdx })
+# into the state shape the existing renderer wants ({state: {triangles, vertices},
+# origFaces}). Vertices are deduped by Cartesian-key — shared face boundary
+# verts collapse into one index per 3D position.
+dodec3DTilesToState = (tiles) ->
+  verts = []
+  triangles = []
+  faceIdxs = []
+  vertMap = new Map()
+  vertKey = (v) -> "#{v[0].toFixed(5)},#{v[1].toFixed(5)},#{v[2].toFixed(5)}"
+  indexFor = (v) ->
+    k = vertKey(v)
+    if vertMap.has(k)
+      vertMap.get(k)
+    else
+      idx = verts.length
+      verts.push v.slice()
+      vertMap.set(k, idx)
+      idx
+  for tile in tiles
+    triangles.push [indexFor(tile.verts[0]), indexFor(tile.verts[1]), indexFor(tile.verts[2])]
+    faceIdxs.push tile.faceIdx
+  { state: { triangles, vertices: verts }, origFaces: faceIdxs }
+
 buildSeedsForN = (n)->
   if n >= 0
-    seeds = pickDodecahedronSeeds gPhi
-    state = bridge.seedMany seeds
-    origFaces = (Math.floor(i / TRIS_PER_FACE) for i in [0...state.triangles.length])
-    { state, origFaces }
+    # 3D WFC on a single dodecahedron. Phase 1: per-face independent
+    # fills, boundary mismatches visible at dodec edges. Phase 2 will
+    # add edge-vertex propagation so the fills connect cleanly.
+    return { state: { triangles: [], vertices: [] }, origFaces: [] } unless wfcReady
+    tileScale = tileScaleForN n
+    tiles = buildSingleDodec3D gPhi, tileScale, 200
+    return dodec3DTilesToState(tiles)
   else
-    # Voxel hull made of Hut cells. Each cube boundary face renders a 6-tri
-    # hut on the filled side; surrounded filled cubes bump out to a regular
-    # dodecahedron. Edges either L=2*scale (cube edges) or s=L/phi (hut
-    # ridge + slants). Pure golden geometry, rigid tiles, never deformed.
-    scale = 0.35 * Math.pow(PHI, n + 1)   # cube half-edge. n=-1 → 0.35, n=-2 → 0.216, n=-3 → 0.134
+    # Voxel hull made of Hut cells — the connected manifold around the teapot.
+    scale = 0.35 * Math.pow(PHI, n + 1)
     range = Math.ceil(2.5 / scale)
     state = buildVoxelHull gPhi, teapotRadialDistance, { scale, range }
-    # 6 tris per hut → group hut id as the colour, cycled through 12 hues.
     origFaces = (Math.floor(i / 6) % 12 for i in [0...state.triangles.length])
     { state, origFaces }
 
 prepareBuild = ->
+  console.log "teapot: prepareBuild n=#{currentN}"
   return false unless bridge?
-  result = buildSeedsForN currentN
+  try
+    result = buildSeedsForN currentN
+  catch err
+    console.error 'teapot: buildSeedsForN threw:', err
+    return false
   state = result.state
+  console.log "teapot: build -> tris=#{state.triangles.length} verts=#{state.vertices.length}"
   return false if state.triangles.length == 0
   origTris  = state.triangles[..]
   origFaces = result.origFaces
@@ -257,6 +310,7 @@ clearScene = ->
   ctx.render()
 
 toggleAnimation = ->
+  console.log "teapot: toggleAnimation (status=#{status})"
   if status == 'running' then stopAnimation('idle') else startAnimation()
 
 setLevel = (n)->
@@ -269,8 +323,37 @@ setLevel = (n)->
 tighter = -> setLevel(currentN - 1)
 looser  = -> setLevel(currentN + 1)
 
+# Teapot visibility: just clear or re-add the seen mesh; no rebuild needed.
+toggleTeapot = ->
+  if showTeapot
+    addTeapotTo mdlTeapot
+  else
+    mdlTeapot.children = []
+  mdl.transform xform if xform
+  ctx.render() if ctx?
+
+# Transparency: mutate the alpha on every existing path's fill material.
+# Avoids a WFC re-run for a render-only knob.
+toggleTransparency = ->
+  alpha = if transparent then 0x1a else 0xE0
+  return unless mdlBuild?
+  for path in mdlBuild.children
+    for surf in path.surfaces
+      mat = surf.fillMaterial
+      if mat? and mat.color?
+        mat.color.a = alpha
+  ctx.render() if ctx?
+
 # ---------- mount ----------
 canvasEl = null
+
+initWfc = ->
+  try
+    await Promise.all [initAngles(), initWords(), initRobinson()]
+    wfcReady = true
+    console.log 'teapot: wfc ready'
+  catch err
+    console.error 'teapot: wfc init failed:', err
 
 initScene = ->
   unless window.seen?
@@ -278,6 +361,7 @@ initScene = ->
     return
   gPhi = new GeoPhi()
   bridge = createBridge gPhi, teapotRadialDistance
+  initWfc()       # async — sets wfcReady once palette/words/templates loaded
   mdl = seen.Models.default()
   mdl.cullBackfaces = true
   mdlTeapot = new seen.Model()
@@ -334,10 +418,20 @@ onDestroy ->
       {#if status === 'running'}■ Stop{:else}▶ Run Build{/if}
     </button>
     <button on:click={clearScene}>Clear</button>
+    <label class="toggle" title="Show the Utah teapot mesh inside the dodecahedron">
+      <input type="checkbox" bind:checked={showTeapot} on:change={toggleTeapot}/>
+      teapot
+    </label>
+    <label class="toggle" title="Render the WFC tiles at ~10% alpha (see-through)">
+      <input type="checkbox" bind:checked={transparent} on:change={toggleTransparency}/>
+      transparent
+    </label>
+  </div>
+  <div class="controls">
     <span class="level">
       level n = <code>{currentN}</code>
-      <button on:click={tighter} title="tighter — smaller triangles closer to the teapot">−</button>
-      <button on:click={looser}  title="looser — larger triangles">+</button>
+      <button on:click={tighter} title="tighter — smaller WFC tiles">−</button>
+      <button on:click={looser}  title="looser — larger WFC tiles">+</button>
     </span>
     <span class="hud">
       status: <code>{status}</code>
@@ -349,6 +443,8 @@ onDestroy ->
 
 <style>
   .page { max-width: 720px; margin: 1rem auto; padding: 0 1rem 6rem; }
+  .toggle { display: inline-flex; gap: 0.25rem; align-items: center; font-size: 0.9rem; user-select: none; cursor: pointer; padding: 0.2rem 0.4rem; }
+  .toggle input { margin: 0; }
   h1 { font-size: 1.3rem; margin-bottom: 0.25rem; }
   .lede { color: #555; margin-top: 0; }
   figure { margin: 0.5rem 0; }

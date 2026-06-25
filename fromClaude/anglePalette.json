@@ -1,0 +1,19 @@
+{
+  "_comment": "Angle Palette L1. cos(angle) expressed as a rational over Z[phi]. PhiBase convention: P(n,p) = n + p*phi. Numerator is a PhiBase pair [n, p]; denominator is a plain integer.",
+  "_format": "{ degrees: { cos: { num: [n, p], den: int } } }",
+  "angles": {
+    "36":  { "cos": { "num": [0,  1], "den":  2 }, "_eq": "phi/2" },
+    "60":  { "cos": { "num": [1,  0], "den":  2 }, "_eq": "1/2 (cube-family, optional)" },
+    "72":  { "cos": { "num": [-1, 1], "den":  2 }, "_eq": "(phi-1)/2 = 1/(2*phi)" },
+    "90":  { "cos": { "num": [0,  0], "den":  1 }, "_eq": "0" },
+    "108": { "cos": { "num": [1, -1], "den":  2 }, "_eq": "-(phi-1)/2 = -1/(2*phi)" },
+    "120": { "cos": { "num": [-1, 0], "den":  2 }, "_eq": "-1/2 (cube-family, optional)" },
+    "144": { "cos": { "num": [0, -1], "den":  2 }, "_eq": "-phi/2" }
+  },
+  "_robinson_2d_subset": ["36", "72", "108", "144"],
+  "_notes": [
+    "For the 2D Robinson WFC, only the angles in _robinson_2d_subset appear at vertex interiors.",
+    "144 is the supplement of 36 and shows up only in the exterior; not used in vertex words for closed tilings.",
+    "60/90/120 are reserved for the cube/tet/oct cross-family (future)."
+  ]
+}
