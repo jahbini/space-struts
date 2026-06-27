@@ -11,16 +11,24 @@ import { Assembly } from '$lib/coffee/wfc/assembly.coffee'
 status       = 'loading'   # loading | ready | running | done | contradiction | maxSteps | error
 errorMsg     = null
 sceneInfo    = ''
-pieces       = []          # snapshot of placed Piece objects
-verts        = []          # snapshot of vertex Cartesian positions
+verts        = []          # snapshot of vertex Cartesian positions (only used when showVerts is on)
 edgeStats    = ''
 assembly     = null
+renderAvgMs  = 0           # running mean of step→paint wall time
+renderCount  = 0
+# Imperative SVG group for placed pieces. Bound to a <g> in the template;
+# each placement appends ONE <polygon> child, so SVG work per tick is O(1)
+# in the number of already-placed pieces.
+piecesGroup  = null
+pieceCount   = 0           # how many polygons currently in piecesGroup (for HUD + label gate)
+SVG_NS       = 'http://www.w3.org/2000/svg'
 
 # Visibility toggles. fill = colored polygon interiors + T/G labels;
 # edges = the dark strokes; verts = dots at every vertex.
 showFill  = true
 showEdges = true
 showVerts = false
+showDiagnostics = false   # diagnose() + insideOpen are O(openEdges × candidates × N); off by default
 
 # Target = regular pentagon centred at the (a,b) origin, plus a tileScale
 # that the Assembly threads through computeC, classifyDisplacement, and
@@ -46,16 +54,47 @@ SCALE = 50
 svgW  = 640
 svgH  = 560
 
-# Convert a piece into SVG attributes.
-pieceToSvg = (p) ->
+# Build the points string for one piece.
+pointsFor = (p) ->
   pts = ""
   for v in p.verts
     [x, y] = v.pos.toCartesian()
     px = x * SCALE
     py = -y * SCALE                       # flip y for SVG screen coords
     pts += "#{px.toFixed(2)},#{py.toFixed(2)} "
-  fill = if p.kind == 'T' then '#d4a464' else '#7baad4'
-  { points: pts.trim(), fill: fill, kind: p.kind }
+  pts.trim()
+
+fillFor = (kind) -> if kind == 'T' then '#d4a464' else '#7baad4'
+
+# Append one <polygon> for a freshly placed piece. The element's identity
+# stays put — no array re-iteration, no reactive re-eval per existing piece.
+appendPiecePolygon = (p) ->
+  return unless piecesGroup?
+  poly = document.createElementNS(SVG_NS, 'polygon')
+  poly.setAttribute 'points', pointsFor(p)
+  poly.setAttribute 'fill', (if showFill then fillFor(p.kind) else 'none')
+  poly.setAttribute 'stroke', (if showEdges then '#222' else 'none')
+  poly.setAttribute 'stroke-width', (if showEdges then '0.8' else '0')
+  poly.setAttribute 'opacity', (if showFill then '0.85' else '1')
+  poly.dataset.kind = p.kind
+  piecesGroup.appendChild poly
+
+clearPiecesGroup = ->
+  return unless piecesGroup?
+  while piecesGroup.firstChild
+    piecesGroup.removeChild piecesGroup.firstChild
+
+# Re-apply fill/edge attributes to existing polygons when a toggle flips.
+# Walks the current children once — no array snapshot, no reactive churn.
+restylePiecePolygons = ->
+  return unless piecesGroup?
+  for poly in piecesGroup.children
+    kind = poly.dataset.kind
+    poly.setAttribute 'fill', (if showFill then fillFor(kind) else 'none')
+    poly.setAttribute 'stroke', (if showEdges then '#222' else 'none')
+    poly.setAttribute 'stroke-width', (if showEdges then '0.8' else '0')
+    poly.setAttribute 'opacity', (if showFill then '0.85' else '1')
+
 
 cartCentroid = (p) ->
   cx = 0; cy = 0
@@ -82,17 +121,40 @@ freshAssembly = ->
   a.seed('T')
   a
 
-snapshotPieces = -> assembly.pieces.slice()
+# Small reactive snapshot for the T/G text labels — only used while the
+# build is small enough to label clearly. Stays empty past 40 pieces.
+labelPieces = []
+syncLabelPieces = ->
+  labelPieces = if assembly.pieces.length <= 40 then assembly.pieces.slice() else []
 
 snapshotVerts = -> (v.pos.toCartesian() for v in assembly.vertices)
 
+# Push every piece currently in the assembly into the SVG group. Used after
+# fresh assembly / reset / mount, when the seed has already placed pieces.
+seedSvgFromAssembly = ->
+  clearPiecesGroup()
+  for p in assembly.pieces
+    appendPiecePolygon p
+  pieceCount = assembly.pieces.length
+
 snapshotEdgeStats = ->
-  s = assembly.stats()
   recent = assembly.log[Math.max(0, assembly.log.length - 5)...].map((e) -> "#{e.op}:#{e.kind}#{if e.side then '/' + e.side else ''}").join(' → ')
-  base = "pieces=#{s.pieceCount}  vertices=#{s.vertexCount}  edges=#{s.edgeCount}  open=#{s.openEdgeCount}  insideOpen=#{s.insideOpenCount}  closed=#{s.closedVertexCount}\nlast 5: #{recent}"
-  # Rejection diagnostic — per-reason totals across all open edges, plus
-  # any "dead" open edges where every candidate was rejected.
+  avg = if renderCount > 0 then "  avgRender=#{renderAvgMs.toFixed(1)}ms (n=#{renderCount})" else ''
+  # Cheap counts — no legalPieces enumeration.
+  pCount      = assembly.pieces.length
+  vertexCount = assembly.vertices.length
+  edgeCount   = assembly.edges.length
+  openCount   = assembly.openEdges.size
+  closedVerts = (v for v in assembly.vertices when v.status == 'closed').length
+  baseLeft = "pieces=#{pCount}  vertices=#{vertexCount}  edges=#{edgeCount}  open=#{openCount}  closed=#{closedVerts}"
+  base = "#{baseLeft}#{avg}\nlast 5: #{recent}"
+  return base unless showDiagnostics
+  # Heavy path — only when explicitly requested. stats() recomputes
+  # insideOpen via legalPieces; diagnose() walks every candidate per
+  # open edge. Together they triple the per-tick cost.
+  s = assembly.stats()
   d = assembly.diagnose()
+  insideLine = "insideOpen=#{s.insideOpenCount}"
   reasons = Object.entries(d.perReason).sort((a, b) -> b[1] - a[1]).map(([r, c]) -> "#{r}=#{c}").join(' ')
   reasonsLine = if reasons then "rejections: #{reasons}" else "rejections: (none)"
   deadLines = if d.deadEdges.length == 0
@@ -102,13 +164,14 @@ snapshotEdgeStats = ->
       r = Object.entries(de.reasons).sort((a, b) -> b[1] - a[1]).map(([k, v]) -> "#{k}=#{v}").join(',')
       "  @(#{de.mid[0]}, #{de.mid[1]}) #{de.kind}/dir#{de.dir} tried=#{de.tried}: #{r}"
     "dead-open (#{d.deadEdges.length}):\n#{edges.join('\n')}"
-  "#{base}\n#{reasonsLine}\n#{deadLines}"
+  "#{base}\n#{insideLine}\n#{reasonsLine}\n#{deadLines}"
 
 onMount ->
   try
     await Promise.all [initAngles(), initWords(), initRobinson()]
     assembly = freshAssembly()
-    pieces = snapshotPieces()
+    seedSvgFromAssembly()
+    syncLabelPieces()
     verts = snapshotVerts()
     edgeStats = snapshotEdgeStats()
     sceneInfo = buildSummary()
@@ -122,8 +185,6 @@ runWfc = ->
   # Iterative: one step per animation frame so the SVG paints between
   # placements. Yields to the browser via setTimeout(0).
   status = 'running'
-  pieces = snapshotPieces()
-  verts = snapshotVerts()
   edgeStats = snapshotEdgeStats()
   maxSteps = 800
   count = 0
@@ -132,10 +193,22 @@ runWfc = ->
     if count >= maxSteps
       status = 'maxSteps'
       return
+    t0 = performance.now()
+    before = assembly.pieces.length
     result = assembly.step()
-    pieces = snapshotPieces()
-    verts = snapshotVerts()
+    # Append exactly the polygons added by this step (usually 1).
+    for i in [before...assembly.pieces.length]
+      appendPiecePolygon assembly.pieces[i]
+    pieceCount = assembly.pieces.length
+    syncLabelPieces() if assembly.pieces.length <= 41   # cross the threshold once
+    verts = snapshotVerts() if showVerts
     edgeStats = snapshotEdgeStats()
+    # rAF fires after Svelte's microtask flush + browser paint, giving a
+    # wall-time estimate that includes the DOM update.
+    requestAnimationFrame ->
+      dt = performance.now() - t0
+      renderCount += 1
+      renderAvgMs = renderAvgMs + (dt - renderAvgMs) / renderCount
     count += 1
     if result == 'progress'
       setTimeout tick, 0
@@ -145,16 +218,23 @@ runWfc = ->
 
 stepOnce = ->
   return if status not in ['ready', 'running', 'maxSteps']
+  before = assembly.pieces.length
   result = assembly.step()
-  pieces = snapshotPieces()
-  verts = snapshotVerts()
+  for i in [before...assembly.pieces.length]
+    appendPiecePolygon assembly.pieces[i]
+  pieceCount = assembly.pieces.length
+  syncLabelPieces() if assembly.pieces.length <= 41
+  verts = snapshotVerts() if showVerts
   edgeStats = snapshotEdgeStats()
   status = result if result != 'progress'
 
 resetScene = ->
   status = 'loading'
+  renderAvgMs = 0
+  renderCount = 0
   assembly = freshAssembly()
-  pieces = snapshotPieces()
+  seedSvgFromAssembly()
+  syncLabelPieces()
   verts = snapshotVerts()
   edgeStats = snapshotEdgeStats()
   status = 'ready'
@@ -191,16 +271,11 @@ resetScene = ->
         <!-- axes -->
         <line x1="{-svgW/2}" y1="0" x2="{svgW/2}" y2="0" stroke="#dddddd" />
         <line x1="0" y1="{-svgH/2}" x2="0" y2="{svgH/2}" stroke="#dddddd" />
-        {#each pieces as p}
-          {@const s = pieceToSvg(p)}
-          <polygon
-            points={s.points}
-            fill={showFill ? s.fill : 'none'}
-            stroke={showEdges ? '#222' : 'none'}
-            stroke-width={showEdges ? 0.8 : 0}
-            opacity={showFill ? 0.85 : 1}
-          />
-          {#if showFill && pieces.length <= 40}
+        <!-- Pieces group — populated imperatively, one <polygon> per
+             placement. Bypasses each-block re-iteration entirely. -->
+        <g bind:this={piecesGroup}></g>
+        {#if showFill && labelPieces.length > 0 && labelPieces.length <= 40}
+          {#each labelPieces as p}
             {@const c = cartCentroid(p)}
             <text
               x={c[0].toFixed(2)}
@@ -210,9 +285,9 @@ resetScene = ->
               font-size="11"
               font-family="serif"
               fill="#222"
-            >{s.kind}</text>
-          {/if}
-        {/each}
+            >{p.kind}</text>
+          {/each}
+        {/if}
         {#if showVerts}
           {#each verts as [vx, vy]}
             <circle
@@ -230,9 +305,10 @@ resetScene = ->
       <button on:click={runWfc} disabled={!['ready', 'maxSteps'].includes(status)}>▶ Run WFC</button>
       <button on:click={stepOnce} disabled={!['ready', 'maxSteps'].includes(status)}>Step</button>
       <button on:click={resetScene}>Reset</button>
-      <label class="toggle"><input type="checkbox" bind:checked={showFill}/> fill</label>
-      <label class="toggle"><input type="checkbox" bind:checked={showEdges}/> edges</label>
-      <label class="toggle"><input type="checkbox" bind:checked={showVerts}/> vertices</label>
+      <label class="toggle"><input type="checkbox" bind:checked={showFill}  on:change={restylePiecePolygons}/> fill</label>
+      <label class="toggle"><input type="checkbox" bind:checked={showEdges} on:change={restylePiecePolygons}/> edges</label>
+      <label class="toggle"><input type="checkbox" bind:checked={showVerts} on:change={() => verts = snapshotVerts()}/> vertices</label>
+      <label class="toggle" title="Run stats() + diagnose() each step — triples per-tick cost"><input type="checkbox" bind:checked={showDiagnostics} on:change={() => edgeStats = snapshotEdgeStats()}/> diagnostics</label>
     </div>
     <pre class="hud">{edgeStats}</pre>
 

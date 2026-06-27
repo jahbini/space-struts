@@ -8,10 +8,13 @@
 #     framework-agnostic.
 #
 #   teapotRadialDistance([dx, dy, dz]) -> Number | null
-#     Casts a ray from the origin along the given direction (need not be
-#     unit-length; result is in the same units as the direction's magnitude
-#     because t is parameter distance along d). Returns the smallest positive
-#     t such that the ray hits the mesh, or null if no hit.
+#     Casts a ray (CG / optics half-line in Cartesian floats, not a SixPhi
+#     edge) from the origin along the given direction.  Direction need not
+#     be unit-length; result is in the same units as the direction's
+#     magnitude because t is parameter distance along d.  Returns the
+#     smallest positive t such that the ray hits the mesh, or null if no
+#     hit.  See the terminology note before the BVH section for the
+#     ray-vs-edge distinction.
 #
 #   teapotBoundingRadius -> 1.0
 #
@@ -20,13 +23,13 @@
 # directly comparable to phi^k for the shell-quantization logic.
 #
 # Acceleration (BVH).  `teapotRadialDistance` was originally a brute-force
-# loop over every triangle (Moller-Trumbore per tri).  For T ~ 3k teapot
+# loop over every triangle (Möller-Trumbore per tri).  For T ~ 3k teapot
 # triangles that's O(T) per call, which dominates buildVoxelHull at small
 # scales: at n = -5, ~9.7e5 cubes * 9 corner tests * T = ~2.6e10 ray tests,
 # 10-20 minutes wall.  The module now builds an axis-aligned bounding-volume
 # hierarchy over the teapot triangles on first use and traverses it per ray.
 # Per-call cost drops from O(T) to O(log T) plus a constant number of leaf
-# Moller-Trumbore tests, expected ~60-100x at this mesh size.
+# Möller-Trumbore tests, expected ~60-100x at this mesh size.
 
 import teapotData from '../data/teapot.json'
 
@@ -51,7 +54,7 @@ export teapotSeenModel = (seen, material = null) ->
     model.add(path)
   model
 
-# Vector primitives used by both Moller-Trumbore and BVH construction.
+# Vector primitives used by both Möller-Trumbore and BVH construction.
 EPS = 1e-9
 
 cross = (a, b) -> [
@@ -65,15 +68,29 @@ neg = (a) -> [-a[0], -a[1], -a[2]]
 
 # ----- Bounding-volume hierarchy over the teapot triangles --------------
 #
+# Terminology note.  Throughout this section, "ray" means the CG / optics
+# primitive — a half-line `r(t) = origin + t·d` in Cartesian float space,
+# parameterized by a continuous scalar `t`.  Möller-Trumbore (the leaf
+# test) and the slab method (internal nodes) both operate on Cartesian
+# floats.  This is distinct from the **edge** primitive of SixPhi
+# geometry: a line in SixBase between two lattice points, formed as the
+# intersection of two SixBase planes, with no continuous parameter.  The
+# teapot mesh lives outside the PhiBase lattice, so ray-vs-Cartesian is
+# the right operation here.  If the mesh were ever lifted into SixPhi
+# (a PhiBase teapot), the same BVH hierarchy would still apply — the
+# leaves would test lattice edges at the intersection step instead of
+# casting rays, and the slab tests at internal nodes would become
+# edge-vs-AABB containment.
+#
 # Each node is one of:
 #   leaf:     { lo, hi, triIdx }       — single triangle, index into teapotTris
 #   internal: { lo, hi, left, right }  — AABB of the union of children's AABBs
 #
 # Built lazily on first call to teapotRadialDistance.  Construction is
-# top-down: at each step, pick the longest axis of the parent AABB, sort the
-# enclosed triangles by their centroid along that axis, split at the median.
-# Stops at one triangle per leaf.  Cost is O(T log T) one-time, ~5 ms for
-# the teapot's ~3k triangles.
+# top-down: at each step, pick the longest axis of the parent AABB, sort
+# the enclosed triangles by their centroid along that axis, split at the
+# median.  Stops at one triangle per leaf.  Cost is O(T log T) one-time,
+# ~5 ms for the teapot's ~3k triangles.
 
 triAABB = (triIdx) ->
   [iA, iB, iC] = teapotTris[triIdx]
@@ -138,16 +155,17 @@ buildBVH = ->
 bvhRoot = null      # built on first teapotRadialDistance call
 
 # Ray-AABB intersection (slab method), ray origin fixed at (0, 0, 0).
-# Returns the entry parameter t >= 0 if the ray hits the box for some t > EPS,
-# null otherwise.  The traversal uses the entry t to early-out from subtrees
-# whose nearest possible hit is already farther than the closest hit found.
+# Returns the entry parameter t >= 0 if the ray hits the box for some
+# t > EPS, null otherwise.  The traversal uses the entry t to early-out
+# from subtrees whose nearest possible hit is already farther than the
+# closest hit found so far.
 rayAABBEntry = (d, lo, hi) ->
   tMin = -Infinity
   tMax = Infinity
   for axis in [0..2]
     di = d[axis]
     if di > -EPS and di < EPS
-      # Ray parallel to this slab — origin must straddle the slab for any hit.
+      # Ray parallel to this slab — origin must straddle the slab to hit.
       return null if 0 < lo[axis] or 0 > hi[axis]
     else
       t1 = lo[axis] / di
@@ -159,9 +177,9 @@ rayAABBEntry = (d, lo, hi) ->
   return null if tMax < EPS
   if tMin < 0 then 0 else tMin
 
-# Single-triangle Moller-Trumbore from the origin.  Hoisted out of the
-# original loop so the BVH leaf can call it directly.  Returns the
-# (possibly updated) running minimum t.
+# Single-triangle Möller-Trumbore from the origin.  Hoisted out of the
+# original brute-force loop so the BVH leaf can call it directly.  Returns
+# the (possibly updated) running minimum t.
 rayHitsTri = (d, triIdx, best) ->
   [iA, iB, iC] = teapotTris[triIdx]
   v0 = teapotVerts[iA]

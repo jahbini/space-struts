@@ -115,6 +115,7 @@ currentN  = -5            # phi-shell level. 0 = canonical Robinson size; -1, -2
 wfcReady  = false         # has the WFC palette/words/templates finished loading?
 showTeapot  = true        # toggle the teapot mesh visibility
 transparent = false       # toggle ~10% alpha on the WFC tiles
+buildNotice = ''          # one-line warning/elapsed-time message shown above controls
 
 # Map currentN to a Robinson-tile scale for WFC mode. n=0: tileScale 1
 # (canonical Robinson size — each pentagon gets a single big T). n=-1:
@@ -281,10 +282,33 @@ tick = ->
 startAnimation = ->
   return unless bridge?
   stopAnimation 'idle'
+  # Voxel-hull classification at low n is heavy and synchronous (n=-5 ≈ 60s
+  # on a fast laptop). If the result isn't cached yet, paint a one-shot
+  # warning, defer the compute one frame so the user actually sees it,
+  # then report elapsed time. Cached levels skip all this.
+  needsHeavyCompute = currentN <= -4 and not buildCache[currentN]?
+  if needsHeavyCompute
+    buildNotice = "Computing hull at n=#{currentN} — this runs once and can take ~60 s. Page will be unresponsive…"
+    setTimeout (->
+      t0 = performance.now()
+      ok = prepareBuild()
+      dt = ((performance.now() - t0) / 1000).toFixed(1)
+      unless ok
+        buildNotice = "Build at n=#{currentN} produced no triangles."
+        console.warn 'teapot: no dodecahedron seeds found'
+        return
+      buildNotice = "Computed in #{dt} s · cached for this session."
+      status = 'running'
+      mdl.transform xform if xform
+      ctx.render()
+      timerId = setInterval tick, TICK_MS
+    ), 30
+    return
   ok = prepareBuild()
   unless ok
     console.warn 'teapot: no dodecahedron seeds found'
     return
+  buildNotice = ''
   status = 'running'
   mdl.transform xform if xform
   ctx.render()
@@ -438,6 +462,9 @@ onDestroy ->
     ></canvas>
   </figure>
 
+  {#if buildNotice}
+    <p class="notice">{buildNotice}</p>
+  {/if}
   <div class="controls">
     <button on:click={toggleAnimation}>
       {#if status === 'running'}■ Stop{:else}▶ Run Build{/if}
@@ -479,8 +506,20 @@ onDestroy ->
     gap: 0.75rem;
     align-items: center;
     flex-wrap: wrap;
-    margin-top: 0.5rem;
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
+  }
+  .controls:last-of-type {
     margin-bottom: 1in;            /* keep clear of the page footer */
+  }
+  .notice {
+    margin: 0.4rem 0 0.3rem;
+    padding: 0.4rem 0.6rem;
+    background: #fff5d6;
+    border-left: 3px solid #d4a464;
+    border-radius: 3px;
+    font-size: 0.88rem;
+    color: #5a4a20;
   }
   button { padding: 0.4rem 0.9rem; cursor: pointer; }
   .level { display: inline-flex; gap: 0.3rem; align-items: center; }
