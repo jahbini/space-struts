@@ -111,7 +111,7 @@ timerId = null
 status    = 'idle'
 triCount  = 0
 vertCount = 0
-currentN  = 0             # phi-shell level. 0 = canonical Robinson size; -1, -2 ... = smaller tiles
+currentN  = -5            # phi-shell level. 0 = canonical Robinson size; -1, -2 ... = smaller tiles
 wfcReady  = false         # has the WFC palette/words/templates finished loading?
 showTeapot  = true        # toggle the teapot mesh visibility
 transparent = false       # toggle ~10% alpha on the WFC tiles
@@ -244,7 +244,7 @@ prepareBuild = ->
   console.log "teapot: prepareBuild n=#{currentN}"
   return false unless bridge?
   try
-    result = buildSeedsForN currentN
+    result = cachedBuildSeedsForN currentN
   catch err
     console.error 'teapot: buildSeedsForN threw:', err
     return false
@@ -316,12 +316,24 @@ toggleAnimation = ->
 setLevel = (n)->
   return if n == currentN
   currentN = n
+  # Don't auto-build. Level changes are cheap; the voxel-hull compute
+  # at low n locks up the page for many seconds, so wait for an
+  # explicit "Run Build" click instead.
   stopAnimation 'idle'
   clearScene()
-  startAnimation()
 
 tighter = -> setLevel(currentN - 1)
 looser  = -> setLevel(currentN + 1)
+
+# Per-level cache of buildSeedsForN results. Voxel-hull classification at
+# n ≤ -4 is dominated by ~9·verts·tris ray tests per cube (n=-5 ≈ 10⁹ ops),
+# so revisits of the same level reuse the prior result instead of recomputing.
+buildCache = {}
+cachedBuildSeedsForN = (n)->
+  return buildCache[n] if buildCache[n]?
+  res = buildSeedsForN(n)
+  buildCache[n] = res if res.state.triangles.length > 0
+  res
 
 # Teapot visibility: just clear or re-add the seen mesh; no rebuild needed.
 toggleTeapot = ->
@@ -384,6 +396,19 @@ initScene = ->
     xform = seen.Quaternion.xyToTransform e.offsetRelative...
     mdl.transform xform
     ctx.render()
+  # Wheel zoom: uniform scale on the model. Lets the user magnify
+  # the scene to inspect fine features (e.g. the handle's hole at n ≤ -4).
+  # Clamped so a runaway wheel can't collapse the model to a point.
+  zoom = 1
+  canvasEl.addEventListener 'wheel', (e) ->
+    e.preventDefault()
+    factor = if e.deltaY < 0 then 1.1 else 1/1.1
+    next = zoom * factor
+    return if next < 0.1 or next > 20
+    zoom = next
+    mdl.scale factor
+    ctx.render()
+  , { passive: false }
   addTeapotTo mdlTeapot
   ctx.render()
 
@@ -409,7 +434,7 @@ onDestroy ->
       bind:this={canvasEl}
       width={CANVAS_SIZE}
       height={CANVAS_SIZE}
-      style="background:#1a1a1a; border-radius:6px;"
+      style="background:green; border-radius:6px;"
     ></canvas>
   </figure>
 
