@@ -13,9 +13,13 @@
 
 import * as rb from './robotBuild.coffee'
 import { shellEnclosing, PHI } from './phiShells.coffee'
-import { SixPhiVector } from './sixPhiVector.coffee'
-import { GeoPhi } from './geoPhi.coffee'
-import { teapotVerts, teapotTris } from './teapotMesh.coffee'
+import { SixPhiVector } from '$lib/coffee/sixPhiVector.coffee'
+import { GeoPhi } from '$lib/coffee/geoPhi.coffee'
+# No mesh-specific imports here. buildVoxelHull / buildVoxelHullStreaming
+# operate on any closed mesh; the caller supplies meshVerts, meshTris,
+# radialDistance (or isInside), and boundingRadius via opts. The
+# teapot-specific data + helpers live in
+# src/routes/explore/hull/teapotMesh.coffee.
 
 # Convert a SixPhiVector to a Cartesian float triple.
 sixPhiToCart = (v) -> v.sixPhiToCartesianDisplay()
@@ -424,14 +428,25 @@ export buildDeflationLevel1 = (G) ->
 # Boundary face (filled neighboring empty) gets a hut rendered from the
 # filled side, sticking out into the empty side. The 4 base corners stay
 # interior to the cube and are not drawn.
-export buildVoxelHull = (G, teapotRadialDistance, opts = {}) ->
+# buildVoxelHull and buildVoxelHullStreaming work against any mesh, not
+# just the teapot. The caller supplies:
+#   - radialDistance: (dir) -> Number | null    (ray origin → mesh surface)
+#   - opts.meshVerts / opts.meshTris            (for the feature pass)
+# If meshVerts/meshTris are omitted the teapot is used as a fallback so
+# existing call sites stay correct without modification.
+export buildVoxelHull = (G, radialDistance, opts = {}) ->
   s = opts.scale ? 0.3         # cube half-edge length
   range = opts.range ? 5
+  meshVerts = opts.meshVerts ? []
+  meshTris  = opts.meshTris  ? []
 
-  isInside = (pos) ->
+  # Caller can supply an isInside(pos) — required for any mesh that
+  # isn't star-shaped from the origin (e.g. torus). Default works for
+  # star-shaped meshes only.
+  isInside = opts.isInside ? (pos) ->
     r = Math.hypot(pos[0], pos[1], pos[2])
     return true if r < 1e-9
-    rT = teapotRadialDistance([pos[0]/r, pos[1]/r, pos[2]/r])
+    rT = radialDistance([pos[0]/r, pos[1]/r, pos[2]/r])
     return false unless rT?
     r < rT
 
@@ -473,11 +488,11 @@ export buildVoxelHull = (G, teapotRadialDistance, opts = {}) ->
     { i, j, k } = cubeForPoint(p)
     return if i < -range or i > range or j < -range or j > range or k < -range or k > range
     occ[keyFn(i, j, k)] = true
-  forceFill(p) for p in teapotVerts
-  for [iA, iB, iC] in teapotTris
-    a = teapotVerts[iA]
-    b = teapotVerts[iB]
-    c = teapotVerts[iC]
+  forceFill(p) for p in meshVerts
+  for [iA, iB, iC] in meshTris
+    a = meshVerts[iA]
+    b = meshVerts[iB]
+    c = meshVerts[iC]
     forceFill [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3]
   isOcc = (i, j, k) -> occ[keyFn(i, j, k)] ? false
 
@@ -539,6 +554,232 @@ export buildVoxelHull = (G, teapotRadialDistance, opts = {}) ->
         renderHut(cx, cy, cz, 2, +1) unless isOcc(i, j, k+1)
         renderHut(cx, cy, cz, 2, -1) unless isOcc(i, j, k-1)
   state
+
+# Streaming variant of buildVoxelHull. Returns an iterator the caller pumps
+# in animation ticks. Each .next() does one bounded batch of work and
+# returns the triangles newly emitted during this batch (indices into the
+# shared, growing state.vertices). Triangles start appearing immediately
+# — there is no front-loaded "classify everything first" wait.
+#
+# Single interleaved scan. Cubes are visited in i,j,k order. For each cube:
+#   1. Classify it (cubeIsFilled) if the feature pass didn't already set it.
+#   2. For each of its 6 neighbours that has ALREADY been scan-processed
+#      this run, look at the shared face. If exactly one of the two cubes
+#      is filled, emit the hut on the filled cube's face toward the empty
+#      neighbour. The "already scan-processed" gate ensures each pair is
+#      handled exactly once — on the second cube of the pair.
+#   3. For neighbours outside the grid, treat the neighbour as empty and
+#      emit immediately if this cube is filled (boundary huts pointing out
+#      of the grid).
+# This way the first filled cube whose neighbour-empty face becomes known
+# (typically within the first few scan cubes) starts emitting triangles.
+#
+# Opts:
+#   batchSize     — fixed cubes per .next() (default 5000). Hard cap on
+#                   how many cubes get processed in one batch.
+#   batchBudgetMs — time budget per .next() (default 12 ms). The batch
+#                   exits early once this much wall time has elapsed,
+#                   even if batchSize hasn't been hit. Combined with the
+#                   bounding-sphere prune, cheap empty cubes fly by in a
+#                   single tick while the expensive teapot-region cubes
+#                   throttle naturally.
+#
+# Each .next() returns:
+#   { done, newTriangles, vertices, progress: { idx, total } }
+# newTriangles is an array of [vi, vj, vk] triples (indices into vertices).
+export buildVoxelHullStreaming = (G, radialDistance, opts = {}) ->
+  s = opts.scale ? 0.3
+  range = opts.range ? 5
+  batchSize = opts.batchSize ? 5000
+  batchBudgetMs = opts.batchBudgetMs ? 12
+  meshVerts = opts.meshVerts ? []
+  meshTris  = opts.meshTris  ? []
+
+  # See buildVoxelHull for the contract — caller-supplied isInside is
+  # required for non-star-shaped meshes.
+  isInside = opts.isInside ? (pos) ->
+    r = Math.hypot(pos[0], pos[1], pos[2])
+    return true if r < 1e-9
+    rT = radialDistance([pos[0]/r, pos[1]/r, pos[2]/r])
+    return false unless rT?
+    r < rT
+
+  cubeCenter = (i, j, k) -> [i * 2 * s, j * 2 * s, k * 2 * s]
+
+  cubeIsFilled = (i, j, k) ->
+    return true if isInside(cubeCenter(i, j, k))
+    for dx in [-s, +s]
+      for dy in [-s, +s]
+        for dz in [-s, +s]
+          c = cubeCenter(i, j, k)
+          return true if isInside([c[0] + dx, c[1] + dy, c[2] + dz])
+    false
+
+  occ = {}                 # key -> boolean (may be pre-set by feature pass)
+  scanProcessed = {}       # key -> true once the cube's neighbour pass ran
+  keyFn = (i, j, k) -> "#{i},#{j},#{k}"
+  # "In active region" — the only cubes we ever enumerate. Out-of-active
+  # neighbours are treated as empty, exactly like true out-of-grid ones.
+  inRange = (i, j, k) ->
+    i >= -activeRange and i <= activeRange and j >= -activeRange and j <= activeRange and k >= -activeRange and k <= activeRange
+
+  # Restrict the scan to a bounding cube around the mesh, sized in
+  # cube-index units from the mesh's bounding sphere. Cubes outside this
+  # active region are *provably* empty (no center/corner can sit inside
+  # the mesh's surface) and are simply never enumerated. Boundary
+  # cubes within the active region treat their out-of-active neighbours
+  # as empty the same way they'd treat true out-of-grid neighbours.
+  bRadius = opts.boundingRadius ? 1.0
+  cubeDiagonal = s * Math.sqrt(3)
+  # +1 cube of slack so the boundary huts have somewhere to emit toward.
+  activeRange = Math.min(range, Math.ceil((bRadius + cubeDiagonal) / (2 * s)) + 1)
+  console.log "buildVoxelHullStreaming: bRadius=#{bRadius} s=#{s} grid_range=#{range} active_range=#{activeRange}"
+
+  # Feature pass — fast list iteration, runs once at construction time.
+  # Force-fills mesh-point cubes so thin features (spout, handle, lid stem)
+  # are caught before the scan reaches them.
+  cubeForPoint = ([x, y, z]) ->
+    i: Math.round(x / (2 * s)), j: Math.round(y / (2 * s)), k: Math.round(z / (2 * s))
+  forceFill = (p) ->
+    { i, j, k } = cubeForPoint(p)
+    return unless inRange(i, j, k)
+    occ[keyFn(i, j, k)] = true
+  forceFill(p) for p in meshVerts
+  # Adaptive triangle rasterization. For each mesh triangle, recursively
+  # subdivide until the longest edge of every sub-triangle is shorter
+  # than the cube edge (2s), then force-fill the cube at each sub-triangle
+  # corner. This is what makes the hull faithful to the surface when the
+  # mesh has triangles much larger than the cube grid — without it, only
+  # the original 3 vertices + centroid get force-filled per triangle, and
+  # cubes in the middle of a large triangle can fall through both the
+  # ray-classifier and the feature pass, leaving body holes.
+  maxEdgeSq = (2 * s) * (2 * s)
+  edgeLenSq = (p, q) ->
+    dx = p[0]-q[0]; dy = p[1]-q[1]; dz = p[2]-q[2]
+    dx*dx + dy*dy + dz*dz
+  mid = (p, q) -> [(p[0]+q[0])/2, (p[1]+q[1])/2, (p[2]+q[2])/2]
+  rasterTri = (a, b, c) ->
+    eAB = edgeLenSq(a, b)
+    eBC = edgeLenSq(b, c)
+    eCA = edgeLenSq(c, a)
+    longest = Math.max(eAB, eBC, eCA)
+    if longest <= maxEdgeSq
+      forceFill(a); forceFill(b); forceFill(c)
+      return
+    # Split the longest edge — keeps the recursion depth ~ log2(maxEdge / cube).
+    if eAB >= eBC and eAB >= eCA
+      m = mid(a, b)
+      rasterTri(a, m, c)
+      rasterTri(m, b, c)
+    else if eBC >= eCA
+      m = mid(b, c)
+      rasterTri(a, b, m)
+      rasterTri(a, m, c)
+    else
+      m = mid(c, a)
+      rasterTri(a, b, m)
+      rasterTri(m, b, c)
+  for [iA, iB, iC] in meshTris
+    rasterTri(meshVerts[iA], meshVerts[iB], meshVerts[iC])
+
+  cubes = []
+  for i in [-activeRange..activeRange]
+    for j in [-activeRange..activeRange]
+      for k in [-activeRange..activeRange]
+        cubes.push [i, j, k]
+
+  state = rb.createEmptyState()
+
+  renderHutFace = (cx, cy, cz, axis, dir) ->
+    ridgeAxis = (axis + 1) % 3
+    sideAxis  = (axis + 2) % 3
+    unit = (a) -> v = [0, 0, 0]; v[a] = 1; v
+    aU = unit(axis); rU = unit(ridgeAxis); tU = unit(sideAxis)
+    add3 = (a, b, c) -> [a[0]+b[0]+c[0], a[1]+b[1]+c[1], a[2]+b[2]+c[2]]
+    sca = (v, k) -> [v[0]*k, v[1]*k, v[2]*k]
+    baseCenter = add3([cx, cy, cz], sca(aU, dir * s), [0, 0, 0])
+    bMM = add3(baseCenter, sca(rU, -s), sca(tU, -s))
+    bPM = add3(baseCenter, sca(rU, +s), sca(tU, -s))
+    bPP = add3(baseCenter, sca(rU, +s), sca(tU, +s))
+    bMP = add3(baseCenter, sca(rU, -s), sca(tU, +s))
+    ridgeCenter = add3(baseCenter, sca(aU, dir * s / PHI_CONST), [0, 0, 0])
+    rA = add3(ridgeCenter, sca(rU, -s / PHI_CONST), [0, 0, 0])
+    rB = add3(ridgeCenter, sca(rU, +s / PHI_CONST), [0, 0, 0])
+    if dir > 0
+      rb.addTriangleToState(state, [bMM, bPM, rB])
+      rb.addTriangleToState(state, [bMM, rB, rA])
+      rb.addTriangleToState(state, [bPM, bPP, rB])
+      rb.addTriangleToState(state, [bMP, rA, rB])
+      rb.addTriangleToState(state, [bMP, rB, bPP])
+      rb.addTriangleToState(state, [bMM, rA, bMP])
+    else
+      rb.addTriangleToState(state, [bMM, rB, bPM])
+      rb.addTriangleToState(state, [bMM, rA, rB])
+      rb.addTriangleToState(state, [bPM, rB, bPP])
+      rb.addTriangleToState(state, [bMP, rB, rA])
+      rb.addTriangleToState(state, [bMP, bPP, rB])
+      rb.addTriangleToState(state, [bMM, bMP, rA])
+
+  # Handle the X↔N shared face. dir is X's axis-dir toward N.
+  # If exactly one is filled, emit the hut on the filled cube's face
+  # pointing at the empty side.
+  handleFace = (xi, xj, xk, ni, nj, nk, axis, dir) ->
+    xFilled = occ[keyFn(xi, xj, xk)] ? false
+    nFilled = if inRange(ni, nj, nk) then (occ[keyFn(ni, nj, nk)] ? false) else false
+    if xFilled and not nFilled
+      [cx, cy, cz] = cubeCenter(xi, xj, xk)
+      renderHutFace(cx, cy, cz, axis, dir)
+    else if nFilled and not xFilled
+      [cx, cy, cz] = cubeCenter(ni, nj, nk)
+      renderHutFace(cx, cy, cz, axis, -dir)
+
+  NEIGHBOURS = [
+    [+1, 0, 0, 0, +1]
+    [-1, 0, 0, 0, -1]
+    [0, +1, 0, 1, +1]
+    [0, -1, 0, 1, -1]
+    [0, 0, +1, 2, +1]
+    [0, 0, -1, 2, -1]
+  ]
+
+  scanIdx = 0
+
+  done: false
+  state: state
+  next: ->
+    if scanIdx >= cubes.length
+      return {
+        done: true, newTriangles: [], vertices: state.vertices,
+        progress: { idx: scanIdx, total: cubes.length }
+      }
+    trisBefore = state.triangles.length
+    end = Math.min(scanIdx + batchSize, cubes.length)
+    tStart = performance.now()
+    while scanIdx < end
+      # Exit the batch early once the wall-time budget is up. Checked
+      # every 64 cubes so the perf.now() call doesn't dominate.
+      break if (scanIdx & 63) == 0 and (performance.now() - tStart) > batchBudgetMs
+      [i, j, k] = cubes[scanIdx]
+      xKey = keyFn(i, j, k)
+      occ[xKey] = cubeIsFilled(i, j, k) unless xKey of occ
+      for [dii, djj, dkk, axis, dir] in NEIGHBOURS
+        ni = i + dii; nj = j + djj; nk = k + dkk
+        if inRange(ni, nj, nk)
+          # In-grid neighbour: emit only if it has already been scan-processed,
+          # so each shared face is handled exactly once (on the second cube).
+          continue unless scanProcessed[keyFn(ni, nj, nk)]
+        # Out-of-grid neighbour: counts as empty and was "processed" before
+        # the scan started; emit immediately if this cube is filled.
+        handleFace(i, j, k, ni, nj, nk, axis, dir)
+      scanProcessed[xKey] = true
+      scanIdx += 1
+    newTriangles = state.triangles[trisBefore...]
+    isDone = scanIdx >= cubes.length
+    console.log "buildVoxelHullStreaming: done. scanned=#{scanIdx} tris=#{state.triangles.length}" if isDone
+    return {
+      done: isDone, newTriangles, vertices: state.vertices,
+      progress: { idx: scanIdx, total: cubes.length }
+    }
 
 export collectBandTriangles = (G, teapotRadialDistance, bandLo, bandHi, maxIters = 10) ->
   seeds = pickDodecahedronSeeds(G)

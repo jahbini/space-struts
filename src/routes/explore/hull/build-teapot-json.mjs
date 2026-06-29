@@ -1,12 +1,12 @@
 // build-teapot-json.mjs
 //
-// One-shot generator for src/lib/data/teapot.json.
+// One-shot generator for src/routes/explore/hull/teapot.json.
 // Uses three.js's TeapotGeometry (Newell Utah teapot via Bezier patches).
 //
 // Run from repo root:
-//   node src/lib/data/build-teapot-json.mjs
+//   node src/routes/explore/hull/build-teapot-json.mjs
 //
-// Output: src/lib/data/teapot.json
+// Output: src/routes/explore/hull/teapot.json
 //   { verts: [[x,y,z], ...], tris: [[i,j,k], ...], boundingRadius: 1.0 }
 //
 // The teapot is centered at the centroid of its bounding box and uniformly
@@ -99,7 +99,7 @@ const out = {
     segments: 4,
     triCount: tris.length,
     vertCount: trimVerts.length,
-    generatedBy: 'src/lib/data/build-teapot-json.mjs',
+    generatedBy: 'src/routes/explore/hull/build-teapot-json.mjs',
   },
 };
 

@@ -102,7 +102,7 @@ The canvas `width`/`height` **attributes** are the bitmap size (what
   triangles will be wound the wrong way and get culled when they shouldn't.
   Re-orient explicitly before rendering: compute `(b-a)×(c-a)` and flip
   `[a,c,b]` when the dot with the outward direction is negative. Example in
-  `src/routes/explore/teapot/+page.svelte` (`orientOutward`).
+  `src/routes/explore/hull/+page.svelte` (`orientOutward`).
 - **`scene.cullBackfaces` and `surface.cullBackfaces` AND together** (with
   normal.z). Render keeps a surface when `(!scene.cullBackfaces ||
   !surface.cullBackfaces || normal.z < 0)`. So leaving the scene flag on but

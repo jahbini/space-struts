@@ -20,10 +20,10 @@
 # dodec's vertex positions. Every scalar in this expression lives in
 # Q[φ], so the result is an exact SixPhiVector — no Cartesian round-trip.
 
-import { PhiBase } from './phiBase.coffee'
-import { SixPhiVector } from './sixPhiVector.coffee'
-import { PhiPoint2D } from './wfc/phiPoint2D.coffee'
-import { Assembly } from './wfc/assembly.coffee'
+import { PhiBase } from '$lib/coffee/phiBase.coffee'
+import { SixPhiVector } from '$lib/coffee/sixPhiVector.coffee'
+import { PhiPoint2D } from '$lib/coffee/wfc/phiPoint2D.coffee'
+import { Assembly } from '$lib/coffee/wfc/assembly.coffee'
 
 # 1/R as a PhiBase. R is the puzzle pentagon canvas circumradius
 # 8·(φ−1) = 8/φ, so 1/R = φ/8.

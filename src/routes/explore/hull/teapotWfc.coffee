@@ -15,9 +15,9 @@
 # vertexWords, robinson) BEFORE this module's functions are used. Caller
 # is responsible.
 
-import { PhiBase } from './phiBase.coffee'
-import { PhiPoint2D } from './wfc/phiPoint2D.coffee'
-import { Assembly } from './wfc/assembly.coffee'
+import { PhiBase } from '$lib/coffee/phiBase.coffee'
+import { PhiPoint2D } from '$lib/coffee/wfc/phiPoint2D.coffee'
+import { Assembly } from '$lib/coffee/wfc/assembly.coffee'
 
 PHI = (1 + Math.sqrt(5)) / 2
 

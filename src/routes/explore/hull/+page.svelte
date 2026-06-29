@@ -3,10 +3,10 @@ import '$lib/seen.m.coffee'                    # side-effect: window.seen
 import { onMount, onDestroy } from 'svelte'
 import { PhiBase } from '$lib/coffee/phiBase.coffee'
 import { GeoPhi } from '$lib/coffee/geoPhi.coffee'
-import { teapotSeenModel, teapotRadialDistance } from '$lib/coffee/teapotMesh.coffee'
-import { createBridge, pickDodecahedronSeeds, buildVoxelHull } from '$lib/coffee/robotBuildBridge.coffee'
-import { buildWfcDodecSurface, extractDodecPentagons, wfcFillPentagon } from '$lib/coffee/teapotWfc.coffee'
-import { buildSingleDodec3D } from '$lib/coffee/dodecWfc3D.coffee'
+import { getMesh, meshNames } from './meshes.coffee'
+import { createBridge, buildVoxelHullStreaming } from './robotBuildBridge.coffee'
+import { buildWfcDodecSurface, extractDodecPentagons, wfcFillPentagon } from './teapotWfc.coffee'
+import { buildSingleDodec3D } from './dodecWfc3D.coffee'
 import { init as initAngles } from '$lib/coffee/wfc/anglePalette.coffee'
 import { init as initWords } from '$lib/coffee/wfc/vertexWords.coffee'
 import { init as initRobinson } from '$lib/coffee/wfc/robinson.coffee'
@@ -14,9 +14,14 @@ import { init as initRobinson } from '$lib/coffee/wfc/robinson.coffee'
 console.log 'teapot: script loaded'
 
 CANVAS_SIZE  = 520
-MODEL_SCALE  = 220        # 1 unit (teapot bounding sphere) -> 220 px in scene
-TICK_MS      = 200        # animation step duration
-TRIS_PER_FACE = 3         # pickDodecahedronSeeds returns 3 tris per pentagon
+MODEL_SCALE  = 220        # 1 unit (mesh bounding sphere) -> 220 px in scene
+TEAPOT_SCALE = 1.5        # resize the mesh in mesh-units; hull wraps the bigger perimeter
+
+# Pick the active mesh by name (see ./meshes.coffee).
+currentMeshName = 'teapot'
+currentMesh = getMesh currentMeshName
+currentMesh.setScale TEAPOT_SCALE
+TICK_MS      = 16         # ~60fps. Single tick rate for every build path.
 PHI          = (1 + Math.sqrt(5)) / 2
 
 # Twelve evenly-spaced hues around the wheel, one per dodecahedron face.
@@ -111,10 +116,10 @@ timerId = null
 status    = 'idle'
 triCount  = 0
 vertCount = 0
-currentN  = -5            # phi-shell level. 0 = canonical Robinson size; -1, -2 ... = smaller tiles
+currentN  = -4            # phi-shell level. 0 = canonical Robinson size; -1, -2 ... = smaller tiles
 wfcReady  = false         # has the WFC palette/words/templates finished loading?
-showTeapot  = true        # toggle the teapot mesh visibility
-transparent = false       # toggle ~10% alpha on the WFC tiles
+showShape   = true        # toggle the source mesh's visibility
+showHull    = true        # toggle the placed hull triangles' visibility
 buildNotice = ''          # one-line warning/elapsed-time message shown above controls
 
 # Map currentN to a Robinson-tile scale for WFC mode. n=0: tileScale 1
@@ -132,7 +137,7 @@ tileScaleForN = (n) ->
 addTeapotTo = (parent)->
   mat = new seen.Material seen.Colors.hex('#888888')
   mat.a = 0x50
-  tm = teapotSeenModel seen, mat
+  tm = currentMesh.seenModel seen, mat
   tm.scale MODEL_SCALE
   parent.add tm
   tm
@@ -168,10 +173,10 @@ triangleSeenPath = ([ia, ib, ic], verts, faceIdx = 0, preWound = false)->
   pc = seen.P c[0]*MODEL_SCALE, c[1]*MODEL_SCALE, c[2]*MODEL_SCALE
   path = seen.Shapes.path [pa, pb, pc]
   path.cullBackfaces = true
-  # Uniform white. Alpha tracks the `transparent` toggle: ~10% when set,
-  # ~88% otherwise. Alpha lives on the Color object, NOT the Material.
+  # Uniform white. Alpha tracks the `showHull` toggle: 0 (invisible) when
+  # off, ~88% when on. Alpha lives on the Color object, NOT the Material.
   fillColor = seen.Colors.hex('#ffffff')
-  fillColor.a = if transparent then 0x1a else 0xE0
+  fillColor.a = if showHull then 0xE0 else 0x00
   mat = new seen.Material fillColor
   path.fill mat
   path.surfaces[0].fillMaterial = mat
@@ -234,37 +239,59 @@ buildSeedsForN = (n)->
     tiles = buildSingleDodec3D gPhi, tileScale, 200
     return dodec3DTilesToState(tiles)
   else
-    # Voxel hull made of Hut cells — the connected manifold around the teapot.
-    scale = 0.35 * Math.pow(PHI, n + 1)
-    range = Math.ceil(2.5 / scale)
-    state = buildVoxelHull gPhi, teapotRadialDistance, { scale, range }
-    origFaces = (Math.floor(i / 6) % 12 for i in [0...state.triangles.length])
-    { state, origFaces }
+    # Voxel hull builds are now done streaming in prepareBuild — see
+    # buildVoxelHullStreaming there. This branch just exists so the
+    # WFC-only helper above stays valid; it shouldn't be reached.
+    { state: { triangles: [], vertices: [] }, origFaces: [] }
+
+# streaming-iterator state for the voxel hull path. iter is non-null when
+# the build is being pumped one batch at a time per tick; classifyDone
+# flips true the first time the iterator moves out of the classify phase
+# so the build notice can switch from "classifying…" to live counts.
+iter = null
+streamT0 = 0
+streamFaceCounter = 0
 
 prepareBuild = ->
   console.log "teapot: prepareBuild n=#{currentN}"
   return false unless bridge?
-  try
-    result = cachedBuildSeedsForN currentN
-  catch err
-    console.error 'teapot: buildSeedsForN threw:', err
-    return false
-  state = result.state
-  console.log "teapot: build -> tris=#{state.triangles.length} verts=#{state.vertices.length}"
-  return false if state.triangles.length == 0
-  origTris  = state.triangles[..]
-  origFaces = result.origFaces
-  order = buildAdjacencyOrder(origTris)
-  allTris  = (origTris[i]  for i in order)
-  triFaces = (origFaces[i] for i in order)
-  tickIdx = 0
-  triCount = 0
-  vertCount = state.vertices.length
   mdlBuild.children = []
   mdlRobot.children = []
+  iter = null
+  state = null
+  allTris = []
+  tickIdx = 0
+  triCount = 0
+  vertCount = 0
+  # WFC path (n >= 0) — synchronous compute, paced reveal at frame rate.
+  if currentN >= 0
+    try
+      result = buildSeedsForN(currentN)
+    catch err
+      console.error 'teapot: buildSeedsForN threw:', err
+      return false
+    state = result.state
+    return false if state.triangles.length == 0
+    allTris  = state.triangles[..]
+    triFaces = result.origFaces
+    vertCount = state.vertices.length
+    return true
+  # Voxel hull (n < 0) — always streamed.
+  scale = 0.35 * Math.pow(PHI, currentN + 1)
+  range = Math.ceil(2.5 * TEAPOT_SCALE / scale)
+  iter = buildVoxelHullStreaming gPhi, currentMesh.radialDistance,
+    scale: scale, range: range
+    batchSize: 250
+    boundingRadius: currentMesh.boundingRadius
+    meshVerts: currentMesh.verts, meshTris: currentMesh.tris
+    isInside: currentMesh.isInside
+  state = iter.state
+  streamT0 = performance.now()
+  streamFaceCounter = 0
   true
 
-tick = ->
+# Cached/WFC tick: append triangles from the precomputed allTris array.
+tickCached = ->
   if tickIdx >= allTris.length
     stopAnimation 'done'
     return
@@ -279,36 +306,47 @@ tick = ->
   mdl.transform xform if xform
   ctx.render()
 
+# Streaming tick: pump the iterator one batch, append any triangles it
+# emitted, update HUD. Triangles can appear from the very first batch
+# (cubes near the grid boundary or near force-filled feature cubes emit
+# huts on the second scan visit of the pair).
+tickStreaming = ->
+  return unless iter?
+  step = iter.next()
+  if step.newTriangles.length > 0
+    verts = state.vertices
+    for tri in step.newTriangles
+      faceIdx = (Math.floor(streamFaceCounter / 6) % 12)
+      mdlBuild.add triangleSeenPath(tri, verts, faceIdx, true)
+      streamFaceCounter += 1
+    lastTri = step.newTriangles[step.newTriangles.length - 1]
+    mdlRobot.children = []
+    mdlRobot.add robotGlyphAt(triangleCentroid(lastTri, verts))
+    triCount = streamFaceCounter
+    vertCount = verts.length
+  buildNotice = "Scanning cubes — #{step.progress.idx} / #{step.progress.total} · #{triCount} triangles"
+  mdl.transform xform if xform
+  ctx.render()
+  if step.done
+    dt = ((performance.now() - streamT0) / 1000).toFixed(1)
+    buildNotice = "Built #{state.triangles.length} triangles in #{dt} s."
+    iter = null
+    stopAnimation 'done'
+
+tick = ->
+  if iter?
+    tickStreaming()
+  else
+    tickCached()
+
 startAnimation = ->
   return unless bridge?
   stopAnimation 'idle'
-  # Voxel-hull classification at low n is heavy and synchronous (n=-5 ≈ 60s
-  # on a fast laptop). If the result isn't cached yet, paint a one-shot
-  # warning, defer the compute one frame so the user actually sees it,
-  # then report elapsed time. Cached levels skip all this.
-  needsHeavyCompute = currentN <= -4 and not buildCache[currentN]?
-  if needsHeavyCompute
-    buildNotice = "Computing hull at n=#{currentN} — this runs once and can take ~60 s. Page will be unresponsive…"
-    setTimeout (->
-      t0 = performance.now()
-      ok = prepareBuild()
-      dt = ((performance.now() - t0) / 1000).toFixed(1)
-      unless ok
-        buildNotice = "Build at n=#{currentN} produced no triangles."
-        console.warn 'teapot: no dodecahedron seeds found'
-        return
-      buildNotice = "Computed in #{dt} s · cached for this session."
-      status = 'running'
-      mdl.transform xform if xform
-      ctx.render()
-      timerId = setInterval tick, TICK_MS
-    ), 30
-    return
   ok = prepareBuild()
   unless ok
-    console.warn 'teapot: no dodecahedron seeds found'
+    console.warn 'teapot: build setup failed'
     return
-  buildNotice = ''
+  buildNotice = '' unless iter?
   status = 'running'
   mdl.transform xform if xform
   ctx.render()
@@ -333,6 +371,22 @@ clearScene = ->
   mdl.transform xform if xform
   ctx.render()
 
+setMesh = (name) ->
+  # NOTE: bind:value on the <select> has already mutated currentMeshName
+  # to the new option by the time on:change fires here. Comparing against
+  # the currently-loaded mesh (currentMesh.name) is the actual no-op check.
+  return if currentMesh? and name == currentMesh.name
+  currentMeshName = name
+  currentMesh = getMesh(name)
+  currentMesh.setScale TEAPOT_SCALE
+  # Swap the visible mesh model and reset everything downstream.
+  if mdlTeapot?
+    mdlTeapot.children = []
+    addTeapotTo mdlTeapot if showShape
+  bridge = createBridge gPhi, currentMesh.radialDistance if gPhi?
+  # Hull from the previous mesh is meaningless; just clear the scene.
+  clearScene()
+
 toggleAnimation = ->
   console.log "teapot: toggleAnimation (status=#{status})"
   if status == 'running' then stopAnimation('idle') else startAnimation()
@@ -349,29 +403,20 @@ setLevel = (n)->
 tighter = -> setLevel(currentN - 1)
 looser  = -> setLevel(currentN + 1)
 
-# Per-level cache of buildSeedsForN results. Voxel-hull classification at
-# n ≤ -4 is dominated by ~9·verts·tris ray tests per cube (n=-5 ≈ 10⁹ ops),
-# so revisits of the same level reuse the prior result instead of recomputing.
-buildCache = {}
-cachedBuildSeedsForN = (n)->
-  return buildCache[n] if buildCache[n]?
-  res = buildSeedsForN(n)
-  buildCache[n] = res if res.state.triangles.length > 0
-  res
 
-# Teapot visibility: just clear or re-add the seen mesh; no rebuild needed.
-toggleTeapot = ->
-  if showTeapot
+# Source-shape visibility: just clear or re-add the seen mesh; no rebuild needed.
+toggleShape = ->
+  if showShape
     addTeapotTo mdlTeapot
   else
     mdlTeapot.children = []
   mdl.transform xform if xform
   ctx.render() if ctx?
 
-# Transparency: mutate the alpha on every existing path's fill material.
-# Avoids a WFC re-run for a render-only knob.
-toggleTransparency = ->
-  alpha = if transparent then 0x1a else 0xE0
+# Hull visibility: mutate alpha on every existing hut triangle's fill
+# material so the toggle is render-only — no rebuild needed.
+toggleHull = ->
+  alpha = if showHull then 0xE0 else 0x00
   return unless mdlBuild?
   for path in mdlBuild.children
     for surf in path.surfaces
@@ -396,7 +441,7 @@ initScene = ->
     setTimeout initScene, 50
     return
   gPhi = new GeoPhi()
-  bridge = createBridge gPhi, teapotRadialDistance
+  bridge = createBridge gPhi, currentMesh.radialDistance
   initWfc()       # async — sets wfcReady once palette/words/templates loaded
   mdl = seen.Models.default()
   mdl.cullBackfaces = true
@@ -413,7 +458,12 @@ initScene = ->
     model: mdl
     viewport: seen.Viewports.center(CANVAS_SIZE, CANVAS_SIZE)
     cullBackfaces: true
-  scene.camera.translate 0, 0, -600
+  # Two camera positions, switched by the `inside` checkbox:
+  #   outside (default): camera at z=-600, looks at origin → normal exterior view.
+  #   inside: camera at the origin (z=0), looks outward along -z → user can
+  #     rotate via drag to see the hull from inside the teapot.
+  OUTSIDE_Z = -600
+  scene.camera.translate 0, 0, OUTSIDE_Z
   ctx = seen.Context canvasEl, scene
   drag = new seen.Drag canvasEl, inertia: true
   drag.on 'drag.rotate', (e) ->
@@ -443,14 +493,15 @@ onDestroy ->
     timerId = null
 </script>
 
-<svelte:head><title>Robot Build · Teapot</title></svelte:head>
+<svelte:head><title>Robot Build · Hull</title></svelte:head>
 
 <div class="page">
-  <h1>Robot Build around the Utah Teapot</h1>
+  <h1>Robot Build around a Teapot or Torus</h1>
   <p class="lede">
-    A regular dodecahedron of golden triangles built one face at a time around
-    a Utah teapot. The bright tetrahedron is the robot — it hops to each new
-    triangle as it places it. Drag the scene to rotate.
+    A hull of golden-triangle huts built one piece at a time around the
+    chosen shape — a Utah teapot or a torus. The bright tetrahedron is
+    the robot — it hops to each new triangle as it places it. Drag the
+    scene to rotate.
   </p>
 
   <figure>
@@ -470,13 +521,24 @@ onDestroy ->
       {#if status === 'running'}■ Stop{:else}▶ Run Build{/if}
     </button>
     <button on:click={clearScene}>Clear</button>
-    <label class="toggle" title="Show the Utah teapot mesh inside the dodecahedron">
-      <input type="checkbox" bind:checked={showTeapot} on:change={toggleTeapot}/>
-      teapot
-    </label>
-    <label class="toggle" title="Render the WFC tiles at ~10% alpha (see-through)">
-      <input type="checkbox" bind:checked={transparent} on:change={toggleTransparency}/>
-      transparent
+    <span class="visibility">
+      Visibility:
+      <label class="toggle" title="Show or hide the source mesh.">
+        <input type="checkbox" bind:checked={showShape} on:change={toggleShape}/>
+        shape
+      </label>
+      <label class="toggle" title="Show or hide the placed hull triangles.">
+        <input type="checkbox" bind:checked={showHull} on:change={toggleHull}/>
+        hull
+      </label>
+    </span>
+    <label class="toggle" title="Pick the mesh whose hull is being built.">
+      shape
+      <select bind:value={currentMeshName} on:change={(e) => setMesh(e.target.value)}>
+        {#each meshNames() as m}
+          <option value={m}>{m}</option>
+        {/each}
+      </select>
     </label>
   </div>
   <div class="controls">

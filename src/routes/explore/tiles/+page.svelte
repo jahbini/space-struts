@@ -377,7 +377,6 @@ toggleVerts = ->
 
     {#if sceneInfo}
       <details>
-        <summary>palette / vertex words sanity</summary>
         <pre>{sceneInfo}</pre>
       </details>
     {/if}

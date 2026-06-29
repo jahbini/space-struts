@@ -31,10 +31,12 @@ export shellEnclosing = (r) ->
   SHELLS[SHELLS.length - 1]
 
 # Convenience: ray-cast through the mesh and pick the enclosing shell.
-# teapotRadialDistance is injected so this module stays decoupled from
-# teapotMesh.coffee (lets tests substitute a stub).
-export phiShellFor = (dir, teapotRadialDistance) ->
-  r = teapotRadialDistance(dir)
+# radialDistance is injected so this module stays decoupled from any
+# specific mesh (lets tests substitute a stub; production callers pass
+# the relevant mesh's radialDistance — e.g. the one in
+# src/routes/explore/hull/teapotMesh.coffee).
+export phiShellFor = (dir, radialDistance) ->
+  r = radialDistance(dir)
   return null unless r?
   shell = shellEnclosing(r)
   { k: shell.k, r: shell.r, rTeapot: r }

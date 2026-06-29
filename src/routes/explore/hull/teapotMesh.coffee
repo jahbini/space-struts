@@ -31,12 +31,33 @@
 # Per-call cost drops from O(T) to O(log T) plus a constant number of leaf
 # Möller-Trumbore tests, expected ~60-100x at this mesh size.
 
-import teapotData from '../data/teapot.json'
+import teapotData from './teapot.json'
 
 export teapotBoundingRadius = teapotData.boundingRadius
 export teapotVerts = teapotData.verts
 export teapotTris = teapotData.tris
 export teapotMeta = teapotData.meta
+
+# ---- live mesh scale --------------------------------------------------
+# Lets a caller resize the teapot without rebuilding the data file. The
+# mutation happens in place on the exported `teapotVerts` array so every
+# existing consumer (robotBuildBridge's classifier, the seen renderer,
+# the BVH) sees the new positions through their existing references.
+# bvhRoot is invalidated so the next ray cast rebuilds against the new
+# vertex positions.
+_unscaledVerts = (v.slice() for v in teapotData.verts)
+_currentMeshScale = 1.0
+export getTeapotScale = -> _currentMeshScale
+export setTeapotScale = (s) ->
+  return _currentMeshScale if s == _currentMeshScale
+  for v, i in _unscaledVerts
+    teapotVerts[i][0] = v[0] * s
+    teapotVerts[i][1] = v[1] * s
+    teapotVerts[i][2] = v[2] * s
+  teapotBoundingRadius = teapotData.boundingRadius * s
+  _currentMeshScale = s
+  bvhRoot = null
+  s
 
 export teapotSeenModel = (seen, material = null) ->
   model = new seen.Model()
