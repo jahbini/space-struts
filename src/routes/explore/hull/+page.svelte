@@ -176,11 +176,11 @@ triangleSeenPath = ([ia, ib, ic], verts, faceIdx = 0, preWound = false)->
   # Uniform white. Alpha tracks the `showHull` toggle: 0 (invisible) when
   # off, ~88% when on. Alpha lives on the Color object, NOT the Material.
   fillColor = seen.Colors.hex('#ffffff')
-  fillColor.a = if showHull then 0xE0 else 0x00
+  fillColor.a = if showHull then 0xE0 else 0x1a
   mat = new seen.Material fillColor
   path.fill mat
   path.surfaces[0].fillMaterial = mat
-  path.stroke new seen.Material seen.Colors.hex('#1a1a1a')
+  path.stroke new seen.Material seen.Colors.hex('#808080')
   path.surfaces[0]["stroke-width"] = 1
   path
 
@@ -416,7 +416,7 @@ toggleShape = ->
 # Hull visibility: mutate alpha on every existing hut triangle's fill
 # material so the toggle is render-only — no rebuild needed.
 toggleHull = ->
-  alpha = if showHull then 0xE0 else 0x00
+  alpha = if showHull then 0xE0 else 0x1a
   return unless mdlBuild?
   for path in mdlBuild.children
     for surf in path.surfaces
