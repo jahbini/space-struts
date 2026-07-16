@@ -1,0 +1,34 @@
+# original triangle above the mirror
+scalephi 2
+above
+short
+left 3
+long
+left 4
+long
+left 3
+penup
+long
+pendown
+label
+left 3
+long short
+penup
+label
+left 3
+short
+right 2
+long 
+pendown
+label
+left 2
+# reflected triangle below the mirror
+below
+short
+right 3
+long
+right 4
+long
+label
+right 3
+label

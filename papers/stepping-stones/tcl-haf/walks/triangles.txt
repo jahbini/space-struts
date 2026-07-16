@@ -1,0 +1,29 @@
+# Robinson tiles side by side: golden gnomon (108-36-36, sides s,s,φs)
+# and golden triangle (36-72-72, sides φs,φs,s). Both close exactly in
+# the HafBase lattice.
+#
+# Gnomon exterior turns: 72°, 144°, 144° -> left 2, left 4, left 4
+# Triangle exterior turns: 144°, 108°, 108° -> left 4, left 3, left 3
+
+pendown
+
+# --- Golden gnomon ---
+short; label
+left 2
+short; label
+left 4
+long;  label
+left 4
+
+# Hop right (pen up) to place the triangle beside the gnomon.
+penup
+right 2; long; long; left 2
+pendown
+
+# --- Golden triangle ---
+long; label
+left 4
+long;  label
+left 3
+short; label
+left 3

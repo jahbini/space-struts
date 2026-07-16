@@ -1,0 +1,92 @@
+\chapter{Finding Our Way Home}
+\label{stone:home}
+
+Builders and surveyors often describe the same place in different ways. A builder says, ``I reached this point by adding one beam here, two there, and another over there.'' A surveyor says, ``The point is at these coordinates.'' Neither description is wrong. They simply answer different questions. Until now we have been thinking like builders. It is time to meet the surveyor.
+
+\section*{Two Languages}
+
+Suppose a construction has the six-beam address
+\[
+[a,b,c,d,e,f].
+\]
+Those six numbers tell us exactly how the point was built. But they do not immediately tell us where that point lies in ordinary three-dimensional space. The surveyor asks for something different. Three coordinates,
+\[
+(x,y,z).
+\]
+Can we translate from one language into the other? We can. And nothing is lost.
+
+\section*{Every Beam Contributes}
+
+Each of the six beam families points in its own direction. Some contribute to the horizontal position. Some contribute vertically. Some influence more than one coordinate at the same time. When all six contributions are collected, the ordinary coordinates become
+\[
+\begin{aligned}
+x &= \varphi(a-b)+(e-f),\\
+y &= (c-d)+\varphi(e+f),\\
+z &= (a+b)+\varphi(c+d).
+\end{aligned}
+\]
+Do not worry about memorizing these equations. That is not why they are here. They simply translate one description into another. The builder and the surveyor are finally talking about the same point.
+
+\section*{A Small Construction}
+
+Suppose we build the simplest possible framework. One beam from the first family. Nothing else. Our construction is
+\[
+[1,0,0,0,0,0].
+\]
+The translation gives
+\[
+(\varphi,0,1).
+\]
+The builder says, ``One beam.'' The surveyor says, ``That point is here.'' They are describing exactly the same object.
+
+Now try another. Add one beam from the second family. The construction becomes
+\[
+[1,1,0,0,0,0].
+\]
+The two horizontal contributions cancel. Only the vertical contribution remains. The arithmetic has remembered something about the geometry.
+
+\section*{Can We Go Back?}
+
+This is the real question. Finding the coordinates was never the difficult part. Can we reverse the journey? Suppose someone gives us
+\[
+(x,y,z).
+\]
+Can we recover
+\[
+[a,b,c,d,e,f]?
+\]
+If we can, then nothing has been lost. The translation is complete. If we cannot, then the construction has forgotten something important.
+
+\section*{Listening To The Coordinates}
+
+Remember that each coordinate is itself a PhiBase number. For example,
+\[
+x=P(n_x,p_x).
+\]
+The same is true for \(y\) and \(z\). Instead of treating the coordinates as decimal numbers, we separate them into their short-piece and long-piece counts.
+
+Now something beautiful happens. The original construction reappears almost by itself:
+\[
+\begin{aligned}
+a&=\frac{n_z+p_x}{2}, & b&=\frac{n_z-p_x}{2},\\
+c&=\frac{p_z+n_y}{2}, & d&=\frac{p_z-n_y}{2},\\
+e&=\frac{p_y+n_x}{2}, & f&=\frac{p_y-n_x}{2}.
+\end{aligned}
+\]
+The six beam counts quietly return. The arithmetic has found its way home.
+
+\section*{A Pleasant Surprise}
+
+Look carefully at those equations. Nothing complicated has appeared. We add. We subtract. We divide by two. That is all. The geometry looked mysterious. The journey home turns out to be wonderfully simple. That should make us smile. Simple ideas are often the deepest ones.
+
+\section*{One Small Condition}
+
+There is one final detail. Every recovered beam count must be a whole number. If one of the numerators is odd, then the point cannot have been built from complete beams. The arithmetic tells us immediately. Not every point in space belongs to a PhiBase construction. Only those that could actually have been built. The coordinate system remembers its own architecture.
+
+\section*{Builder's Notebook}
+
+Take a small six-beam construction. Translate it into ordinary coordinates. Now reverse the process. Did every beam return exactly where it began? If so, you have just verified one of the most important ideas in the book. The journey out and the journey home are perfect inverses. Nothing has been forgotten.
+
+\section*{Looking Ahead}
+
+We now know how to move freely between construction and location. There is only one great geometric operation left. Suppose we place a mirror through the structure. What becomes of every point? More importantly, can every reflected point still find its way home? That question leads to one of the most beautiful surprises in all of PhiBase.

@@ -1,0 +1,5 @@
+# Golden gnomon in isolation: sides s, s, φs; exterior turns 2·36°, 4·36°, 4·36°.
+pendown
+short; left 2
+short; left 4
+long;  left 4

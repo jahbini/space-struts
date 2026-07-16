@@ -1,0 +1,7 @@
+# Acute golden triangle (36-72-72 interior; sides phi*s, phi*s, s).
+# Exterior turns 144, 108, 108 in degrees = G 4, G 3, G 3 in 36-deg units.
+# G 3 exercises the odd-k identity R(108) = negate . R(-72).
+pendown
+long; G 4
+long; G 3
+short; G 3

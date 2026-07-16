@@ -1,0 +1,106 @@
+\chapter{Is Growing Just a Special Case?}
+\label{stone:multiply}
+
+Growing by \(\varphi\) turned out to be wonderfully simple. We never multiplied anything. We never used decimal numbers. We simply watched every short edge become long, and every long edge become one short edge and one long edge. The geometry did all the work.
+
+That raises an obvious question. Was that a fortunate accident? Or can every multiplication be understood just as naturally?
+
+Suppose one beam has length
+\[
+P(a,b),
+\]
+and another has length
+\[
+P(c,d).
+\]
+If we place those two lengths together in a construction, what should the resulting length be? That is a builder's question. Only later will we discover that mathematicians call it multiplication.
+
+\section*{Building the Product}
+
+We already know what each length means:
+\[
+P(a,b) = a+b\varphi
+\]
+and
+\[
+P(c,d) = c+d\varphi.
+\]
+Now let us do nothing clever. Simply multiply them exactly as we learned in school,
+\[
+(a+b\varphi)(c+d\varphi).
+\]
+Four products appear,
+\[
+ac + ad\varphi + bc\varphi + bd\varphi^2.
+\]
+Three of them already have familiar forms. Only the last one causes trouble.
+
+Fortunately, we have already solved that problem. Whenever \(\varphi^2\) appears, the geometry tells us that
+\[
+\varphi^2=\varphi+1.
+\]
+Replace it. Now gather the short pieces together. Then gather the long pieces together. The short-piece count becomes
+\[
+ac+bd.
+\]
+The long-piece count becomes
+\[
+ad+bc+bd.
+\]
+The construction is finished. The product is
+\[
+P(ac+bd,\; ad+bc+bd).
+\]
+
+Look at that expression for a moment. Every coefficient is an integer. Nothing escaped into decimal arithmetic. Nothing mysterious appeared. The multiplication remained entirely inside the PhiBase world. That is exactly what we hoped would happen.
+
+\section*{Building One Together}
+
+Let us multiply
+\[
+P(2,1)
+\]
+by
+\[
+P(3,2).
+\]
+The short pieces become
+\[
+2\times3 + 1\times2 = 8.
+\]
+The long pieces become
+\[
+2\times2 + 1\times3 + 1\times2 = 9.
+\]
+The product is therefore
+\[
+P(8,9).
+\]
+
+Now check it another way. Write the two lengths in ordinary algebra as \(2+\varphi\) and \(3+2\varphi\). Expand them. Replace \(\varphi^2\) by \(\varphi+1\). The result is exactly
+\[
+8+9\varphi.
+\]
+The two methods agree perfectly. One remembers the construction. The other remembers only the value. That is an important difference.
+
+\section*{A Small Surprise}
+
+Notice something curious. The golden ratio appears only once. It enters through
+\[
+\varphi^2=\varphi+1.
+\]
+Once that substitution has been made, the rest of the computation uses nothing but ordinary integer arithmetic. The geometry quietly disappears, leaving the construction behind. This is one of the reasons PhiBase is practical. The difficult geometry has already been built into the arithmetic.
+
+\section*{Builder's Notebook}
+
+Multiply these constructions. Do not convert them into decimal numbers. Work entirely with PhiBase:
+\begin{itemize}
+  \item \(P(1,1)\times P(1,1)\);
+  \item \(P(2,3)\times P(1,2)\);
+  \item \(P(4,1)\times P(2,2)\).
+\end{itemize}
+Afterward, choose one example and verify it using ordinary algebra. The two answers should always agree.
+
+\section*{Looking Ahead}
+
+We can now measure. We can join paths. We can let them grow. We can multiply them. Only one question remains. Suppose someone gives us the product and one of the factors. Can we recover the missing one? That question will complete the arithmetic. And its answer is one of the most beautiful ideas in the entire book.

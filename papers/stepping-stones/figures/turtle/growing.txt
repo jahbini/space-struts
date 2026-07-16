@@ -1,0 +1,25 @@
+# Regular pentagon, long sides.
+# Exterior angle 72 degrees = two turns of 36.
+pendown
+short long
+label
+left 4
+short long label
+left 3
+above
+long label
+
+left 4
+long label
+penup
+right 1
+long long
+pendown
+above
+long label
+left 4
+long label
+left 3
+short label
+left 4
+short label

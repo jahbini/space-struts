@@ -1,0 +1,92 @@
+\steppingstone{The Fibonacci Spine}
+\label{stone:spine}
+
+Division has completed the arithmetic.
+
+Something else has quietly appeared along the way.
+
+Every time we multiplied by \(\varphi\), the same growth rule was applied. Every time we divided by \(\varphi\), the same rule was reversed. We were no longer inventing new constructions. We were walking along a single path.
+
+Begin with
+
+\[
+P(1,0)=1.
+\]
+
+One growth step gives
+
+\[
+P(0,1)=\varphi.
+\]
+
+The next gives
+
+\[
+P(1,1)=\varphi^{2}.
+\]
+
+Nothing changes except the counts.
+
+Table~\ref{tab:spine} records the first few steps in both directions.
+
+\begin{table}[htbp]
+\centering
+\caption{The Fibonacci Spine. Each row is obtained from its neighbour by one growth or one division step.}
+\label{tab:spine}
+\begin{tabular}{rcc}
+\hline
+Power & PhiBase & Decimal\\
+\hline
+$\varphi^{-4}$ & $P(5,-3)$  & 0.145898\\
+$\varphi^{-3}$ & $P(-3,2)$  & 0.236068\\
+$\varphi^{-2}$ & $P(2,-1)$  & 0.381966\\
+$\varphi^{-1}$ & $P(-1,1)$  & 0.618034\\
+$1$            & $P(1,0)$   & 1.000000\\
+$\varphi$      & $P(0,1)$   & 1.618034\\
+$\varphi^{2}$  & $P(1,1)$   & 2.618034\\
+$\varphi^{3}$  & $P(1,2)$   & 4.236068\\
+$\varphi^{4}$  & $P(2,3)$   & 6.854102\\
+$\varphi^{5}$  & $P(3,5)$   &11.090170\\
+\hline
+\end{tabular}
+\end{table}
+
+The Fibonacci numbers are easy to notice, but they are not the reason this table matters.
+
+The table matters because every multiplication by \(\varphi\) has become one step downward or upward through a prepared list. The arithmetic has become navigation.
+
+Instead of multiplying by \(\varphi\), move one row.
+
+Instead of dividing by \(\varphi\), move one row in the opposite direction.
+
+The difficult work has already been done.
+
+That is the beginning of efficient computation.
+
+The Spine is not an approximation.
+
+Every row is exact.
+
+Every entry is a PhiBase quantity.
+
+Every neighbour differs by exactly one growth step.
+
+The arithmetic has become an index.
+
+\section*{Builder's Notebook}
+
+Beginning with \(P(1,0)\), generate six more rows using the growth rule.
+
+Then begin again at \(P(1,0)\) and walk downward by dividing by \(\varphi\).
+
+Compare your table with Table~\ref{tab:spine}.
+
+\section*{Looking Ahead}
+
+The Spine gives one exact path through PhiBase.
+
+Most useful quantities do not lie on that path.
+
+They lie between its rungs.
+
+The next stepping stone builds the landscape around the Spine.

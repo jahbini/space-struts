@@ -1,0 +1,207 @@
+\steppingstone{Undoing Multiplication}
+\label{stone:division}
+
+The previous stepping stone ended with a question.
+
+Growing was easy because one part of the multiplication was already simple. One quantity contained only a single kind of piece, so the construction almost explained itself.
+
+Can every multiplication be made to look like growth?
+
+If the answer is yes, then division may not require a new idea at all. It may simply require finding the right companion.
+
+Suppose we wish to multiply
+
+\[
+P(a,b)
+\]
+
+by another PhiBase quantity.
+
+We are not interested in the whole product.
+
+Not yet.
+
+We care only about the long part.
+
+From the multiplication rule,
+
+\[
+P(a,b)P(x,y)
+=
+P(ax+by,\;ay+bx+by).
+\]
+
+The second coordinate is the long part.
+
+Everything becomes simple if that quantity can be made to disappear.
+
+So the problem is no longer multiplication.
+
+The problem is to choose
+
+\[
+P(x,y)
+\]
+
+so that
+
+\[
+ay+bx+by=0.
+\]
+
+That is the bridge between multiplication and division.
+
+\section*{Searching For A Playmate}
+
+Try a few examples.
+
+Experiment.
+
+Nothing prevents us from choosing different values for \(x\) and \(y\) and watching what happens.
+
+Eventually one choice refuses to go away.
+
+Let
+
+\[
+x=a+b,
+\qquad
+y=-b.
+\]
+
+Now substitute those values into the long part.
+
+\[
+\begin{aligned}
+ay+bx+by
+ &=a(-b)+b(a+b)+b(-b)\\
+ &=-ab+ab+b^{2}-b^{2}\\
+ &=0.
+\end{aligned}
+\]
+
+The long part has vanished.
+
+The product now looks remarkably like the simple growth examples from the previous chapter.
+
+We have found the playmate.
+
+Mathematicians already have a name for it.
+
+They call it the \emph{conjugate}.
+
+The conjugate of
+
+\[
+P(a,b)
+\]
+
+is
+
+\[
+P(a+b,-b).
+\]
+
+\section*{What Remains?}
+
+Once the long part has disappeared, only the short part is left.
+
+Using the same substitution,
+
+\[
+\begin{aligned}
+ax+by
+ &=a(a+b)+b(-b)\\
+ &=a^{2}+ab-b^{2}.
+\end{aligned}
+\]
+
+Nothing mysterious remains.
+
+The product has become
+
+\[
+P(a,b)\,P(a+b,-b)
+=
+P(a^{2}+ab-b^{2},0).
+\]
+
+The remaining integer,
+
+\[
+a^{2}+ab-b^{2},
+\]
+
+is called the \emph{norm}.
+
+The conjugate removes the long part.
+
+The norm is what is left behind.
+
+\section*{Division}
+
+Now the original question answers itself.
+
+To divide
+
+\[
+P(u,v)
+\]
+
+by
+
+\[
+P(a,b),
+\]
+
+multiply both numerator and denominator by the conjugate of the denominator.
+
+The denominator immediately becomes the norm, an ordinary integer.
+
+The numerator is an ordinary PhiBase multiplication.
+
+Division has become the natural undoing of multiplication.
+
+Nothing has been approximated.
+
+Nothing has escaped from PhiBase.
+
+\section*{Builder's Notebook}
+
+Find the conjugate of
+
+\[
+P(2,1).
+\]
+
+Multiply the pair together.
+
+Verify that the long part is zero.
+
+Then divide
+
+\[
+P(8,9)
+\]
+
+by
+
+\[
+P(2,1)
+\]
+
+and confirm that the result is
+
+\[
+P(3,2).
+\]
+
+\section*{Looking Ahead}
+
+The conjugate quietly introduces negative PhiBase coefficients.
+
+The arithmetic has not changed.
+
+The landscape has become larger.
+
+The next stepping stone explores the path that has been hiding inside that landscape from the very beginning: the Fibonacci Spine.

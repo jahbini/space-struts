@@ -1,0 +1,15 @@
+# The two Robinson pieces, drawn side by side.
+# At each vertex the left-turn is the EXTERIOR angle (180 - interior).
+
+# Golden gnomon: sides 1,1,phi; interior angles 108/36/36.
+pendown
+short label left 2 short label left 4 long label left 4
+
+# hop right with the pen up
+penup
+#right 2 long long left 2
+short
+pendown
+
+# Golden (acute) triangle: sides phi,phi,1; interior angles 36/72/72.
+long left 4 long left 3 below  short left 3 label

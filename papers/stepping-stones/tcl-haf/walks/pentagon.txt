@@ -1,0 +1,3 @@
+# Regular pentagon of long sides. Exterior turn 72° = 2 · 36°.
+pendown
+repeat 5 [ long; left 2 ]

@@ -1,0 +1,69 @@
+chirality: famB: cyclic (0, phi, 1/phi)
+vertices: 20, faces: 12, edges: 30
+group: 60 distinct elements, closed under composition, every
+       element acts on the six axes as an exact signed permutation.
+legal vertex-axis triples: ABE ABF ACD ACE ADF BCD BCF BDE CEF DEF
+
+name      action on axes A..F
+id        +A +B +C +D +E +F
+A 1       +A +E +D -F +C -B
+A 2       +A +C -F +B +D -E
+A -1      +A -F +E +C +B -D
+A -2      +A +D +B +E -F -C
+B 1       -F +B +D -E +A +C
+B 2       -C +B -E -A -F +D
+B -1      +E +B +F +C -D -A
+B -2      -D +B -A +F -C -E
+C 1       +E -D +C +A +F -B
+C 2       +F -A +C +E -B +D
+C -1      +D -F +C -B +A +E
+C -2      -B -E +C +F +D +A
+D 1       +C +E -B +D +F -A
+D 2       -B +F -E +D -A -C
+D -1      -F -C +A +D +B +E
+D -2      -E -A -F +D -C +B
+E 1       +B -D +A -F +E +C
+E 2       -D +F +B -C +E +A
+E -1      +C +A +F -B +E -D
+E -2      +F +C -D -A +E +B
+F 1       +B -C +E +A -D +F
+F 2       -C -E -D +B -A +F
+F -1      +D +A -B -E +C +F
+F -2      -E +D -A -C -B +F
+ACE 1     +E +F +A +B +C +D
+ACE -1    +C +D +E +F +A +B
+BDE 1     -C -D -F -E +B +A
+BDE -1    +F +E -A -B -D -C
+ADF 1     +D +C -E -F -B -A
+ADF -1    -F -E +B +A -C -D
+BCF 1     -D -C +F +E -A -B
+BCF -1    -E -F -B -A +D +C
+CEF 1     -D -A +E +B +F +C
+CEF -1    -B +D +F -A +C +E
+ACD 1     +C +F +D +A -B -E
+ACD -1    +D -E +A +C -F +B
+ABE 1     +B +E -F -C +A +D
+ABE -1    +E +A -D +F +B -C
+DEF 1     -C -A +B -F -D +E
+DEF -1    -B +C -A -E +F -D
+BCD 1     +F -D -B +C -A -E
+BCD -1    -E -C +D -B -F +A
+ABF 1     -F +A -E -C +D -B
+ABF -1    +B -F -D +E -C -A
+AB        -A -B -D -C +F +E
+AC        -A +F -C -E -D +B
+AD        -A -E +F -D -B +C
+AE        -A -C -B +F -E +D
+AF        -A -D -E -B -C -F
+BC        -E -B -C -F -A -D
+BD        +F -B +E -D +C +A
+BE        +D -B -F +A -E -C
+BF        +C -B +A +E +D -F
+CD        +B +A -C -D -F -E
+CE        -F +D -C +B -E -A
+CF        -D +E -C -A +B -F
+DE        -C -F -A -D -E -B
+DF        +E +C +B -D +A -F
+EF        -B -A +D +C -E -F
+
+wrote icosaGroup.json

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+<title id="title">Golden triangle recursively divided into golden gnomons and golden triangles</title>
+<desc id="desc">An exact golden triangle is divided three times. Each cut creates one golden gnomon and one smaller golden triangle. Cut lengths are labelled with PhiBase pairs.</desc>
+<style>.outline{fill:none;stroke:#111;stroke-width:3;stroke-linejoin:round}.cut{stroke:#333;stroke-width:2.4}.point{fill:#fff;stroke:#111;stroke-width:2}.label{font-family:Georgia,serif;font-size:21px;fill:#111}.small{font-family:Georgia,serif;font-size:17px;fill:#222}.title{font-family:Georgia,serif;font-size:29px;font-weight:700;fill:#111}</style>
+<rect width="100%" height="100%" fill="white"/>
+<text x="600" y="40" class="title" text-anchor="middle">Golden Triangle: Three Exact PhiBase Subdivisions</text>
+<polygon points="600,78 426.95,610.592 706.95,407.16" fill="#e7f2d0" stroke="none"/>
+<polygon points="426.95,610.592 773.05,610.592 600,484.864" fill="#dcebd3" stroke="none"/>
+<polygon points="773.05,610.592 706.95,407.16 666.099,532.888" fill="#d3e5d9" stroke="none"/>
+<polygon points="706.95,407.16 600,484.864 666.099,532.888" fill="#f5d98b" stroke="none"/>
+<polygon points="600,78 426.95,610.592 773.05,610.592" class="outline"/>
+<line x1="426.95" y1="610.592" x2="706.95" y2="407.16" class="cut"/>
+<line x1="773.05" y1="610.592" x2="600" y2="484.864" class="cut"/>
+<line x1="706.95" y1="407.16" x2="666.099" y2="532.888" class="cut"/>
+<circle cx="600" cy="78" r="5" class="point"/>
+<circle cx="426.95" cy="610.592" r="5" class="point"/>
+<circle cx="773.05" cy="610.592" r="5" class="point"/>
+<circle cx="706.95" cy="407.16" r="5" class="point"/>
+<circle cx="600" cy="484.864" r="5" class="point"/>
+<circle cx="666.099" cy="532.888" r="5" class="point"/>
+<text x="513.475" y="344.296" class="label" text-anchor="end" dx="-12" dy="-4">φ</text>
+<text x="600" y="610.592" class="label" text-anchor="middle" dy="34">1 = P(1,0)</text>
+<text x="566.95" y="508.876" class="small" text-anchor="middle" dy="-10" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">1 = P(1,0)</text>
+<text x="686.525" y="547.728" class="small" text-anchor="middle" dy="-10" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">φ⁻¹ = P(−1,1)</text>
+<text x="686.525" y="470.024" class="small" text-anchor="middle" dy="-10" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">φ⁻² = P(2,−1)</text>
+<text x="60" y="754" class="small">Each cut leaves one golden gnomon and one smaller golden triangle. The cut lengths descend on the same Fibonacci spine: P(1,0), P(−1,1), P(2,−1), …</text>
+</svg>

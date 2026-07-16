@@ -1,0 +1,78 @@
+\documentclass[11pt,openany]{book}
+
+\usepackage[
+  paperwidth=6in,
+  paperheight=9in,
+  top=0.72in,
+  bottom=0.78in,
+  inner=0.78in,
+  outer=0.62in,
+  headheight=14pt
+]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\graphicspath{{figures/turtle/}}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.25em,topsep=0.35em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small The Origin of PhiBase}
+\fancyhead[RO]{\small James A. Hinds}
+\fancyfoot[C]{\thepage}
+
+% The book is organized as stepping stones rather than conventional chapters.
+\newcounter{steppingstone}
+\newcommand{\steppingstone}[1]{%
+  \refstepcounter{steppingstone}%
+  \chapter*{Stepping Stone \thesteppingstone\\[0.4em]\Large #1}%
+  \addcontentsline{toc}{chapter}{Stepping Stone \thesteppingstone: #1}%
+}
+
+\newcommand{\Phib}[2]{P(#1,#2)}
+\newcommand{\Zphi}{\mathbb{Z}[\varphi]}
+
+\title{\textbf{The Origin of PhiBase}\\[0.5em]
+\large Building an Exact Arithmetic One Step at a Time}
+\author{James A. Hinds}
+\date{}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+
+% Front matter files will be added as they are converted.
+% \include{preface}
+% \include{introduction}
+
+\mainmatter
+
+\include{measuring}
+\include{adding}
+\include{growing}
+\include{multiply}
+\include{division}
+\include{spine}
+\include{dense-grid}
+\include{slide-rule}
+\include{space}
+\include{home}
+\include{mirrors}
+\include{computer}
+\include{builder}
+
+\backmatter
+% \include{afterword}
+
+\end{document}

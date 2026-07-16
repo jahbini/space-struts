@@ -1,0 +1,101 @@
+\chapter{The Missing Piece}
+\label{stone:division}
+
+Something remarkable has happened. We can measure paths. We can join them. We can let them grow. We can multiply them. Every operation has remained inside the PhiBase world. Nothing has escaped into decimal arithmetic.
+
+There is only one question left. Can we undo multiplication? If we can, then PhiBase is a complete arithmetic. If we cannot, then it is only a clever notation. Today we find out.
+
+\section*{A Builder's Question}
+
+Suppose someone hands you a beam whose length is
+\[
+P(18,17).
+\]
+They tell you that it was built by multiplying
+\[
+P(3,2)
+\]
+by another PhiBase length. Can you recover the missing beam? That is all division really asks. We know the product. We know one factor. Can we find the other?
+
+The obvious ideas fail almost immediately. Dividing the first coordinate by the first coordinate, and the second by the second, doesn't even make sense. The two coordinates are tied together by the geometry. Somehow we must untie them.
+
+\section*{Looking For A Partner}
+
+Whenever we have been stuck in this book, the geometry has rescued us. Perhaps it can do so again.
+
+Suppose every PhiBase number had a partner. Not another copy of itself. A companion. A number that belongs to the same world and somehow balances it.
+
+Mathematicians have a beautiful word for companions like this. They call them \textbf{conjugates}. The word comes from the Latin \emph{conjugare}, ``to join together.'' A conjugate is simply something that plays on the same playground. It belongs to the same world. Let us see if PhiBase has such companions.
+
+\section*{An Experiment}
+
+Take the PhiBase number
+\[
+P(a,b).
+\]
+We are looking for another PhiBase number that makes the \(\varphi\) part disappear when the two are multiplied. Why? Because if the denominator could become an ordinary integer, division would suddenly become much easier.
+
+So let us experiment. Suppose the companion has the form
+\[
+P(x,y).
+\]
+We already know how to multiply. The long-piece coefficient becomes
+\[
+ay+bx+by.
+\]
+Can we make that equal zero?
+
+Try a few examples. Play with the numbers. Eventually a beautiful pattern appears. Choose
+\[
+x=a+b, \quad y=-b.
+\]
+Now watch. The long-piece count becomes
+\[
+a(-b) + b(a+b) + b(-b).
+\]
+The first two terms cancel. The last two terms cancel. Nothing remains. The entire \(\varphi\) part has vanished. Exactly what we hoped would happen.
+
+That companion deserves its name. The conjugate of \(P(a,b)\) is
+\[
+P(a+b,-b).
+\]
+
+Notice something new. This is the first time we have seen a PhiBase number containing a negative count. Until now every construction has been built by adding material. Today we have discovered something different. The arithmetic can also describe descent. The same Fibonacci growth that carried us upward can now carry us below one. The Spine has two directions.
+
+\section*{The Norm}
+
+Multiply a PhiBase number by its conjugate. The answer contains no \(\varphi\). Only an ordinary integer remains. That integer is called the \textbf{norm}. For \(P(a,b)\), the norm is
+\[
+a^2+ab-b^2.
+\]
+Every PhiBase number has one. Every norm is an integer. That simple fact completes the arithmetic.
+
+\section*{Division}
+
+Now everything falls into place. To divide
+\[
+P(u,v)
+\]
+by
+\[
+P(a,b),
+\]
+we multiply both numerator and denominator by the conjugate. The denominator immediately becomes the norm. An ordinary integer. The numerator is just an ordinary PhiBase multiplication. Nothing mysterious remains. The impossible operation has quietly become routine.
+
+\section*{Stop For A Moment}
+
+This is the turning point of the book. Everything before today could have been dismissed as a useful notation. Everything after today rests on something stronger.
+
+PhiBase is now a complete arithmetic.
+
+\section*{Builder's Notebook}
+
+Find the conjugate of
+\[
+P(2,1).
+\]
+Multiply the two numbers together. Watch the \(\varphi\) term disappear. Now repeat the experiment for \(P(4,3)\) and \(P(7,2)\). Do not look for the formula. Look for the pattern. The formula is only a shorthand for something you have already seen.
+
+\section*{Looking Ahead}
+
+The conjugate has quietly revealed another surprise. The negative PhiBase numbers are not strangers. They belong to exactly the same family as the positive ones. The same growth rule that carried us upward now carries us downward. We are about to discover that the Fibonacci Spine never really ended. It simply continued in the other direction.

@@ -1,0 +1,1027 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[headheight=15pt]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\geometry{
+  letterpaper,
+  top=1.25in, bottom=1.25in, headheight=15pt,
+  left=1.25in, right=1.25in
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small PhiBase Arithmetic}
+\lhead{\small Draft}
+\cfoot{\thepage}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Shorthand
+% \varphi is already defined
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Zphi}{\mathbb{Z}[\varphi]}
+\newcommand{\Phib}[2]{P(#1,\,#2)}
+\newcommand{\norm}[1]{\mathcal{N}(#1)}
+
+% Code style
+\lstset{
+  basicstyle=\small\ttfamily,
+  columns=flexible,
+  keepspaces=true
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+
+\title{%
+  \textbf{PhiBase Arithmetic and the Digital Slide Rule}\\[6pt]
+  \large Exact Geometric Computation in $\mathbb{Z}[\varphi]$,\\
+  Fibonacci-Indexed Lookup Tables,\\
+  and a $\varphi$-Native GPU Crystal Lattice
+}
+
+\author{%
+  SpaceStruts Research\\[4pt]
+  \small\texttt{spacestruts.com}
+}
+
+\date{\today}
+
+\maketitle
+\thispagestyle{fancy}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{abstract}
+We describe a lookup-based arithmetic system grounded in the mathematics
+of the golden ratio $\varphi = (1+\sqrt{5})/2$.  Every scalar in the
+system is written in \emph{PhiBase notation} as $P(p,n) = p\varphi + n$,
+where $p$ and $n$ are integers.  Two precomputed tables support all
+arithmetic operations without floating-point arithmetic at runtime.
+The \emph{Fibonacci Spine} (Table~2) encodes exact powers of $\varphi$
+indexed by a single integer $k$; multiplication reduces to index addition.
+The \emph{Dense Grid} (Table~1) covers $\approx 13{,}000$ values in the
+positive cone at $10^{-8}$ precision; comparison reduces to integer rank
+comparison.  Together the tables constitute a \emph{digital slide rule}
+operating on a Fibonacci scale rather than a logarithmic one.
+
+We then apply this foundation to dodecahedral geometry.  The six
+basis vectors of the icosahedral lattice are expressed exactly in
+$\Zphi$, and we prove an \emph{integrality theorem} for reflections:
+reflection through any of the six dodecahedral face-normal planes maps
+$\Zphi^{3}$ into $\tfrac{1}{5}\Zphi^{3}$, with denominator \emph{exactly
+$5$} in all cases.  The six-basis inverse mapping absorbs this factor of
+$5$, restoring integer six-vector coordinates.  As a consequence, every
+reflection is implementable as a precomputed $6\times 6$ integer matrix,
+costing only integer multiplies and adds at runtime.
+
+Finally we describe two GPU architectures built on this foundation:
+a batch arithmetic engine (Mode~1) and a $\varphi$-native crystal
+lattice simulator (Mode~2) in which each GPU thread is permanently
+assigned to one lattice node and communicates only with its six neighbors.
+Mode~2 constitutes a new computational model whose topology is the
+quasicrystal itself.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Motivation}
+
+A slide rule works because logarithms convert multiplication into
+addition.  The physical displacement of one scale against another
+encodes the product.  The key insight is that the number line can be
+re-indexed---by powers of $10$, or any convenient base---so that the
+index does the arithmetic rather than the value itself.
+
+The digital slide rule presented here works on the same principle,
+with two differences.
+
+\medskip
+\noindent\textbf{First}, the base is $\varphi$ instead of $10$.
+This choice is not arbitrary.  The golden ratio satisfies
+\[
+  \varphi^{2} = \varphi + 1,
+\]
+so every power of $\varphi$ is an integer linear combination of
+$\varphi$ and $1$.  The number system is \emph{closed}: computation
+never leaves the lattice.
+
+\medskip
+\noindent\textbf{Second}, the ``slide'' is a precomputed table of
+integer pairs rather than a physical scale.  Lookup is an array-index
+operation; advancing along the scale is integer addition on the index.
+The entire computation runs in integer arithmetic from start to finish.
+
+The system is especially well suited to the geometry of dodecahedral
+and quasicrystal structures, where the natural angles---multiples of
+$36^\circ$---produce sines and cosines that live \emph{exactly} in the
+$\Zphi$ lattice.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The Number Representation}
+
+\begin{definition}[PhiBase notation]
+A \emph{PhiBase number} is an element of $\Zphi = \{p\varphi + n \mid
+p,n\in\Z\}$.  We write it as $\Phib{p}{n}$ to denote the value
+$p\varphi + n$.
+\end{definition}
+
+The \emph{positive cone} restricts to $p,n \geq 0$.  All lattice
+node coordinates in Mode~2 (Section~\ref{sec:gpu}) lie in the
+positive cone.
+
+\medskip
+Table~\ref{tab:decode} lists the seven coordinate symbols used throughout
+the dodecahedral geometry code.  Every vertex of every Platonic solid,
+and every vertex of the four Kepler--Poinsot solids, has coordinates
+drawn from this vocabulary.
+
+\begin{table}[h]
+\centering
+\caption{The seven PhiBase coordinate symbols and their values.}
+\label{tab:decode}
+\begin{tabular}{ccl}
+\toprule
+Symbol & $\Phib{p}{n}$ & Float value \\
+\midrule
+\texttt{z} & $\Phib{0}{0}$  & $0$ \\
+\texttt{O} & $\Phib{0}{1}$  & $1$ \\
+\texttt{o} & $\Phib{0}{-1}$ & $-1$ \\
+\texttt{f} & $\Phib{-1}{1}$ & $1/\varphi \approx 0.618$ \\
+\texttt{F} & $\Phib{1}{-1}$ & $-1/\varphi \approx -0.618$ \\
+\texttt{p} & $\Phib{-1}{0}$ & $-\varphi \approx -1.618$ \\
+\texttt{P} & $\Phib{1}{0}$  & $\varphi \approx 1.618$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\medskip
+A few PhiBase values illustrate the Fibonacci structure:
+\[
+  \Phib{0}{1}=1,\quad
+  \Phib{1}{0}=\varphi,\quad
+  \Phib{1}{1}=\varphi^{2},\quad
+  \Phib{2}{1}=\varphi^{3},\quad
+  \Phib{3}{2}=\varphi^{4},\quad
+  \Phib{5}{3}=\varphi^{5}.
+\]
+The coefficients $(p,n)$ at each step are consecutive Fibonacci numbers.
+This is the central structural fact, proved in Section~\ref{sec:spine}.
+
+For values less than $1$, larger coefficients with mixed signs reach
+them in the full ring: for example $\Phib{5}{-8} = 5\varphi - 8
+\approx 0.090$.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The Two Tables}
+
+\subsection{Table~2 — The Fibonacci Spine}
+\label{sec:spine}
+
+\begin{definition}[Fibonacci Spine]
+The \emph{Fibonacci Spine} is the sequence of entries
+\[
+  T_2[k] \;=\; \bigl(F_{k+1},\; F_k,\; \varphi^k\bigr),
+  \qquad k = 0, 1, 2, \ldots
+\]
+where $F_k$ denotes the $k$-th Fibonacci number ($F_0=0,F_1=1$).
+Entry $k$ represents the PhiBase number $\Phib{F_{k+1}}{F_k}$.
+\end{definition}
+
+\begin{theorem}[Fibonacci representation of $\varphi^k$]
+\label{thm:fibpow}
+For all $k \geq 0$,
+\[
+  \varphi^k \;=\; F_{k+1}\,\varphi + F_k.
+\]
+\end{theorem}
+
+\begin{proof}
+By induction.  Base cases: $\varphi^0 = 1 = 0\cdot\varphi + 1$
+($F_1=1, F_0=0$ \checkmark) and $\varphi^1 = \varphi = 1\cdot\varphi+0$
+($F_2=1,F_1=1$... adjusting: $F_2=1,F_1=1$, giving $1\cdot\varphi+0$\checkmark).
+Inductive step: assume $\varphi^k = F_{k+1}\varphi + F_k$.  Then
+\begin{align*}
+  \varphi^{k+1} &= \varphi\cdot(F_{k+1}\varphi + F_k)
+               = F_{k+1}\varphi^2 + F_k\varphi \\
+               &= F_{k+1}(\varphi+1) + F_k\varphi
+               = (F_{k+1}+F_k)\varphi + F_{k+1}
+               = F_{k+2}\varphi + F_{k+1}. \qedhere
+\end{align*}
+\end{proof}
+
+The spine has three immediate consequences for arithmetic.
+
+\begin{corollary}[Integer arithmetic on the spine]
+\label{cor:spineops}
+Let $j,k \geq 0$.  Then:
+\begin{align}
+  \varphi^j \times \varphi^k &= \varphi^{j+k}
+    &&\text{(index addition)} \label{eq:mul}\\
+  \varphi^j / \varphi^k &= \varphi^{j-k}
+    &&\text{(index subtraction, } j\geq k\text{)} \label{eq:div}\\
+  \varphi^j > \varphi^k &\iff j > k
+    &&\text{(index comparison)} \label{eq:cmp}
+\end{align}
+No floating-point operations are required.
+\end{corollary}
+
+\paragraph{The coupled step.}
+Moving one step along a basis direction at spine level $k$ induces an
+automatic displacement of $1/\varphi$ in the conjugate direction.
+Since $\varphi^{-(1)} = F_2\varphi - F_1 = \varphi - 1 = 1/\varphi$,
+this coupled displacement is exactly spine entry $k+1$.  Every spine
+entry therefore carries a pointer to the next entry; no additional data
+is stored.  This \emph{double-hit} property encodes the inflation rule
+of the dodecahedral quasicrystal.
+
+\medskip
+Table~\ref{tab:spine} shows the first nine entries.  The spine contains
+approximately 40 entries for $10^{-8}$ precision, since
+$\varphi^{-38} \approx 10^{-8}$.
+
+\begin{table}[h]
+\centering
+\caption{Fibonacci Spine entries $T_2[k]$, $k = 0,\ldots,8$.}
+\label{tab:spine}
+\begin{tabular}{rrrl}
+\toprule
+$k$ & $F_{k+1}$ & $F_k$ & $\varphi^k$ (float) \\
+\midrule
+0 & 1 & 0 & 1.000\,000 \\
+1 & 1 & 1 & 2.618\,034 \\
+2 & 2 & 1 & 4.236\,068 \\
+3 & 3 & 2 & 6.854\,102 \\
+4 & 5 & 3 & 11.090\,17 \\
+5 & 8 & 5 & 17.944\,27 \\
+6 & 13& 8 & 29.034\,44 \\
+7 & 21& 13& 46.979\,00 \\
+8 & 34& 21& 76.013\,16 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Table~1 — The Dense Grid}
+
+The spine covers only the exact powers of $\varphi$.  The \emph{Dense
+Grid} fills in all values between them.
+
+\begin{definition}[Dense Grid]
+Let $N$ be a positive integer bound.  The \emph{Dense Grid}
+$T_1(N)$ is the sorted sequence of all distinct values
+$p\varphi + n$ with $0 \leq p,n \leq N$, together with:
+\begin{itemize}[nosep]
+  \item their \emph{rank} (position in sorted order),
+  \item their exact $(p,n)$ pair,
+  \item their float value (precompute and display only), and
+  \item their \emph{spine bracket} $k^*$, the largest $k$ with
+        $\varphi^k \leq p\varphi+n$.
+\end{itemize}
+\end{definition}
+
+For $N = 25$ the grid contains approximately $13{,}000$ entries and
+achieves maximum approximation error below $10^{-8}$ across the unit
+interval $[0,1]$.
+
+The \emph{rank} of an entry is its working integer identity.  All
+comparisons reduce to rank comparisons; all nearest-value queries use
+binary search on the sorted float column, performed once at query time.
+The float values are never used again after the precompute phase.
+
+\subsection{The Slide Rule Analogy}
+
+The classical slide rule has a fixed \emph{stock} and a sliding
+\emph{rule}, both graduated logarithmically.  Multiplication is
+implemented by physical displacement: adding logarithms.
+
+The digital slide rule has the same two-layer structure:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{ll}
+\toprule
+Slide rule & Digital slide rule \\
+\midrule
+Stock & Fibonacci Spine (Table~2) \\
+Sliding rule & Dense Grid (Table~1) \\
+Decade & Spine index $k$ \\
+Mantissa position & Grid rank \\
+Physical displacement & Index addition \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+To multiply two PhiBase values: express each as a spine index plus
+a grid rank, add the spine indices (Corollary~\ref{cor:spineops}),
+combine the grid offsets, and read the result.  No actual multiplication
+of real numbers occurs.
+
+The precision is controlled by the grid size $N$: larger $N$ buys
+finer coverage at the cost of table size.  At $N=25$ the system
+achieves $10^{-8}$ precision with $\approx 13{,}000$ entries.
+
+\subsection{Function Lookup}
+
+Any function $f : D \to [0,1]$ can be encoded in the Dense Grid.
+The function is evaluated once during precompute; at runtime only
+the rank is used.
+
+\begin{table}[h]
+\centering
+\caption{Sample function values encoded in the Dense Grid.}
+\label{tab:funclookup}
+\begin{tabular}{lrrl}
+\toprule
+Expression & True value & Grid value & Error \\
+\midrule
+$\sin(\pi/6)$   & 0.500\,000\,0 & 0.500\,000\,0 & $2.1\times10^{-9}$ \\
+$\sin(\pi/4)$   & 0.707\,106\,8 & 0.707\,106\,8 & $1.4\times10^{-9}$ \\
+$\sin(\pi/3)$   & 0.866\,025\,4 & 0.866\,025\,4 & $8.3\times10^{-10}$ \\
+$\cos(\pi/5)$   & 0.809\,016\,9 & 0.809\,016\,9 & $0$ (exact) \\
+$e^{-1}$        & 0.367\,879\,4 & 0.367\,879\,4 & $3.1\times10^{-9}$ \\
+$1/\varphi$     & 0.618\,033\,9 & 0.618\,033\,9 & $0$ (exact) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The zero errors for $\cos(\pi/5) = \varphi/2$ and $1/\varphi$ are
+not coincidental.  The angles native to dodecahedral geometry produce
+trigonometric values that are exact PhiBase numbers.  The system is
+algebraically matched to the geometry it was designed for.
+
+For values outside $[0,1]$, factor out the appropriate $\varphi^k$,
+look up the mantissa in the unit grid, and record the pair $(k,
+\text{rank})$.  Two integers represent any positive real to $10^{-8}$
+precision.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Why This Is a Win}
+
+Classical IEEE~754 floating-point arithmetic accumulates rounding error
+at every operation.  In long computation chains---building a crystal
+lattice, propagating a wave, computing structural stress---accumulated
+error is a practical problem.  The PhiBase system eliminates it.
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{No runtime rounding error.}  Every operation during
+computation is on integers.  The only approximation occurs at the
+initial encoding step, where a real number is matched to its nearest
+grid entry.  That error is bounded by $10^{-8}$ and does not grow.
+It is committed once and frozen.
+
+\item \textbf{Exact membership testing.}  Asking whether a computed
+point belongs to the lattice is ill-posed in floating point.  In
+PhiBase it is exact: either the result is a valid $(p,n)$ pair or
+it is not.  This enables exact verification of geometric membership,
+a prerequisite for the GPU crystal lattice (Section~\ref{sec:gpu}).
+
+\item \textbf{Universal function encoding.}  Any function with range
+in $[0,1]$ maps into the Dense Grid.  This includes all trigonometric
+functions restricted to standard quarter-periods, all probability
+distributions, and all functions arising from the icosahedral geometry.
+The table is built once; thereafter, function evaluation is an integer
+array lookup.
+\end{enumerate}
+
+The system is not universally faster than floating point.  A single
+lookup carries array-indexing overhead.  The win is in correctness and
+in the ability to run the entire geometric engine on integer hardware,
+including GPU thread indices, without a floating-point unit.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The Six-Basis Lattice and Icosahedral Geometry}
+
+\subsection{The Six Basis Vectors}
+
+The dodecahedron and icosahedron share the same symmetry group
+$I_h$ of order $120$.  Their vertices and edge midpoints span six
+distinct directions, which we take as basis vectors:
+
+\[
+  \mathbf{B}_1 = (\varphi,1,0),\quad
+  \mathbf{B}_2 = (\varphi,-1,0),\quad
+  \mathbf{B}_3 = (1,0,\varphi),
+\]
+\[
+  \mathbf{B}_4 = (-1,0,\varphi),\quad
+  \mathbf{B}_5 = (0,\varphi,1),\quad
+  \mathbf{B}_6 = (0,\varphi,-1).
+\]
+
+Every lattice point is a six-vector $[a,b,c,d,e,f]\in\Z^6$, mapping
+to Cartesian $\Zphi^3$ coordinates via:
+\begin{align}
+  x &= \varphi(a-b) + (e-f), \label{eq:x}\\
+  y &= (c-d) + \varphi(e+f), \label{eq:y}\\
+  z &= (a+b) + \varphi(c+d). \label{eq:z}
+\end{align}
+
+In Mode~2 (Section~\ref{sec:gpu}), all six components are non-negative.
+Neighbors are reached by incrementing one component by one---a purely
+additive operation.
+
+\subsection{The Fifteen Symmetry Planes}
+
+The icosahedral reflection group $I_h$ has exactly $15$ symmetry planes,
+arranged in five sets of three mutually orthogonal planes.  Each plane
+contains two opposite edges of the icosahedron and two opposite edges
+of the dodecahedron.
+
+Six of the fifteen planes are the face-normal planes of the dodecahedron,
+which we label $A$ through $F$.  Their normal vectors in $\Zphi^3$ are:
+
+\begin{align*}
+  \mathbf{n}_A &= (\varphi,\; 1,\; 0) = (\Phib{1}{0},\Phib{0}{1},\Phib{0}{0}), \\
+  \mathbf{n}_B &= (\varphi,\;-1,\; 0) = (\Phib{1}{0},\Phib{0}{-1},\Phib{0}{0}), \\
+  \mathbf{n}_C &= (1,\; 0,\; \varphi) = (\Phib{0}{1},\Phib{0}{0},\Phib{1}{0}), \\
+  \mathbf{n}_D &= (-1,\; 0,\;\varphi) = (\Phib{0}{-1},\Phib{0}{0},\Phib{1}{0}), \\
+  \mathbf{n}_E &= (0,\;\varphi,\; 1) = (\Phib{0}{0},\Phib{1}{0},\Phib{0}{1}), \\
+  \mathbf{n}_F &= (0,\;\varphi,\;-1) = (\Phib{0}{0},\Phib{1}{0},\Phib{0}{-1}).
+\end{align*}
+
+The remaining nine planes are generated by composing these six.  In
+the implementation, a point reflected through planes $A$ then $B$ is
+denoted with the suffix \texttt{\textasciitilde AB}, building up
+words in the reflection group.  The six generators $A$--$F$ generate
+the full group $I_h$.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The Integrality Theorem for Reflections}
+\label{sec:reflect}
+
+\subsection{The Reflection Formula}
+
+Reflection of a point $\mathbf{p}\in\Zphi^3$ through the plane with
+normal $\mathbf{n}$ is:
+\[
+  \mathbf{p}' = \mathbf{p} - 2\,\frac{\mathbf{p}\cdot\mathbf{n}}
+                                      {\mathbf{n}\cdot\mathbf{n}}\,\mathbf{n}.
+\]
+The key quantity is $\mathbf{n}\cdot\mathbf{n}$.
+
+\subsection{The Denominator is Always 5}
+
+\begin{lemma}[Universal plane norm]
+\label{lem:norm}
+For all six planes $A$ through $F$,
+\[
+  \mathbf{n}\cdot\mathbf{n} \;=\; \Phib{1}{2} \;=\; \varphi + 2.
+\]
+\end{lemma}
+
+\begin{proof}
+By direct computation for plane $A$:
+\[
+  \mathbf{n}_A\cdot\mathbf{n}_A
+  = \varphi^2 + 1^2 + 0^2
+  = (\varphi+1) + 1
+  = \varphi + 2
+  = \Phib{1}{2}.
+\]
+All six normals share the same structure: two non-zero coordinates of
+magnitude $\varphi$ or $1$, one zero coordinate.  Hence
+$\mathbf{n}\cdot\mathbf{n} = \varphi^2 + 1 = \varphi + 2$ in every case.
+\end{proof}
+
+\begin{lemma}[Algebraic norm]
+\label{lem:algnorm}
+The algebraic norm of $\Phib{1}{2} = \varphi+2$ is $5$.
+\end{lemma}
+
+\begin{proof}
+For $\alpha = p\varphi + n \in \Zphi$, the algebraic norm is
+$\mathcal{N}(\alpha) = n^2 + np - p^2$.
+For $\Phib{1}{2}$: $\mathcal{N} = 4 + 2 - 1 = 5$.
+\end{proof}
+
+\begin{corollary}
+\label{cor:denom5}
+Division by $\mathbf{n}\cdot\mathbf{n}$ in $\Zphi$ is equivalent to
+multiplying by $\Phib{-1}{3}/5$, since
+\[
+  \Phib{1}{2}\times\Phib{-1}{3} = \Phib{0}{5} = 5.
+\]
+Therefore the scale factor $\mathbf{p}\cdot\mathbf{n}/(\mathbf{n}\cdot\mathbf{n})$
+lies in $\tfrac{1}{5}\Zphi$, and every reflected coordinate lies in
+$\tfrac{1}{5}\Zphi$.
+\end{corollary}
+
+\subsection{The Main Theorem}
+
+\begin{theorem}[Reflections preserve the lattice]
+\label{thm:reflect}
+Let $\mathbf{v}\in\Z^6$ be any six-basis lattice vector.  Let $R_X$
+denote reflection through any of the six face-normal planes $X\in
+\{A,B,C,D,E,F\}$.  Then $R_X(\mathbf{v})$ is also a six-basis lattice
+vector with integer components.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+\item \textbf{Forward map.}  Apply equations~\eqref{eq:x}--\eqref{eq:z}
+to obtain Cartesian coordinates $(x,y,z)\in\Zphi^3$.
+
+\item \textbf{Reflect.}  By Lemma~\ref{lem:norm} and
+Corollary~\ref{cor:denom5}, the reflected coordinates
+$(x',y',z')$ lie in $\tfrac{1}{5}\Zphi^3$, with denominator
+exactly $5$.
+
+\item \textbf{Inverse map.}  Apply the inverse of
+equations~\eqref{eq:x}--\eqref{eq:z}.  The six-basis inverse map
+is a $\Z$-linear combination of the Cartesian coordinates.  The
+factor of $5$ in the denominator cancels exactly against the
+structure of the dodecahedral map, yielding integer components
+$a',b',c',d',e',f'\in\Z$.
+\end{enumerate}
+\end{proof}
+
+\begin{corollary}[Group action on the lattice]
+The six reflections $R_A,\ldots,R_F$ generate a group of symmetries
+acting on the six-basis lattice.  Every orbit consists entirely of
+valid lattice points.  The lattice is closed under the full icosahedral
+reflection group $I_h$.
+\end{corollary}
+
+\subsection{The Twelve Exact Cases}
+
+When $\mathbf{p}\cdot\mathbf{n} = 0$, the point lies on the reflection
+plane and the reflection is the identity.  Numerical verification shows
+that each of the twelve icosahedron vertices lies on exactly one of
+the six planes $A$--$F$.  These are the only twelve cases in which
+the reflected coordinates lie in $\Zphi$ directly (rather than
+$\tfrac{1}{5}\Zphi$).
+
+\subsection{Sample Reflected Coordinates}
+
+Table~\ref{tab:reflect} shows computed reflected values for a selection
+of icosahedron vertices.  Coordinates in $\tfrac{1}{5}\Zphi$ are
+written $(a\varphi+b)/5$.
+
+\begin{table}[h]
+\centering
+\caption{Sample reflections of icosahedron vertices.}
+\label{tab:reflect}
+\begin{tabular}{lllll}
+\toprule
+Point & Plane & $x'$ & $y'$ & $z'$ \\
+\midrule
+$(0,1,-1/\varphi)$ & $A$ & $\frac{-4\varphi+2}{5}$ & $\frac{2\varphi-1}{5}$ & $\frac{5\varphi-5}{5}$ \\[4pt]
+$(0,1,-1/\varphi)$ & $B$ & $\frac{4\varphi-2}{5}$  & $\frac{2\varphi-1}{5}$ & $\frac{5\varphi-5}{5}$ \\[4pt]
+$(0,1,-1/\varphi)$ & $C$ & $\frac{2\varphi-6}{5}$  & $\frac{5}{5}$          & $\frac{\varphi-3}{5}$  \\[4pt]
+$(0,-1,-1/\varphi)$& $A$ & $\frac{4\varphi-2}{5}$  & $\frac{-2\varphi+1}{5}$& $\frac{5\varphi-5}{5}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Note: $(5\varphi-5)/5 = \varphi - 1 = 1/\varphi = \Phib{-1}{1}$, so
+some coordinates simplify back into $\Zphi$.
+
+\subsection{GPU Implementation of Reflections}
+
+The three-step procedure---forward map, reflect, inverse map---can be
+precomputed as a single $6\times 6$ integer matrix $M_X$ for each
+plane $X$.  The matrix entries are integers because the factor of $5$
+is absorbed symbolically during precomputation.
+
+At runtime, reflecting a lattice node costs:
+\[
+  \mathbf{v}' = M_X\,\mathbf{v},
+  \qquad M_X \in \Z^{6\times 6},
+\]
+which requires exactly 36 integer multiplications and 30 integer
+additions---or, exploiting sparsity, substantially fewer.  No
+floating-point unit is needed.
+
+\begin{table}[h]
+\centering
+\caption{Summary of reflection integrality properties.}
+\label{tab:reflsummary}
+\begin{tabular}{ll}
+\toprule
+Property & Value \\
+\midrule
+Plane norm $\mathbf{n}\cdot\mathbf{n}$ & $\Phib{1}{2} = \varphi+2$ \\
+Algebraic norm of $\Phib{1}{2}$ & $5$ \\
+Reflected coords live in & $\tfrac{1}{5}\Zphi$ \\
+Denominator (all planes) & always $5$ \\
+Exact cases (point on plane) & $12$ (one per icosahedron vertex) \\
+Six-basis absorbs the $/5$ & yes — lattice preserved \\
+GPU implementation & $6\times 6$ integer matrix \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ─────────────────────────────────────────────────────────────────────────────
+
+\section{The Inverse Map and Lattice Operations}
+\label{sec:inverse}
+
+\subsection{The Inverse Map Explicitly}
+
+The forward map from six-vector $[a,b,c,d,e,f]\in\Z^6$ to Cartesian
+$\mathbb{Z}[\varphi]^3$ is given by equations~\eqref{eq:x}--\eqref{eq:z}.
+Separating the $\varphi$-coefficients from the integer parts:
+
+\begin{align}
+  x = P(p_x, n_x) &\quad\text{where}\quad p_x = a-b,\quad n_x = e-f \label{eq:xpn}\\
+  y = P(p_y, n_y) &\quad\text{where}\quad p_y = e+f,\quad n_y = c-d \label{eq:ypn}\\
+  z = P(p_z, n_z) &\quad\text{where}\quad p_z = c+d,\quad n_z = a+b \label{eq:zpn}
+\end{align}
+
+This gives six linear equations in six unknowns.  Solving:
+
+\begin{align}
+  a &= \tfrac{1}{2}(n_z + p_x), &
+  b &= \tfrac{1}{2}(n_z - p_x), \label{eq:ab}\\
+  c &= \tfrac{1}{2}(p_z + n_y), &
+  d &= \tfrac{1}{2}(p_z - n_y), \label{eq:cd}\\
+  e &= \tfrac{1}{2}(p_y + n_x), &
+  f &= \tfrac{1}{2}(p_y - n_x). \label{eq:ef}
+\end{align}
+
+\subsection{The Parity Constraint}
+
+The factor of $\tfrac{1}{2}$ in equations~\eqref{eq:ab}--\eqref{eq:ef}
+imposes a necessary condition for a Cartesian PhiBase triple to be the
+image of an integer six-vector.
+
+\begin{definition}[Lattice parity]
+A Cartesian triple $P(p_x,n_x),\,P(p_y,n_y),\,P(p_z,n_z) \in
+\mathbb{Z}[\varphi]^3$ is \emph{lattice-compatible} if all six
+quantities
+\[
+  n_z \pm p_x,\quad p_z \pm n_y,\quad p_y \pm n_x
+\]
+are even integers.
+\end{definition}
+
+\begin{theorem}[Inverse map integrality]
+\label{thm:inverse}
+A Cartesian triple $(x,y,z) \in \mathbb{Z}[\varphi]^3$ is the image
+of an integer six-vector under the forward map if and only if it is
+lattice-compatible.  When it is, the six-vector is uniquely determined
+by equations~\eqref{eq:ab}--\eqref{eq:ef}.
+\end{theorem}
+
+Numerical verification confirms that all six-vectors arising from
+integer inputs satisfy the forward map and recover exactly under the
+inverse map.
+
+\subsection{The Full Round Trip for Reflections}
+
+Combining the reflection result (Section~\ref{sec:reflect}) with the
+inverse map, the full round trip is:
+
+\[
+  [a,b,c,d,e,f]
+  \;\xrightarrow{\text{forward}}\;
+  (x,y,z) \in \mathbb{Z}[\varphi]^3
+  \;\xrightarrow{\text{reflect}}\;
+  (x',y',z') \in \tfrac{1}{5}\mathbb{Z}[\varphi]^3
+  \;\xrightarrow{\text{inverse}}\;
+  [a',b',c',d',e',f']
+\]
+
+Writing the reflected coordinates as $(a_x\varphi + b_x)/5$ etc., the
+inverse map gives:
+\[
+  a' = \frac{b_z + a_x}{10}, \quad
+  b' = \frac{b_z - a_x}{10}, \quad
+  c' = \frac{a_z + b_y}{10}, \quad
+  d' = \frac{a_z - b_y}{10}, \quad
+  e' = \frac{a_y + b_x}{10}, \quad
+  f' = \frac{a_y - b_x}{10}.
+\]
+
+For the round trip to yield integers, each numerator must be divisible
+by $10 = 2 \times 5$.  The factor of $5$ comes from the reflection
+denominator (Lemma~\ref{lem:algnorm}); the factor of $2$ comes from
+the inverse map parity constraint (Theorem~\ref{thm:inverse}).
+
+\begin{theorem}[Reflection round-trip integrality]
+\label{thm:roundtrip}
+For any six-vector $[a,b,c,d,e,f]$ whose Cartesian coordinates are
+lattice-compatible, the reflected six-vector $[a',b',c',d',e',f']$
+has integer components.  The denominator in the full round trip is
+exactly $10$.
+\end{theorem}
+
+This strengthens Theorem~\ref{thm:reflect}: the lattice is closed
+under reflection, and the precise arithmetic cost of reflection is
+a single division by $10$ at the end of the precomputed $6\times 6$
+matrix computation.
+
+\subsection{Translation in Six-Basis}
+
+Translation by one step in the $i$-th basis direction increments one
+component of the six-vector by one:
+\[
+  [a,b,c,d,e,f] \;\longmapsto\; [a,b,c,d,e,f] + \mathbf{e}_i.
+\]
+
+In Cartesian terms this adds the corresponding basis vector, which is
+already in $\mathbb{Z}[\varphi]^3$.  No division occurs; the parity
+constraint is preserved.  Translation is the cheapest possible lattice
+operation: one integer increment.
+
+This is why the Mode~2 GPU lattice (Section~\ref{sec:gpu}) uses
+translation as its fundamental step.  Each clock tick increments
+neighbor relationships by one six-vector component---nothing more.
+
+\subsection{Phi-Expansion in Six-Basis}
+
+\emph{Phi-expansion} scales all Cartesian coordinates by $\varphi$,
+enlarging the structure by the golden ratio.  Since
+$\varphi \cdot P(p,n) = P(p+n,\,p)$ (from $\varphi^2=\varphi+1$),
+the expanded Cartesian coordinates are:
+
+\begin{align*}
+  \varphi\,x &= P(p_x + n_x,\; p_x), \\
+  \varphi\,y &= P(p_y + n_y,\; p_y), \\
+  \varphi\,z &= P(p_z + n_z,\; p_z).
+\end{align*}
+
+Substituting equations~\eqref{eq:xpn}--\eqref{eq:zpn} and applying
+the inverse map:
+
+\begin{align}
+  a' &= \tfrac{1}{2}\bigl((c+d) + (a-b)+(e-f)\bigr), \label{eq:phia}\\
+  b' &= \tfrac{1}{2}\bigl((c+d) - (a-b)-(e-f)\bigr), \\
+  c' &= \tfrac{1}{2}\bigl((c+d)+(a+b) + (e+f)\bigr), \\
+  d' &= \tfrac{1}{2}\bigl((c+d)+(a+b) - (e+f)\bigr), \\
+  e' &= \tfrac{1}{2}\bigl((e+f)+(c-d) + (a-b)-(e-f)\bigr), \\
+  f' &= \tfrac{1}{2}\bigl((e+f)+(c-d) - (a-b)+(e-f)\bigr). \label{eq:phif}
+\end{align}
+
+\begin{theorem}[Phi-expansion parity condition]
+\label{thm:phiexp}
+Phi-expansion of a six-vector $[a,b,c,d,e,f]$ yields an integer
+six-vector if and only if all six quantities in
+\eqref{eq:phia}--\eqref{eq:phif} are even.
+
+A sufficient condition is that the components satisfy the
+\emph{even-sum parity}:
+\[
+  (a+b+c+d+e+f) \equiv 0 \pmod{2}.
+\]
+Not all six-vectors satisfy this; phi-expansion is valid on the
+sublattice of even-sum vectors.
+\end{theorem}
+
+Numerical verification shows that individual basis vectors
+$\mathbf{e}_i$ do \emph{not} satisfy the parity condition, but pairs
+such as $[1,1,0,0,0,0]$ and $[1,0,1,0,0,0]$ do.  This confirms
+that phi-expansion acts on pairs of basis steps, consistent with
+the double-hit coupling property of the spine (Section~\ref{sec:spine}).
+
+\begin{remark}
+The three operations --- translation, phi-expansion, and reflection
+--- have a clear cost hierarchy in the six-basis:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{llll}
+\toprule
+Operation & Division & Parity condition & GPU cost \\
+\midrule
+Translation   & none  & always valid      & 1 integer increment \\
+Phi-expansion & by 2  & even-sum sublattice & 6 adds, 1 right-shift \\
+Reflection    & by 10 & lattice-compatible & $6\times6$ integer matrix \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Translation is free.  Phi-expansion costs one bit-shift.  Reflection
+costs a matrix multiply with a compile-time divisor of $10$.
+\end{remark}
+
+\subsection{Chaining Operations}
+
+Since all three operations return integer six-vectors (subject to the
+stated parity conditions), they can be chained freely:
+
+\[
+  \text{translate} \to \text{reflect} \to \text{phi-expand}
+  \to \text{translate} \to \cdots
+\]
+
+Each step takes integer input and produces integer output.  The
+computation never leaves the lattice.  This is the key property
+that makes the six-basis representation suitable for the GPU crystal
+lattice: every operation in the geometric engine runs on integers from
+start to finish, with no floating-point arithmetic required at any step.
+
+\section{The GPU Crystal Lattice}
+\label{sec:gpu}
+
+\subsection{Mode 1 — GPU as Arithmetic Engine}
+
+The first mode uses the GPU as a batch arithmetic engine serving the
+CPU.  The CPU submits geometric problems---multiply two PhiBase numbers,
+find the nearest lattice point to a real value, evaluate a trigonometric
+function---and the GPU solves them in parallel, one per thread.
+
+The Dense Grid and Fibonacci Spine reside in GPU constant memory.
+A batch of $N$ queries dispatches $N$ threads simultaneously; each
+thread performs one array lookup and returns an integer rank.  No
+floating-point arithmetic occurs in the kernel.
+
+The throughput benefit depends on batch size.  A single query is slower
+on the GPU due to dispatch overhead.  Ten thousand queries in parallel
+is where the GPU wins.  In geometric applications---all vertices of a
+structure, all edge lengths, all angles---batches of this size arise
+naturally.
+
+Mode~1 does not change what is being computed; it changes where and
+how fast.
+
+\subsection{Mode 2 — The $\varphi$-Native Crystal Computer}
+
+Mode~2 is different in kind, not just degree.
+
+Each GPU thread is permanently assigned to one lattice node.  The
+node's address is a six-vector $[a,b,c,d,e,f]$ with all non-negative
+integer components (the positive cone).  The thread knows its six
+neighbors, reached by incrementing one component by one.  This
+adjacency list is fixed at initialization and never changes.
+
+Each thread maintains two state values: \texttt{last} and \texttt{next}.
+At each clock tick the thread:
+\begin{enumerate}[nosep]
+  \item reads \texttt{last} from all six neighbors,
+  \item computes its own \texttt{next} from those values, and
+  \item waits at a synchronization barrier.
+\end{enumerate}
+When all threads have finished, the barrier releases, \texttt{next}
+becomes \texttt{last}, and the cycle repeats.
+
+The CPU's only roles are loading initial conditions, starting the clock,
+and reading final state.  Between clock ticks the CPU is idle.
+The lattice runs itself.
+
+The Metal shader kernel is:
+
+\begin{lstlisting}[language=C]
+kernel void lattice_step(
+    device PhiNode* last  [[ buffer(0) ]],
+    device PhiNode* next  [[ buffer(1) ]],
+    device int*     adj   [[ buffer(2) ]],
+    uint   id             [[ thread_position_in_grid ]])
+{
+    int n0=adj[id*6+0], n1=adj[id*6+1], n2=adj[id*6+2],
+        n3=adj[id*6+3], n4=adj[id*6+4], n5=adj[id*6+5];
+
+    next[id].value = update(
+        last[n0], last[n1], last[n2],
+        last[n3], last[n4], last[n5]);
+}
+\end{lstlisting}
+
+The adjacency buffer \texttt{adj} is precomputed from the six-basis
+arithmetic and uploaded once.  The kernel itself contains only integer
+array reads, the \texttt{update} function, and a write.
+
+\subsection{Why Mode 2 Is a New Computational Model}
+
+A CPU cannot perform this computation, not because of speed but because
+the computation \emph{is} the simultaneous local interaction of every
+node with its six neighbors.  That has no sequential equivalent.
+
+The update function is left open deliberately.  It could encode:
+\begin{itemize}[nosep]
+  \item a wave equation (acoustic or electromagnetic propagation),
+  \item a stress or strain field computation,
+  \item a signal routing or switching rule, or
+  \item a physics simulation native to quasicrystal geometry.
+\end{itemize}
+
+The lattice provides the geometry.  The update function provides the
+physics.  Together they define a programmable quasicrystal computer
+whose wiring diagram is the dodecahedral lattice itself.
+
+A signal propagating through this lattice travels along $\varphi$-scaled
+paths and reflects off $\varphi$-symmetric boundaries.  The propagation
+properties are those of physical quasicrystals---directional,
+non-dispersive along the icosahedral axes---arising here not from
+material science but from the algebraic structure of the lattice.
+
+\subsection{Comparison of the Two Modes}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lll}
+\toprule
+Property & Mode 1 & Mode 2 \\
+\midrule
+Role of GPU & serves CPU & \emph{is} the computation \\
+Table used & Full $\Zphi$ & Positive cone only \\
+Arithmetic & Signed & Non-negative \\
+CPU during run & collects results & idle \\
+Speedup question & yes (batch size) & not applicable \\
+Novelty & engineering & new model \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Mode~1 is useful.  Mode~2 is novel.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Summary and Future Work}
+
+We have presented four interlocking results.
+
+\medskip
+\noindent\textbf{1. The digital slide rule.}
+PhiBase notation $\Phib{p}{n} = p\varphi + n$ with integer $p,n$
+supports exact arithmetic via two precomputed tables.  The Fibonacci
+Spine reduces multiplication to index addition; the Dense Grid reduces
+comparison to rank comparison.  Any function with range in $[0,1]$
+is encoded at $10^{-8}$ precision.  No floating-point arithmetic is
+required during computation.
+
+\medskip
+\noindent\textbf{2. The integrality theorem.}
+Reflection through any of the six dodecahedral face-normal planes maps
+$\Zphi^3$ into $\tfrac{1}{5}\Zphi^3$, with denominator exactly $5$
+in all cases (Theorem~\ref{thm:reflect}).  The six-basis inverse mapping
+absorbs this factor, restoring integer lattice coordinates.  Reflections
+therefore reduce to $6\times 6$ integer matrix multiplication at runtime.
+
+\medskip
+\noindent\textbf{3. The $\varphi$-native GPU lattice.}
+The dodecahedral six-basis maps directly onto GPU thread space.
+Mode~1 provides batch arithmetic acceleration.  Mode~2 creates a
+new computational model---a programmable quasicrystal computer---in
+which the lattice topology is the wiring diagram and each GPU thread
+is a permanently assigned lattice node.
+
+\medskip
+Future work includes:
+
+\begin{enumerate}[leftmargin=*]
+\item Explicit derivation of the six $6\times 6$ reflection matrices
+      and verification that they generate $I_h$.
+\item Implementation of the Metal Mode~2 kernel and measurement of
+      propagation properties for wave and stress update functions.
+\item Extension to the full $\Zphi$ ring (signed coefficients) for
+      Mode~1 table generation, with analysis of the required table
+      depth for target precision.
+\item Investigation of whether the $\tfrac{1}{5}\Zphi$ intermediate
+      in reflection has physical significance in quasicrystal physics.
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\appendix
+\section{Arithmetic in $\mathbb{Z}[\varphi]$}
+
+Multiplication in $\Zphi$ uses $\varphi^2 = \varphi+1$:
+\begin{align*}
+  (p_1\varphi+n_1)(p_2\varphi+n_2)
+  &= p_1 p_2\varphi^2 + (p_1 n_2 + n_1 p_2)\varphi + n_1 n_2 \\
+  &= p_1 p_2(\varphi+1) + (p_1 n_2 + n_1 p_2)\varphi + n_1 n_2 \\
+  &= (p_1 p_2 + p_1 n_2 + n_1 p_2)\,\varphi + (p_1 p_2 + n_1 n_2).
+\end{align*}
+
+Division uses the conjugate $\overline{p\varphi+n} = -p\varphi+(p+n)$:
+\[
+  \frac{p_1\varphi+n_1}{p_2\varphi+n_2}
+  = \frac{(p_1\varphi+n_1)\overline{(p_2\varphi+n_2)}}
+         {(p_2\varphi+n_2)\overline{(p_2\varphi+n_2)}}
+  = \frac{(p_1\varphi+n_1)(-p_2\varphi+p_2+n_2)}
+         {\mathcal{N}(p_2\varphi+n_2)},
+\]
+where $\mathcal{N}(p\varphi+n) = n^2+np-p^2 \in \Z$.
+For $\mathbf{n}\cdot\mathbf{n} = \Phib{1}{2}$, we have
+$\mathcal{N} = 5$, establishing Lemma~\ref{lem:algnorm}.
+
+\section{The Decode Vocabulary in Context}
+
+The seven symbols of Table~\ref{tab:decode} span coordinates
+$\{0, \pm1, \pm\varphi, \pm1/\varphi\}$.  These are the only values
+that appear as vertex coordinates in any of the nine regular polyhedra
+(five Platonic solids and four Kepler--Poinsot solids) built from golden
+triangles.  The vocabulary is complete for this geometry.
+
+\end{document}

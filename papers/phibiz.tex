@@ -1,0 +1,524 @@
+\documentclass[11pt]{article}
+
+% ============================================================================
+%  PhiBiz  (working title)
+%  Constructive rewrite of the PhiBase arithmetic paper.
+%  Body = the core: positions are counts, and exact counting runs backward.
+%  Closing chapter = the apparatus, as a study path ("what to learn next").
+%  The Athenian (algebra-first) manuscript is pinned separately for later.
+%
+%  NOTATION (locked): P(n,p) = n + p*phi.  n = unit-step count (integer part),
+%  p = golden-step count (phi-coefficient).  Integer part first.
+%  Homogeneous form P(n,p,d) = (n + p*phi)/d, d a positive integer.
+% ============================================================================
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[letterpaper,top=1.25in,bottom=1.25in,left=1.25in,right=1.25in,%
+            headheight=15pt]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{parskip}
+\usepackage{hyperref}   % loaded last, on purpose
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small PhiBase (working title: PhiBiz)}
+\lhead{\small Hinds / SpaceStruts Research}
+\cfoot{\thepage}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Zphi}{\mathbb{Z}[\varphi]}
+\newcommand{\Qphi}{\mathbb{Q}(\varphi)}
+\newcommand{\Pb}[2]{P(#1,\,#2)}
+\newcommand{\Pbd}[3]{P(#1,\,#2,\,#3)}
+\newcommand{\Norm}{\mathcal{N}}
+
+\lstset{basicstyle=\small\ttfamily, columns=flexible, keepspaces=true}
+
+\begin{document}
+
+\title{%
+  \textbf{PhiBase: Exact Arithmetic as a Construction}\\[6pt]
+  \large Positions as Counts, and Operations That Run Backward\\[4pt]
+  \normalsize\textit{(working title: PhiBiz)}}
+\author{%
+  James A.~Hinds\\
+  SpaceStruts Research\\[4pt]
+  \small\texttt{jahbini@icloud.com\quad spacestruts.com}}
+\date{July 2026}
+\maketitle
+\thispagestyle{fancy}
+
+\begin{abstract}
+We present an exact integer arithmetic for the golden ratio
+$\varphi=(1+\sqrt5)/2$, built from the object up rather than the algebra down.
+A position on a line is a record of two step sizes --- a unit step of length
+$1$ and a golden step of length $\varphi$ --- and is written as the pair of
+counts $\Pb{n}{p}=n+p\varphi$. Addition, subtraction, and multiplication are
+closed on these counts (the ring $\Zphi$); division is exact in the field
+$\Qphi$, carried by the homogeneous form $\Pbd{n}{p}{d}=(n+p\varphi)/d$, which
+keeps its denominator in the open. The organizing property is
+\emph{reversibility}: each operation runs backward exactly when its operand is
+retained, and the multiplications that reverse with no denominator and without
+ever leaving the integer counts are exactly the powers of $\varphi$ --- the
+Fibonacci spine. That is the whole of the core. Everything the core supports ---
+two lookup tables, a six-count lattice placing dodecahedral geometry in
+$\Zphi^3$ with a parity-governed inverse map, a face-plane reflection result
+(with the correction that these planes are \emph{not} $H_3$ mirrors), and the
+applications to function evaluation, parallel lattice computation, and
+exact-arithmetic model inference --- is set out as a study path, with
+quantitative claims deferred to measurement and to a companion report.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{The Construction}
+\label{sec:construction}
+
+Ask a narrow question: what can you reach on a line if you are allowed only two
+moves --- a step of length $1$ and a step of length $\varphi=(1+\sqrt5)/2$? Every
+point you can arrive at is a record of how many of each step you took. That
+record is a pair of integers, and the pair \emph{is} the point. Nothing about
+this requires a ring to be posited in advance; the algebra is what the counting
+turns out to obey, not what it is built on.
+
+The single fact that makes the counts arithmetic rather than mere tally is the
+defining identity of $\varphi$,
+\[
+  \varphi^2 = \varphi + 1,
+\]
+which reads, in step language, as: two golden steps equal one golden step plus
+one unit step. Because of it, any combination of counts --- however multiplied
+--- can be rewritten as a plain pair of counts, with no golden step left
+squared. Section~\ref{sec:counting} states the representation;
+Section~\ref{sec:reverse} states the property the whole paper is organized
+around, that these operations run backward exactly when you keep what you moved
+by. Everything the core then supports --- the tables, the lattice, the geometry,
+and the applications --- is gathered as a study path in
+Section~\ref{sec:next}.
+
+The geometry that motivates the choice of $\varphi$ is dodecahedral and
+icosahedral: the natural angles are multiples of $36^\circ$, and the vertex
+coordinates of these solids, suitably scaled and oriented, are counts of unit
+and golden steps~\cite{coxeter,senechal}. The use of $\varphi$ as an arithmetic
+base goes back to Bergman~\cite{bergman}; the contribution here is the
+constructive reading --- positions as counts, operations as reversible moves ---
+and the apparatus that follows from it.
+
+% ============================================================================
+\section{Positions Are Counts}
+\label{sec:counting}
+
+\begin{definition}[Position]
+\label{def:position}
+A \emph{position} is a pair of integers $(n,p)$, written $\Pb{n}{p}$ and read as
+the point
+\[
+  \Pb{n}{p} \;=\; n + p\varphi
+\]
+on the line, where $n$ is the number of unit steps and $p$ the number of golden
+steps. Counts may be negative; a negative count is a step taken backward. The
+\emph{homogeneous} form $\Pbd{n}{p}{d}=(n+p\varphi)/d$, with $d$ a positive
+integer, records a position divided by $d$. The set of positions is
+$\Zphi=\{\,n+p\varphi : n,p\in\Z\,\}$~\cite{marcus}; the homogeneous forms
+range over $\Qphi$.
+\end{definition}
+
+Seven positions recur so often as per-axis coordinate values in dodecahedral
+geometry that they earn single-letter names, listed in Table~\ref{tab:decode}.
+They are the only values $\{0,\pm1,\pm\varphi,\pm1/\varphi\}$ needed to write the
+vertices of the regular solids built from golden triangles, in the coordinate
+models used here (Appendix~\ref{app:decode}).
+
+\begin{table}[h]
+\centering
+\caption{The seven coordinate symbols. (The letter \texttt{P} names the value
+  $\varphi$ and is unrelated to the position notation $P(n,p)$; context
+  distinguishes them.)}
+\label{tab:decode}
+\begin{tabular}{ccl}
+\toprule
+Symbol & $\Pb{n}{p}$ & Decimal value \\
+\midrule
+\texttt{z} & $\Pb{0}{0}$  & $0$ \\
+\texttt{O} & $\Pb{1}{0}$  & $1$ \\
+\texttt{o} & $\Pb{-1}{0}$ & $-1$ \\
+\texttt{F} & $\Pb{-1}{1}$ & $1/\varphi \approx 0.618$ \\
+\texttt{f} & $\Pb{1}{-1}$ & $-1/\varphi \approx -0.618$ \\
+\texttt{P} & $\Pb{0}{1}$  & $\varphi \approx 1.618$ \\
+\texttt{p} & $\Pb{0}{-1}$ & $-\varphi \approx -1.618$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================================
+\section{Reversing a Computation}
+\label{sec:reverse}
+
+A computation runs forward through the four operations. The question this paper
+is built around is when it runs \emph{backward}: given a result and the operands,
+when can an input be recovered exactly, with nothing lost on the way? For counts
+this is not an existence claim to wave at --- it is a procedure with a cost you
+can read off. The reverse of addition is subtraction; the reverse of
+multiplication is division; and each reverse is exact \emph{provided you keep the
+operand you moved by}. Multiplying $a$ by $b$ and discarding $b$ destroys the
+information of which pair produced the result, since many pairs share a product.
+Keep $b$, and the road back is open: $a=(a\cdot b)/b$ recovers $a$ with no
+rounding, because you divide out exactly what you multiplied in.
+
+Three observations make this concrete. They are the whole of the machinery.
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Closure you can watch.}
+  A count plus a count is a count, and a count times a count is a count.
+  Addition is componentwise,
+  \[
+    \Pb{n_1}{p_1}+\Pb{n_2}{p_2}=\Pb{n_1+n_2}{p_1+p_2},
+  \]
+  and multiplication, after replacing $\varphi^2$ by $\varphi+1$
+  (Appendix~\ref{app:ring}), is
+  \[
+    \Pb{n_1}{p_1}\cdot\Pb{n_2}{p_2}
+      =\Pb{\,n_1 n_2 + p_1 p_2\,}{\,n_1 p_2 + n_2 p_1 + p_1 p_2\,}.
+  \]
+  Neither result leaves the integer counts. Subtraction, the reverse of
+  addition, is componentwise and always exact.
+
+\item \textbf{The costless reversals are the Fibonacci spine.}
+  Some multiplications undo without keeping any receipt and without ever leaving
+  the counts: exactly those by a position whose reverse is itself a position.
+  These are the positions of norm $\pm1$, where
+  $\Norm(\Pb{n}{p})=n^2+np-p^2$ (Appendix~\ref{app:ring}), and they are precisely
+  the signed powers of $\varphi$,
+  \[
+    \pm\varphi^k \;=\; \pm\Pb{F_{k-1}}{F_k},\qquad k\in\Z,
+    \qquad \Norm(\varphi^k)=(-1)^k,
+  \]
+  with $F_k$ the $k$-th Fibonacci number ($F_0=0,F_1=1,F_{-1}=1$). This is the
+  Fibonacci spine (Section~\ref{sec:next}). Multiplying by $\varphi^k$ is
+  reversed by multiplying by $\varphi^{-k}$; on the spine both are one move along
+  the index, forward by addition and backward by subtraction. The set of free,
+  receipt-less reversals and the central lookup table of the system are the same
+  object.
+
+\item \textbf{When the reversal leaves the counts, you keep the divisor.}
+  Every other division carries a denominator, and that denominator is the saved
+  receipt written in the open. Dividing by $b$ gives
+  \[
+    \frac{a}{b}=\frac{a\cdot\overline{b}}{\Norm(b)},
+    \qquad \overline{\Pb{n}{p}}=\Pb{n+p}{-p},
+  \]
+  an integer denominator $\Norm(b)$ under an integer-count numerator --- the
+  homogeneous form $\Pbd{n}{p}{d}$ of Definition~\ref{def:position}. The
+  denominator $d$ is exactly what you multiply back by to undo the division.
+  Reducing by $\gcd(n,p,d)$ after each step keeps the receipt in lowest terms.
+  Because $\{1,\varphi\}$ is a $\Q$-basis, two triples denote the same field
+  element only when they are rationally proportional, so the reduced $d>0$ form
+  is a unique representative; $d=1$ says the result is back on the integer
+  counts, and $d\ne1$ says how far off, and by what factor, the return trip still
+  owes.
+\end{enumerate}
+
+\begin{remark}[Why signed counts are needed]
+\label{rem:signed}
+The non-negative counts $n,p\ge0$ are pure forward motion and grow away from the
+origin. Density near zero comes only from the reverse operator: small positions
+such as
+\[
+  |F_k\varphi - F_{k+1}| = \varphi^{-k}
+\]
+require a step taken backward, e.g. $5\varphi-8=\varphi^{-5}\approx0.09$, which is
+$\Pb{-8}{5}$. The signed lattice is counting with subtraction admitted, and it is
+what the Dense Grid (Section~\ref{sec:next}) tabulates.
+\end{remark}
+
+\subsection{Two Reversals, Worked}
+
+\paragraph{A free reversal (on the spine).}
+Take $a=\Pb{1}{1}=1+\varphi=\varphi^2$ and multiply by the spine entry
+$b=\Pb{-1}{1}=\varphi^{-1}$. By the product rule,
+$a\cdot b=\Pb{0}{1}=\varphi$. To undo it, multiply by $b^{-1}=\varphi=\Pb{0}{1}$:
+then $\varphi\cdot\varphi=\Pb{1}{1}=a$, recovered exactly, no denominator, never
+off the counts. The receipt was unnecessary because $b$ was a unit.
+
+\paragraph{A reversal that keeps a receipt.}
+Divide $a=\Pb{1}{0}=1$ by $b=\Pb{0}{2}=2\varphi$, with $\Norm(b)=-4$ and
+$\overline{b}=\Pb{2}{-2}$. The numerator $a\cdot\overline{b}=\Pb{2}{-2}$ over
+$-4$ reduces to
+\[
+  \frac{1}{2\varphi}=\Pbd{-1}{1}{2}=\frac{\varphi-1}{2}\approx0.309,
+\]
+carrying the receipt $d=2$. To undo it, multiply back by $b=2\varphi$:
+$\tfrac{\varphi-1}{2}\cdot2\varphi=(\varphi-1)\varphi=\varphi^2-\varphi=1=\Pb{1}{0}$.
+The denominator was the record of what had been divided out; clearing it is the
+return trip.
+
+That is the paper's core. The rest is apparatus the core supports.
+
+% ============================================================================
+\section{What to Learn Next}
+\label{sec:next}
+
+The two tables, the lattice, the geometry, and the applications all sit on the
+core of Section~\ref{sec:reverse}. Each is a topic to take up next; below, each
+is stated far enough to be usable, with its key result and pointers to the fuller
+algebraic development (the companion manuscript) and the measurement work (the
+companion report). None of it changes the core.
+
+\subsection{The Fibonacci spine}
+\label{ss:spine}
+
+The costless reversals of observation~2, tabulated.
+
+\begin{theorem}[Powers of $\varphi$ are counts]
+\label{thm:fibpow}
+For all $k\in\Z$, $\varphi^k=F_k\varphi+F_{k-1}=\Pb{F_{k-1}}{F_k}$.
+\end{theorem}
+\begin{proof}
+For $k\ge1$, induction: $\varphi^1=\Pb{0}{1}$, and if
+$\varphi^k=\Pb{F_{k-1}}{F_k}$ then $\varphi^{k+1}=F_k\varphi^2+F_{k-1}\varphi
+=F_k(\varphi+1)+F_{k-1}\varphi=(F_k+F_{k-1})\varphi+F_k=\Pb{F_k}{F_{k+1}}$.
+For $k\le0$, use $F_{-n}=(-1)^{n+1}F_n$, starting from
+$\varphi^{-1}=\varphi-1=\Pb{-1}{1}$.
+\end{proof}
+
+Each entry is a unit ($\Norm(\varphi^k)=(-1)^k$), so multiplication and division
+of exact $\varphi$-powers are index addition and subtraction, and one index step
+forward and one back are inverse moves. The spine extends both ways by a single
+Fibonacci addition per entry --- the lookup-and-add lineage of logarithmic
+number systems~\cite{kingsbury,swartzlander}, but with algebraically exact
+entries and no interpolation. The residual scale $\varphi^{-k}$
+(Remark~\ref{rem:signed}) reaches $\approx10^{-8}$ near $k=38$, where $F_{38}$ is
+on the order of $4\times10^7$; that is a statement about the depth of the spine,
+not the resolution of the bounded grid below.
+
+\begin{table}[h]
+\centering
+\caption{Fibonacci spine entries $\varphi^k=\Pb{F_{k-1}}{F_k}$.}
+\label{tab:spine}
+\begin{tabular}{rrrl}
+\toprule
+$k$ & $F_{k-1}$ (unit count) & $F_k$ (golden count) & $\varphi^k$ \\
+\midrule
+0 & 1 & 0 & $1.000000$ \\
+1 & 0 & 1 & $1.618034$ \\
+2 & 1 & 1 & $2.618034$ \\
+3 & 1 & 2 & $4.236068$ \\
+4 & 2 & 3 & $6.854102$ \\
+5 & 3 & 5 & $11.090170$ \\
+6 & 5 & 8 & $17.944272$ \\
+7 & 8 & 13 & $29.034442$ \\
+8 & 13 & 21 & $46.978714$ \\
+9 & 21 & 34 & $76.013156$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The dense grid}
+\label{ss:grid}
+
+The spine is sparse and grows away from zero; the dense grid fills the interval
+with signed counts, whose small values are the near-cancellations of
+Remark~\ref{rem:signed}. For a bound $B$, it is the set of positions $\Pb{n}{p}$
+with $|n|,|p|\le B$, sorted by value. Two integer identities are kept per entry
+and must not be confused: the \emph{pair index}, the rectangular address
+$p\,N_{\text{cols}}+(n-n_{\min})$, and the \emph{value rank}, the position in
+sorted order. The counts are exact; only a decimal column is approximate, used
+solely for nearest-value binary search.
+
+Sizing and resolution follow from $B$ and are read from the generator, not
+assumed. There are $(2B+1)^2$ pairs, distinct in value since $\varphi$ is
+irrational; at $B=25$ that is $2601$ pairs, of which $1300$ are positive. The
+finest gaps are the residuals $\varphi^{-k}$ reachable with $|F_k|\le B$: at
+$B=25$ the smallest is $|8\varphi-13|=\varphi^{-6}\approx0.013$, so the grid
+resolves to about $10^{-2}$ there --- not $10^{-8}$, which belongs to the
+spine's depth. A function is baked in as a map from input value rank to output
+value rank, $L_f[r]$; runtime evaluation is one array read after the input is
+encoded.
+
+\subsection{The six-count lattice, and returning by parity}
+\label{ss:lattice}
+
+Dodecahedral and icosahedral geometry lifts the counting into three dimensions.
+A lattice point is six non-negative counts $[a,b,c,d,e,f]$ along the six
+five-fold-axis directions $\mathbf B_1=(\varphi,0,1)$, $\mathbf B_2=(-\varphi,0,1)$,
+$\mathbf B_3=(0,1,\varphi)$, $\mathbf B_4=(0,-1,\varphi)$, $\mathbf B_5=(1,\varphi,0)$,
+$\mathbf B_6=(-1,\varphi,0)$, giving the forward map into $\Zphi^3$:
+\[
+  x=\Pb{e-f}{a-b},\qquad y=\Pb{c-d}{e+f},\qquad z=\Pb{a+b}{c+d}.
+\]
+This is the projection basis of the Kramer--Neri construction of icosahedral
+quasicrystals~\cite{kramer}. Writing $x=\Pb{n_x}{p_x}$ and so on, the inverse map
+is $a=\tfrac12(n_z+p_x)$, $b=\tfrac12(n_z-p_x)$, $c=\tfrac12(p_z+n_y)$,
+$d=\tfrac12(p_z-n_y)$, $e=\tfrac12(p_y+n_x)$, $f=\tfrac12(p_y-n_x)$.
+
+\begin{theorem}[Return by parity]
+\label{thm:parity}
+A triple $(x,y,z)\in\Zphi^3$ is the forward image of an integer six-count if and
+only if $n_z\pm p_x$, $p_z\pm n_y$, and $p_y\pm n_x$ are all even; the six counts
+are then uniquely recovered by the inverse map.
+\end{theorem}
+
+The forward map takes counts to space and the inverse takes space back to counts;
+the $\tfrac12$ in each inverse formula is the receipt, and parity is the test that
+it clears --- the three-dimensional face of the reversal principle.
+$\varphi$-expansion uses $\varphi\cdot\Pb{n}{p}=\Pb{p}{n+p}$ and returns to an
+integer six-count on the even-sum sublattice. The full algebraic treatment is in
+the pinned companion manuscript.
+
+\subsection{Reflection in the face planes}
+\label{ss:reflect}
+
+Reflect a point through the six face planes of the dodecahedron, whose normals
+are the five-fold axes. Each normal has $\mathbf n\cdot\mathbf n=\Pb{2}{1}
+=\varphi+2$, with algebraic norm $\Norm(\Pb{2}{1})=5$ and reciprocal
+$(3-\varphi)/5$. So reflection maps $\Zphi^3$ into $\tfrac15\Zphi^3$; composed
+with the inverse map's factor of two, the round-trip denominator is $10$, and the
+reflected point returns to an integer six-count exactly when the numerators (over
+$5$) satisfy $N_z\pm P_x,\;P_z\pm N_y,\;P_y\pm N_x\equiv0\pmod{10}$ --- once
+again, a receipt-clearing test.
+
+\begin{remark}[These are not mirror planes]
+\label{rem:notmirror}
+The six face planes are \emph{not} among the fifteen mirror planes of the
+icosahedral group $H_3$, whose normals lie along the two-fold (edge-midpoint)
+axes; a reflection through a face plane is not a symmetry of the group. The
+denominator of $5$ each such reflection introduces is the sign of that --- a true
+mirror would permute the vertex set and leave it in $\Zphi^3$. Constructing the
+three $H_3$ generators and extending the reflection tables to all fifteen
+mirrors, for example to mark hinged edges in a robotic build script, is a
+separate construction (Section~\ref{ss:more}).
+\end{remark}
+
+\subsection{The lattice as a data-parallel machine}
+\label{ss:gpu}
+
+Because neighbour access and reflection are lookups on precomputed address
+tables, the geometry maps onto a double-buffered update: each tick dispatches one
+pass that reads a node's six neighbours and writes its next state, then swaps
+buffers.
+\begin{lstlisting}[language=C]
+kernel void lattice_step(device Node* last, device Node* next,
+                         device int* adj, uint id) {
+    next[id] = update(last[adj[id*6+0]], last[adj[id*6+1]],
+                      last[adj[id*6+2]], last[adj[id*6+3]],
+                      last[adj[id*6+4]], last[adj[id*6+5]]);
+}
+\end{lstlisting}
+The adjacency and reflection buffers are precomputed once; no coordinate
+arithmetic runs in the kernel, and the update rule is open (propagation, stress,
+routing). Products themselves need no multiplier: a $(2N+1)^2$ table plus adds
+returns each product, and at model scale the tables are best shared as a codebook
+keyed by distinct quantized value rather than one per weight. Every such table
+needs an explicit packed datatype and a proven output range --- the product count
+can exceed a signed byte --- and on-chip residency is subject to the device's
+threadgroup-memory limit. Throughput is to be measured, not asserted.
+
+\subsection{Inference in exact counts}
+\label{ss:ai}
+
+A companion report converts a transformer's stored weights to positions and runs
+the matrix arithmetic in exact counts, reproducing reference embeddings on a
+tested sample~\cite{phibaseAI}. The scope claim to make here is narrow: the
+weight path is exact by construction, because floating-point code cannot run on
+tensors stored as integer counts. What the surrounding operations (normalization,
+attention, activation) run in is a separate question the companion report
+addresses directly.
+
+\subsection{Energy, as an open and measurable question}
+\label{ss:energy}
+
+Exact reversible arithmetic retains rather than erases intermediate information.
+In the idealized Landauer picture~\cite{landauer,bennett}, information-preserving
+operations carry no thermodynamic lower bound on dissipation, unlike the bit
+erasure implicit in rounding. Whether that yields measurable savings on real
+hardware is empirical: the honest comparison is per-operation energy on the
+target device against a floating-point baseline~\cite{horowitz}, and it must be
+measured. No fixed multiplier is claimed on paper.
+
+\subsection{Further geometry and layout}
+\label{ss:more}
+
+Two open directions. First, the fifteen $H_3$ mirrors: constructing the three
+generators (normals perpendicular to the two-fold axes) and extending the
+reflection tables to all fifteen planes supports hinged-edge build operations, and
+is separate from the face planes of Section~\ref{ss:reflect}. Second, golden-angle
+layout: the counts that place polyhedral vertices also place phyllotactic points,
+and whether the reversal bookkeeping simplifies golden-angle layouts for arrays
+and sensor placement is open.
+
+% ============================================================================
+\appendix
+
+\section{Arithmetic on the Counts}
+\label{app:ring}
+With $\varphi^2=\varphi+1$,
+\[
+  (n_1+p_1\varphi)(n_2+p_2\varphi)
+   =(n_1n_2+p_1p_2)+(n_1p_2+n_2p_1+p_1p_2)\varphi.
+\]
+The conjugate sends $\varphi\mapsto1-\varphi$, so
+$\overline{\Pb{n}{p}}=\Pb{n+p}{-p}$, and the norm
+\[
+  \Norm(\Pb{n}{p})=\Pb{n}{p}\cdot\overline{\Pb{n}{p}}=n^2+np-p^2\in\Z
+\]
+is multiplicative. Division uses the conjugate: $a/b=a\,\overline{b}/\Norm(b)$.
+A position is a unit ($1/{\Pb{n}{p}}\in\Zphi$) iff $\Norm(\Pb{n}{p})=\pm1$, and
+the units are exactly $\pm\varphi^k$.
+
+\section{The Coordinate Vocabulary}
+\label{app:decode}
+The seven symbols of Table~\ref{tab:decode} span
+$\{0,\pm1,\pm\varphi,\pm1/\varphi\}$. In the coordinate models used here, the
+dodecahedral and icosahedral vertex sets can be scaled and oriented so that every
+coordinate component is one of these seven values; a 3D vertex is then a
+three-symbol string (e.g.\ \texttt{OOO}$=(1,1,1)$,
+\texttt{zfP}$=(0,-1/\varphi,\varphi)$).
+
+% ============================================================================
+\begin{thebibliography}{99}
+\bibitem{marcus} D.~A. Marcus, \emph{Number Fields}. Springer, 1977.
+\bibitem{bergman} G.~Bergman, A number system with an irrational base,
+  \emph{Mathematics Magazine} \textbf{31} (1957), 98--110.
+\bibitem{coxeter} H.~S.~M. Coxeter, \emph{Regular Polytopes}, 3rd ed. Dover,
+  1973.
+\bibitem{kramer} P.~Kramer and R.~Neri, On periodic and non-periodic space
+  fillings of $E^m$ obtained by projection, \emph{Acta Crystallographica}
+  \textbf{A40} (1984), 580--587.
+\bibitem{senechal} M.~Senechal, \emph{Quasicrystals and Geometry}. Cambridge
+  University Press, 1995.
+\bibitem{kingsbury} N.~G. Kingsbury and P.~J.~W. Rayner, Digital filtering using
+  logarithmic arithmetic, \emph{Electronics Letters} \textbf{7} (1971), 56--58.
+\bibitem{swartzlander} E.~E. Swartzlander and A.~G. Alexopoulos, The
+  sign/logarithm number system, \emph{IEEE Trans.\ Computers} \textbf{C-24}
+  (1975), 1238--1242.
+\bibitem{landauer} R.~Landauer, Irreversibility and heat generation in the
+  computing process, \emph{IBM J.\ Research and Development} \textbf{5} (1961),
+  183--191.
+\bibitem{bennett} C.~H. Bennett, Logical reversibility of computation,
+  \emph{IBM J.\ Research and Development} \textbf{17} (1973), 525--532.
+\bibitem{horowitz} M.~Horowitz, Computing's energy problem (and what we can do
+  about it), \emph{IEEE ISSCC Digest of Technical Papers} (2014), 10--14.
+\bibitem{phibaseAI} J.~A. Hinds, \emph{PhiBase Exact-Count Inference: a
+  one-precompute retrofit for transformer models}. SpaceStruts Research, 2026.
+  \url{https://spacestruts.com/phibase.html}
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,81 @@
+\chapter{What Happens When Everything Grows?}
+\label{stone:growing}
+
+Joining two paths was almost effortless. Nothing changed except the counts. Three short pieces joined to two short pieces simply became five short pieces.
+
+Growth is different. When something grows, the pieces themselves change.
+
+Imagine that every short edge in your construction stretches until it becomes a long edge. That seems simple enough. One short edge grows into one long edge. But now look at a long edge. If it grows by exactly the same factor, what should it become?
+
+At first that sounds like a difficult question. Fortunately, the geometry has already answered it.
+
+Take one golden triangle. Now enlarge it until each edge is as long as the original long edge. Something remarkable happens. The larger triangle does not remain a single triangle. It naturally divides into one golden gnomon and one smaller golden triangle. The geometry is quietly telling us something. One long edge has grown into one long edge and one short edge. It has not invented a new length. It has rearranged the two lengths we already know.
+
+Mathematically, this is the famous identity
+\[
+\varphi^2=\varphi+1.
+\]
+Notice how naturally it appeared. We did not begin with the equation. The geometry gave it to us. The equation simply describes what the picture already showed.
+
+Now let us see what happens to a complete path. Suppose we begin with
+\[
+P(3,2).
+\]
+This path contains three short edges and two long edges. After growing, the three short edges become three long edges. The two long edges each become one long edge and one short edge. Nothing else happens.
+
+Now simply count. The new number of short edges is \(2\). The new number of long edges is \(3+2=5\). The grown path is therefore
+\[
+P(2,5).
+\]
+There was no multiplication. There was no algebra. We simply watched the geometry grow and counted what appeared.
+
+That observation gives us a wonderfully simple rule. Whenever a PhiBase construction grows by a factor of \(\varphi\), every short count becomes a long count, and every long count becomes one short count and one long count. Written as PhiBase,
+\[
+P(n,p) \longrightarrow P(p,n+p).
+\]
+At first glance this looks like another formula. It is not. It is simply a compact description of the picture. The geometry comes first. The algebra follows.
+
+\section*{Looking More Carefully}
+
+Let us begin with the smallest possible construction. One short edge,
+\[
+P(1,0).
+\]
+Grow it. It becomes
+\[
+P(0,1).
+\]
+Grow it again,
+\[
+P(1,1).
+\]
+Again,
+\[
+P(1,2).
+\]
+Again,
+\[
+P(2,3).
+\]
+Again,
+\[
+P(3,5).
+\]
+
+Do not look at the numbers yet. Look only at the growth. Each step is produced by exactly the same geometric process. The arithmetic is simply keeping score. Later we shall discover something astonishing hiding inside those coordinates. For now, let the pattern remain a mystery.
+
+\section*{Builder's Notebook}
+
+Take the sequence
+\[
+P(1,0)
+\]
+and apply the growth rule six more times. Do not use decimal numbers. Do not multiply anything. Simply let every short edge become long, and every long edge become one short and one long. Watch the construction. The numbers will take care of themselves.
+
+\section*{Looking Ahead}
+
+Growing by \(\varphi\) turned out to be surprisingly simple. But it also raises a new question. Suppose we wish to multiply by
+\[
+P(2,3)
+\]
+instead of by \(\varphi\). Can every multiplication be understood as naturally as growth? That is the next stepping stone.

@@ -1,0 +1,73 @@
+\chapter{What Happens When We Join Two Paths?}
+\label{stone:adding}
+
+Yesterday we built our first paths. Each one remembered exactly how it had been constructed. A path made from seven short pieces and four long pieces became
+\[
+P(7,4).
+\]
+That description was more than a length. It was a recipe.
+
+Now let us do something builders do every day. Suppose one path ends exactly where another begins. What happens if we join them together?
+
+Imagine the first path contains three short pieces and one long piece. Its description is
+\[
+P(3,1).
+\]
+Now build another path. This one contains two short pieces and four long pieces. Its description is
+\[
+P(2,4).
+\]
+Place the second path at the end of the first.
+
+Stand back for a moment. Before writing any equations, simply look at what has happened. Did any short pieces change into long ones? No. Did any long pieces become short? No. Nothing about the construction has changed. We simply have more pieces than before.
+
+Originally there were three short pieces. Now there are five. Originally there was one long piece. Now there are five. The combined path is therefore
+\[
+P(5,5).
+\]
+
+That feels almost too simple. Perhaps it should. Nature often rewards simple ideas. Whenever two paths are joined, the number of short pieces is just the sum of the two short-piece counts. The same is true for the long pieces. The construction tells us exactly what to do.
+
+If one path is
+\[
+P(a,b)
+\]
+and the other is
+\[
+P(c,d),
+\]
+their combined path is
+\[
+P(a+c,\;b+d).
+\]
+
+Mathematicians have a name for this operation. They call it \textbf{addition}. We arrived at the idea before learning its name. That is the way this book prefers to travel.
+
+\section*{A Curious Observation}
+
+Look carefully at the pieces. The order no longer matters. A path built from short, long, long, short, short contains exactly the same quantity of material as one built from long, short, short, short, long. Both are
+\[
+P(3,2).
+\]
+As a quantity, only the counts matter. As a journey, however, the order matters completely. If you walk those two paths, you do not arrive at the same place.
+
+That distinction is easy to miss, but it will become one of the most important ideas in the book. A PhiBase quantity remembers \textbf{how much} of each piece exists. A PhiBase address remembers \textbf{the order in which those pieces were travelled}. For now we are talking only about quantities. Addresses will come later.
+
+\section*{Builder's Notebook}
+
+Without converting anything into decimal numbers, combine these constructions:
+\[
+P(2,3) \quad \text{and} \quad P(5,1).
+\]
+Now combine
+\[
+P(8,0) \quad \text{and} \quad P(0,4).
+\]
+Finally, invent two paths of your own. Join them. Can you predict the answer before you count? You probably can. That means the construction has already become familiar.
+
+\section*{Looking Ahead}
+
+Joining paths turned out to be almost effortless. Growing them will not be. Suppose every short piece becomes a long piece, and every long piece grows into something larger. What happens then? The answer begins with one of the most beautiful identities in mathematics,
+\[
+\varphi^2=\varphi+1.
+\]

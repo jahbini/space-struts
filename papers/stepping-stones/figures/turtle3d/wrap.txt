@@ -1,0 +1,9 @@
+# Robinson gnomon on face A+, walk to the shared edge,
+# fold onto the neighbor, gnomon again
+pendown
+short left 2 short left 4 long left 4    # gnomon closes at chart origin
+right 10                                 # heading back to 0 (mod 10)
+short                                    # walk to pentagon vertex v1, on edge 0
+fold 0
+pendown
+short left 2 short left 4 long left 4    # gnomon on the neighbor

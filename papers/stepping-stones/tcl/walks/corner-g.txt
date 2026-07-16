@@ -1,0 +1,7 @@
+# Acceptance test §6.2 — three pentagons around vertex ACE via G.
+# Each inner `repeat 5 { short; G 1 }` walks the pentagon of the
+# current floor face. `ACE -1` rotates the turtle at the ACE vertex to
+# the next face containing the vertex. After 3 rotations we return to
+# face A+ and the walk closes at the ACE vertex with floor=A+.
+pendown
+repeat 3 { repeat 5 { short; G 2 }; ACE -1 }

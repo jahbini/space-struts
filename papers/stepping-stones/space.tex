@@ -1,0 +1,153 @@
+\steppingstone{Building Space}
+\label{stone:space}
+
+Every construction so far has lived on a line. That was enough to develop the arithmetic, but not enough to describe the dodecahedral structures that first led to PhiBase. A framework in space needs several building directions, and the geometry supplies six of them naturally.
+
+We use the six vectors
+
+\[
+\begin{aligned}
+\mathbf{B}_1&=(\varphi,1,0),
+&
+\mathbf{B}_2&=(\varphi,-1,0),
+\\
+\mathbf{B}_3&=(1,0,\varphi),
+&
+\mathbf{B}_4&=(-1,0,\varphi),
+\\
+\mathbf{B}_5&=(0,\varphi,1),
+&
+\mathbf{B}_6&=(0,\varphi,-1).
+\end{aligned}
+\]
+
+Each vector belongs to one family of beams. A construction address
+
+\[
+[a,b,c,d,e,f]
+\]
+
+records how many steps were taken in each family. The address is not merely a measurement of the finished point; it preserves the route used to build it.
+
+If the construction begins at the origin, its Cartesian position is the sum
+
+\[
+a\mathbf{B}_1+
+b\mathbf{B}_2+
+c\mathbf{B}_3+
+d\mathbf{B}_4+
+e\mathbf{B}_5+
+f\mathbf{B}_6.
+\]
+
+Collecting the \(x\), \(y\), and \(z\) components gives
+
+\[
+\begin{aligned}
+x&=\varphi(a+b)+(c-d),\\
+y&=(a-b)+\varphi(e+f),\\
+z&=\varphi(c+d)+(e-f).
+\end{aligned}
+\]
+
+Each Cartesian coordinate is therefore an exact PhiBase quantity:
+
+\[
+\begin{aligned}
+x&=P(c-d,\;a+b),\\
+y&=P(a-b,\;e+f),\\
+z&=P(e-f,\;c+d).
+\end{aligned}
+\]
+
+No decimal approximation is required. Integer beam counts become exact coordinates in \(\mathbb{Z}[\varphi]^3\).
+
+\section*{One Beam at a Time}
+
+Begin at
+
+\[
+[0,0,0,0,0,0].
+\]
+
+Adding one beam from the first family gives
+
+\[
+[1,0,0,0,0,0]
+\]
+
+and the Cartesian point
+
+\[
+(\varphi,1,0).
+\]
+
+Adding one beam from the second family instead gives
+
+\[
+[0,1,0,0,0,0]
+\]
+
+and the point
+
+\[
+(\varphi,-1,0).
+\]
+
+Each beam direction has one Cartesian component equal to zero. Moving along that beam leaves one coordinate unchanged while the other two change in an exact golden-ratio relation. The six families divide naturally into three pairs according to which coordinate remains fixed.
+
+The construction address retains more information than the final Cartesian point. It tells us which beam families were used and how many times each was used. That is the same principle we met at the beginning of the book: PhiBase remembers how the result was built.
+
+\section*{Why Keep Six Counts?}
+
+Three Cartesian coordinates are enough to locate a point, but they do not directly preserve its assembly history. The six-count address does.
+
+For example, the address
+
+\[
+[1,1,0,0,0,0]
+\]
+
+produces
+
+\[
+\begin{aligned}
+x&=2\varphi,\\
+y&=0,\\
+z&=0.
+\end{aligned}
+\]
+
+The two beam steps cancel in \(y\) and reinforce one another in \(x\). The final point is simple, but the six-count address still records the two directions that created it.
+
+This distinction matters in construction. A robot assembling a framework needs more than a finished location. It needs a sequence of allowable beam steps that reaches that location.
+
+\section*{Builder's Notebook}
+
+Convert each construction address into Cartesian coordinates:
+
+\[
+[1,0,0,0,0,0],
+\]
+
+\[
+[1,1,0,0,0,0],
+\]
+
+\[
+[0,0,1,1,0,0],
+\]
+
+and
+
+\[
+[1,0,1,0,1,0].
+\]
+
+Write each Cartesian coordinate in PhiBase form \(P(n,p)\), not as a decimal.
+
+Then choose one beam family and verify directly that one Cartesian coordinate remains unchanged along that direction.
+
+\section*{Looking Ahead}
+
+The forward map carries an exact six-beam construction into ordinary three-dimensional coordinates. The next question is whether the process can be reversed. Given the Cartesian point, can we recover the beam counts that built it?

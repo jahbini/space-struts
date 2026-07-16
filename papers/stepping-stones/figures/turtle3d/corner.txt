@@ -1,0 +1,7 @@
+# three faces around vertex ACE = (1,1,1)
+pendown
+repeat 5 [ short A 1 ]
+ACE -1
+repeat 5 [ short C 1 ]
+ACE -1
+repeat 5 [ short E 1 ]

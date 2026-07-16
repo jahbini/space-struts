@@ -1,0 +1,7 @@
+# Acceptance test §6.4 — pentagram stellation closes.
+# Five (long, short, long) tips joined by 144° turns about A.
+pendown
+short; long
+A 2
+repeat 4 { long; short; long; A 2 }
+long
