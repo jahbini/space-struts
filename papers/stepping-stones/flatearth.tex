@@ -1,0 +1,80 @@
+\steppingstone{The Flat Earth}
+\label{stone:flatearth}
+
+The PhiBase Slide Rule preserves exact arithmetic by remembering relationships that have already been built. The next question is whether the same idea can preserve a place.
+
+A length needs only one PhiBase quantity because every part of the construction lies on the same line. A flat surface is different. Once we step away from the line, we must remember not only how far we have travelled, but also the directions in which the travel occurred.
+
+Two independent directions are enough to locate every point in a plane. Our turtle drawings have used this fact from the beginning. One basis vector points along \(0^\circ\), and the other points along \(72^\circ\). A point reached by the turtle is stored as an exact pair
+
+\[
+\bigl(P(a,b),\,P(c,d)\bigr).
+\]
+
+The first PhiBase quantity measures the contribution along the \(0^\circ\) direction. The second measures the contribution along the \(72^\circ\) direction. Every turn and every step is performed with exact PhiBase arithmetic. Floating point appears only when the finished construction is drawn on the page.
+
+From the standpoint of representation, the problem is solved. Two independent basis vectors are sufficient.
+
+Construction asks for something more.
+
+Imagine a robot assembling golden triangles across a flat surface. While it works on one pentagonal region, one direction may be the most useful direction to follow. When it crosses into a neighbouring region, another direction may become the natural choice. A minimal two-vector description still locates the robot exactly, but it does not keep every useful construction direction ready for immediate use.
+
+We therefore choose to remember five planar directions, separated by \(72^\circ\).
+
+The additional directions do not make the point more exact. They do not add another location. They preserve useful alternatives. When the preferred direction changes, the next direction is already part of the representation. The robot does not need to abandon its description and construct a new one before it can continue.
+
+This is the difference between a minimal representation and a construction representation. A minimal representation keeps only what is necessary to describe the present point. A construction representation also keeps the directions that may become useful at the next boundary.
+
+The five coordinates are therefore not five independent dimensions. The plane still has only two. The extra coordinates carry relationships among the five construction directions, allowing the same point to be understood from several useful orientations.
+
+That choice gives the system a kind of nimbleness. The construction can change its local emphasis without losing the larger description. One direction may be central now, another a moment later, yet all five remain available within the same exact framework.
+
+\section*{The Five Directions}
+
+Let the five planar construction directions be
+
+\[
+\mathbf{E}_0,\;
+\mathbf{E}_1,\;
+\mathbf{E}_2,\;
+\mathbf{E}_3,\;
+\mathbf{E}_4,
+\]
+
+with successive directions separated by \(72^\circ\). A planar construction may then be recorded as
+
+\[
+[q_0,q_1,q_2,q_3,q_4],
+\]
+
+where each \(q_k\) is a PhiBase quantity associated with one construction direction.
+
+Because the plane has only two independent dimensions, these five coordinates cannot vary independently. Their value lies in the simple transitions they preserve. A step that is awkward in one pair of directions may be natural in another, while the point itself remains unchanged.
+
+The redundant description is not waste. It is stored opportunity.
+
+\section*{Builder's Notebook}
+
+Begin with the two turtle basis directions,
+
+\[
+0^\circ
+\qquad\text{and}\qquad
+72^\circ.
+\]
+
+Choose a point whose exact turtle coordinates are
+
+\[
+\bigl(P(2,1),\,P(1,0)\bigr).
+\]
+
+Now imagine that the construction crosses into a neighbouring pentagonal region. Which of the five directions would be most natural to follow next?
+
+The point has not moved. Only the useful orientation has changed.
+
+\section*{Looking Ahead}
+
+A plane needs only two independent directions, yet we remember five because construction benefits from having useful alternatives already present.
+
+Space needs only three independent directions. For the same reason, the next stepping stone will remember six.

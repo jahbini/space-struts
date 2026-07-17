@@ -1,153 +1,119 @@
 \steppingstone{Building Space}
 \label{stone:space}
 
-Every construction so far has lived on a line. That was enough to develop the arithmetic, but not enough to describe the dodecahedral structures that first led to PhiBase. A framework in space needs several building directions, and the geometry supplies six of them naturally.
+When we were building on a line, life was simple. A single PhiBase quantity described every length because there was only one direction in which we could continue. The moment we stepped onto a flat surface, that simplicity disappeared. We could move in many directions, and our arithmetic had to learn how to remember places instead of lengths.
 
-We use the six vectors
+The ordinary mathematical answer was straightforward. Two independent directions are enough to describe every point on a plane, and our turtle drawings have quietly been using exactly that idea from the beginning. Every point in every figure is stored as two exact PhiBase quantities, one measured along the \(0^{\circ}\) direction and the other along the \(72^{\circ}\) direction. The mathematics remains exact until the final picture is drawn.
+
+If our only goal were to describe where a point is, we could stop there.
+
+Building asks a different question.
+
+Imagine a robot laying golden triangles across a large floor. For a while one direction is the natural direction to follow. Then the robot reaches the edge of a pentagonal region and another direction immediately becomes the better choice. The point has not changed, but the construction has. The robot now has a different floor beneath its feet.
+
+That small observation changes everything.
+
+We are no longer asking how many directions are sufficient to describe a point.
+
+We are asking how many useful directions should be remembered so that construction can continue naturally when the local floor changes.
+
+Those are different questions.
+
+Mathematics answers the first.
+
+Construction answers the second.
+
+That is why the previous stepping stone deliberately remembered five planar directions even though only two were mathematically necessary. The additional directions did not make the representation more accurate. They preserved useful possibilities. When the preferred direction changed, the next useful direction was already available. Nothing had to be rebuilt.
+
+Space presents exactly the same choice.
+
+Three independent directions are enough to describe every point in ordinary space. If our purpose were only representation, the familiar Cartesian coordinates
+
+\[
+(x,y,z)
+\]
+
+would already have solved the problem.
+
+Our purpose is different.
+
+We want a representation that grows naturally with the construction itself.
+
+Instead of remembering only three directions, PhiBase remembers six construction floors. Each floor corresponds to one family of parallel dodecahedral faces. At any moment one floor is beneath the builder, while the other five remain immediately available should the construction cross onto another face.
+
+A point is therefore described by six construction counts,
+
+\[
+(a,b,c,d,e,f).
+\]
+
+These are not six independent dimensions.
+
+They are six remembered construction directions.
+
+The point itself still occupies one place in ordinary three-dimensional space. The additional directions simply preserve the useful alternatives that make construction continuous instead of awkward.
+
+The six construction floors are represented by the vectors
 
 \[
 \begin{aligned}
-\mathbf{B}_1&=(\varphi,1,0),
-&
-\mathbf{B}_2&=(\varphi,-1,0),
-\\
-\mathbf{B}_3&=(1,0,\varphi),
-&
-\mathbf{B}_4&=(-1,0,\varphi),
-\\
-\mathbf{B}_5&=(0,\varphi,1),
-&
-\mathbf{B}_6&=(0,\varphi,-1).
+\mathbf{F}_1 &= (\varphi,\,1,\,0), &
+\mathbf{F}_2 &= (\varphi,\,-1,\,0), \\
+\mathbf{F}_3 &= (1,\,0,\,\varphi), &
+\mathbf{F}_4 &= (-1,\,0,\,\varphi), \\
+\mathbf{F}_5 &= (0,\,\varphi,\,1), &
+\mathbf{F}_6 &= (0,\,\varphi,\,-1).
 \end{aligned}
 \]
 
-Each vector belongs to one family of beams. A construction address
+Beginning at the origin, the completed construction is
 
 \[
-[a,b,c,d,e,f]
+a\mathbf{F}_1 + b\mathbf{F}_2 + c\mathbf{F}_3 + d\mathbf{F}_4 + e\mathbf{F}_5 + f\mathbf{F}_6.
 \]
 
-records how many steps were taken in each family. The address is not merely a measurement of the finished point; it preserves the route used to build it.
-
-If the construction begins at the origin, its Cartesian position is the sum
-
-\[
-a\mathbf{B}_1+
-b\mathbf{B}_2+
-c\mathbf{B}_3+
-d\mathbf{B}_4+
-e\mathbf{B}_5+
-f\mathbf{B}_6.
-\]
-
-Collecting the \(x\), \(y\), and \(z\) components gives
+Collecting the components gives the ordinary Cartesian position,
 
 \[
 \begin{aligned}
-x&=\varphi(a+b)+(c-d),\\
-y&=(a-b)+\varphi(e+f),\\
-z&=\varphi(c+d)+(e-f).
+x &= \varphi(a+b) + (c-d), \\
+y &= (a-b) + \varphi(e+f), \\
+z &= \varphi(c+d) + (e-f).
 \end{aligned}
 \]
 
-Each Cartesian coordinate is therefore an exact PhiBase quantity:
+Nothing has been lost.
 
-\[
-\begin{aligned}
-x&=P(c-d,\;a+b),\\
-y&=P(a-b,\;e+f),\\
-z&=P(e-f,\;c+d).
-\end{aligned}
-\]
+The Cartesian coordinates tell us where the point is.
 
-No decimal approximation is required. Integer beam counts become exact coordinates in \(\mathbb{Z}[\varphi]^3\).
+The six-floor description remembers how the construction reached that point and which neighbouring floors are immediately available when the construction continues.
 
-\section*{One Beam at a Time}
+One description serves the surveyor.
 
-Begin at
+The other serves the builder.
 
-\[
-[0,0,0,0,0,0].
-\]
-
-Adding one beam from the first family gives
-
-\[
-[1,0,0,0,0,0]
-\]
-
-and the Cartesian point
-
-\[
-(\varphi,1,0).
-\]
-
-Adding one beam from the second family instead gives
-
-\[
-[0,1,0,0,0,0]
-\]
-
-and the point
-
-\[
-(\varphi,-1,0).
-\]
-
-Each beam direction has one Cartesian component equal to zero. Moving along that beam leaves one coordinate unchanged while the other two change in an exact golden-ratio relation. The six families divide naturally into three pairs according to which coordinate remains fixed.
-
-The construction address retains more information than the final Cartesian point. It tells us which beam families were used and how many times each was used. That is the same principle we met at the beginning of the book: PhiBase remembers how the result was built.
-
-\section*{Why Keep Six Counts?}
-
-Three Cartesian coordinates are enough to locate a point, but they do not directly preserve its assembly history. The six-count address does.
-
-For example, the address
-
-\[
-[1,1,0,0,0,0]
-\]
-
-produces
-
-\[
-\begin{aligned}
-x&=2\varphi,\\
-y&=0,\\
-z&=0.
-\end{aligned}
-\]
-
-The two beam steps cancel in \(y\) and reinforce one another in \(x\). The final point is simple, but the six-count address still records the two directions that created it.
-
-This distinction matters in construction. A robot assembling a framework needs more than a finished location. It needs a sequence of allowable beam steps that reaches that location.
+Both describe exactly the same point.
 
 \section*{Builder's Notebook}
 
-Convert each construction address into Cartesian coordinates:
+Begin with the construction
 
 \[
-[1,0,0,0,0,0],
+(1,0,0,0,0,0).
 \]
 
-\[
-[1,1,0,0,0,0],
-\]
+Convert it into Cartesian coordinates.
 
-\[
-[0,0,1,1,0,0],
-\]
+Now imagine that the next step carries the construction onto a neighbouring dodecahedral face.
 
-and
+Which of the six construction floors becomes the natural one to continue from?
 
-\[
-[1,0,1,0,1,0].
-\]
+The point has not changed.
 
-Write each Cartesian coordinate in PhiBase form \(P(n,p)\), not as a decimal.
-
-Then choose one beam family and verify directly that one Cartesian coordinate remains unchanged along that direction.
+Only the floor beneath the builder has.
 
 \section*{Looking Ahead}
 
-The forward map carries an exact six-beam construction into ordinary three-dimensional coordinates. The next question is whether the process can be reversed. Given the Cartesian point, can we recover the beam counts that built it?
+The builder's description and the surveyor's description describe the same point in different ways.
+
+The next stepping stone shows how to move from one description to the other and back again without losing a single piece of information.

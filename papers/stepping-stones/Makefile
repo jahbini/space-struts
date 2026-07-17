@@ -1,9 +1,22 @@
 INKSCAPE ?= /Applications/Inkscape.app/Contents/MacOS/inkscape
 COFFEE   ?= coffee
 TCLSH    ?= tclsh
+PANDOC   ?= pandoc
 FIGDIR   := figures/turtle
 TCLDIR   := tcl
 HAFDIR   := tcl-haf
+
+# Chapters. If a chapter has a *.md, that IS the source of truth for the
+# same-named *.tex at root — the pattern rule below regenerates the .tex
+# whenever the .md is newer. Chapters without a matching .md are hand-tuned
+# .tex only; they compile as-is.
+#
+# ALL_CHAPTER_TEXS = every root *.tex except main.tex. main.pdf depends on
+# it so any chapter edit (direct .tex or via .md) triggers a rebuild.
+NON_CHAPTER_MDS  := TURTLES.md
+CHAPTER_MDS      := $(filter-out $(NON_CHAPTER_MDS),$(wildcard *.md))
+CHAPTER_TEXS     := $(patsubst %.md,%.tex,$(CHAPTER_MDS))
+ALL_CHAPTER_TEXS := $(filter-out main.tex,$(wildcard *.tex))
 
 # Three turtles, three file extensions, three separate pattern rules:
 #   *.txt -> phiTurtle.coffee          (legacy 2D golden lattice)
@@ -21,7 +34,12 @@ HAF_WALKS := $(wildcard $(FIGDIR)/*.haf)
 HAF_SVGS  := $(HAF_WALKS:.haf=.svg)
 HAF_PDFS  := $(HAF_WALKS:.haf=.pdf)
 
-PDFS := $(COFFEE_PDFS) $(TCL_PDFS) $(HAF_PDFS)
+# Static SVGs sitting directly in figures/ (not produced by any turtle;
+# these are hand-drawn or externally sourced). Each converts to a PDF.
+STATIC_SVGS := $(wildcard figures/*.svg)
+STATIC_PDFS := $(STATIC_SVGS:.svg=.pdf)
+
+PDFS := $(COFFEE_PDFS) $(TCL_PDFS) $(HAF_PDFS) $(STATIC_PDFS)
 
 .PHONY: all figures verify clean cleanfigs
 .PRECIOUS: $(FIGDIR)/%.svg
@@ -46,8 +64,18 @@ $(FIGDIR)/%.svg: $(FIGDIR)/%.haf
 $(FIGDIR)/%.pdf: $(FIGDIR)/%.svg
 	$(INKSCAPE) $< --export-type=pdf --export-area-drawing --export-filename=$@
 
+figures/%.pdf: figures/%.svg
+	$(INKSCAPE) $< --export-type=pdf --export-area-drawing --export-filename=$@
+
+# --- markdown -> LaTeX (rewrites the same-named .tex at root) --------------
+# WARNING: this rule overwrites the root *.tex whenever the *.md is newer.
+# If you have hand edits in foo.tex that don't exist in foo.md, either move
+# them into foo.md first, or delete foo.md to opt out of auto-generation.
+%.tex: %.md tools/md2tex.sh
+	tools/md2tex.sh $< $@
+
 # --- LaTeX -----------------------------------------------------------------
-main.pdf: main.tex $(PDFS)
+main.pdf: main.tex $(ALL_CHAPTER_TEXS) $(PDFS)
 	pdflatex -interaction=nonstopmode main.tex
 	pdflatex -interaction=nonstopmode main.tex
 

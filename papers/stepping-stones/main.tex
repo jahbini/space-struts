@@ -13,7 +13,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\graphicspath{{figures/turtle/}}
+\graphicspath{{figures/turtle/}{figures/}}
 \usepackage{microtype}
 \usepackage{parskip}
 \usepackage{enumitem}
@@ -41,6 +41,20 @@
 \newcommand{\Phib}[2]{P(#1,#2)}
 \newcommand{\Zphi}{\mathbb{Z}[\varphi]}
 
+% Modern pandoc wraps \includegraphics in \pandocbounded{...} for sizing.
+% We do not carry pandoc.sty, so declare the wrapper as a no-op passthrough.
+\providecommand{\pandocbounded}[1]{#1}
+
+% Let bare Unicode Greek in prose (produced by markdown chapters) render as
+% math without requiring $...$ delimiters at the source.
+\DeclareUnicodeCharacter{03C6}{\ensuremath{\varphi}}   % φ
+\DeclareUnicodeCharacter{03A6}{\ensuremath{\Phi}}      % Φ
+\DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}}       % π
+\DeclareUnicodeCharacter{03C8}{\ensuremath{\psi}}      % ψ
+\DeclareUnicodeCharacter{03A8}{\ensuremath{\Psi}}      % Ψ
+\DeclareUnicodeCharacter{00B0}{\ensuremath{^{\circ}}}  % °
+\DeclareUnicodeCharacter{2212}{\ensuremath{-}}         % − (true minus)
+
 \title{\textbf{The Origin of PhiBase}\\[0.5em]
 \large Building an Exact Arithmetic One Step at a Time}
 \author{James A. Hinds}
@@ -66,9 +80,10 @@
 \include{spine}
 \include{dense-grid}
 \include{slide-rule}
+\include{flatearth}
 \include{space}
 \include{home}
-\include{mirrors}
+\include{flip}
 \include{computer}
 \include{builder}
 

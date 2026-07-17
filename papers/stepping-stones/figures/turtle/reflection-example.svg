@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1754 1607" font-family="monospace">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e7d32"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<line x1="1047.03" y1="1450.75" x2="1387.38" y2="1450.75" stroke="#1a237e" stroke-width="1.57" stroke-linecap="round"/>
+<line x1="1387.38" y1="1450.75" x2="1217.21" y2="927.01" stroke="#1a237e" stroke-width="1.57" stroke-linecap="round"/>
+<line x1="1217.21" y1="927.01" x2="1047.03" y2="1450.75" stroke="#1a237e" stroke-width="1.57" stroke-linecap="round"/>
+<line x1="1597.72" y1="1450.75" x2="1427.55" y2="927.01" stroke="#1a237e" stroke-width="1.57" stroke-linecap="round"/>
+<line x1="1427.55" y1="927.01" x2="1322.38" y2="603.32" stroke="#1a237e" stroke-width="1.57" stroke-linecap="round"/>
+<line x1="601.52" y1="479.69" x2="326.17" y2="679.74" stroke="#1a237e" stroke-width="1.57" stroke-linecap="round"/>
+<line x1="326.17" y1="679.74" x2="156.00" y2="156.00" stroke="#1a237e" stroke-width="1.57" stroke-linecap="round"/>
+<line x1="156.00" y1="156.00" x2="601.52" y2="479.69" stroke="#1a237e" stroke-width="1.57" stroke-linecap="round"/>
+<circle cx="1047.03" cy="1450.75" r="2.88" fill="#c62828"/>
+<circle cx="1387.38" cy="1450.75" r="2.88" fill="#1a237e"/>
+<circle cx="1217.21" cy="927.01" r="2.88" fill="#1a237e"/>
+<circle cx="1597.72" cy="1450.75" r="2.88" fill="#1a237e"/>
+<text x="1602.96" y="1445.51" font-size="39" fill="#333">(P(0,1),P(0,0))</text>
+<circle cx="1427.55" cy="927.01" r="2.88" fill="#1a237e"/>
+<circle cx="1322.38" cy="603.32" r="2.88" fill="#1a237e"/>
+<text x="1327.61" y="598.09" font-size="39" fill="#333">(P(0,0),P(1,1))</text>
+<circle cx="601.52" cy="479.69" r="2.88" fill="#1a237e"/>
+<text x="606.75" y="518.69" font-size="39" fill="#333">(P(1,-2),P(3,0))</text>
+<circle cx="326.17" cy="679.74" r="2.88" fill="#1a237e"/>
+<circle cx="156.00" cy="156.00" r="2.88" fill="#1a237e"/>
+<line x1="601.52" y1="479.69" x2="561.27" y2="508.92" stroke="#2e7d32" stroke-width="2.62" stroke-linecap="round" marker-end="url(#arrow)"/>
+<text x="12" y="1603" font-size="21" fill="#666">basis: e0=(1,0), e72=(cos72&#176;,sin72&#176;) &#8212; coordinates are exact P(n,p) = n + p&#183;&#966;</text>
+</svg>

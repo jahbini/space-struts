@@ -1,5 +1,4 @@
-\steppingstone{The PhiBase Slide Rule}
-\label{stone:the-phibase-slide-rule}
+# The PhiBase Slide Rule
 
 The Fibonacci Spine changed something that we had almost taken for granted. Until that point, multiplying by φ meant performing another multiplication. After the Spine had been built, the same operation became nothing more than moving one row through a table. The arithmetic itself had not become simpler. We had simply remembered the result of every multiplication by φ before we needed it.
 
@@ -13,10 +12,10 @@ That is why the Slide Rule is more than a table of numbers. It is a record of di
 
 The idea reaches beyond arithmetic. Whenever we preserve useful relationships instead of rebuilding them, tomorrow's work begins where yesterday's work ended. PhiBase simply carries that old engineering habit into exact arithmetic.
 
-\section*{Builder's Notebook}
+## Builder's Notebook
 
 Choose two neighbouring entries from the Fibonacci Spine and verify that moving one row upward multiplies by φ. Then choose two neighbouring entries from the Dense Grid and determine which is larger without performing any arithmetic. The answer has already been remembered for you.
 
-\section*{Looking Ahead}
+## Looking Ahead
 
 The Slide Rule remembers exact arithmetic. The next question is whether the same philosophy can remember exact places. A point is more than a location. It is also the place from which the next step will begin. That is where PhiBase leaves arithmetic behind and begins to think like a builder.

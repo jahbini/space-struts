@@ -14,4 +14,8 @@ vite.config.ts.timestamp-*
 *.log
 *.log
 *.err
+*.log
+*.aux
+*.out
+*.toc
 
