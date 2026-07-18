@@ -1,0 +1,5 @@
+# Acceptance test §6.1 — pentagon closes.
+# Five (short, turn 72° about A) steps trace a face pentagon and return
+# to the start vertex exactly.
+pendown
+repeat 5 { short; A 1 }

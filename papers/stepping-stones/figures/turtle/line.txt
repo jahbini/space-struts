@@ -1,0 +1,16 @@
+# Straight walk along one heading direction, showing the 1D PhiBase distance
+# from the start at each vertex. `xonly` makes each label render as a single
+# PhiBase pair P(short_count, long_count) instead of the (a,b) plane pair.
+xonly
+pendown
+label
+short
+label
+short
+label
+long
+label
+short
+label
+long
+label

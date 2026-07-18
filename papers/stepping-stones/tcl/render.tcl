@@ -98,8 +98,24 @@ proc svg {outfile} {
     set w [expr {($maxX - $minX + 2 * $pad) * $scale}]
     set h [expr {($maxY - $minY + 2 * $pad) * $scale}]
 
+    # Count labeled vertices to size the legend area below the drawing.
+    set labeledCount 0
+    dict for {vk entry} $::turtle::vertices {
+        if {[dict get $entry labeled]} { incr labeledCount }
+    }
+    set legendLineHeight 26
+    set legendPadTop 18
+    set legendPadBot 12
+    set legendFontSize 20
+    if {$labeledCount > 0} {
+        set legendH [expr {$labeledCount * $legendLineHeight + $legendPadTop + $legendPadBot}]
+    } else {
+        set legendH 0
+    }
+    set totalH [expr {$h + $legendH}]
+
     set lines {}
-    lappend lines "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 [format {%.0f} $w] [format {%.0f} $h]\" font-family=\"monospace\">"
+    lappend lines "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 [format {%.0f} $w] [format {%.0f} $totalH]\" font-family=\"monospace\">"
     lappend lines "<rect width=\"100%\" height=\"100%\" fill=\"white\"/>"
     foreach seg $segs {
         lassign $seg from to size
@@ -117,6 +133,44 @@ proc svg {outfile} {
     foreach {k pt} [array get vseen] {
         lassign [::render::_sx $pt $minX $minY $pad $scale] cx cy
         lappend lines "<circle cx=\"[format {%.2f} $cx]\" cy=\"[format {%.2f} $cy]\" r=\"4\" fill=\"#1a237e\"/>"
+    }
+    # Vertex labels — iterate the `vertices` dict, skip unlabeled entries.
+    # Collect labeled entries in insertion order for the legend.
+    set fontSize 24
+    set offAbove 8
+    set offBelow [expr {$fontSize + 4}]
+    set offRight 6
+    set labeledList {}
+    dict for {vk entry} $::turtle::vertices {
+        if {![dict get $entry labeled]} continue
+        lappend labeledList $entry
+        set pt   [dict get $entry pt]
+        set side [dict get $entry side]
+        set text [dict get $entry text]
+        lassign [::render::project [::render::cartesian3Phi $pt]] px py
+        lassign [::render::_sx [list $px $py] $minX $minY $pad $scale] lx ly
+        if {$side eq "below"} {
+            set ty [expr {$ly + $offBelow}]
+        } else {
+            set ty [expr {$ly - $offAbove}]
+        }
+        lappend lines "<text x=\"[format {%.2f} [expr {$lx + $offRight}]]\" y=\"[format {%.2f} $ty]\" font-size=\"$fontSize\" fill=\"#333\">$text</text>"
+    }
+
+    # Legend table — each labeled vertex listed with its exact 6-tuple.
+    if {$labeledCount > 0} {
+        set y0 [expr {$h + $legendPadTop}]
+        # Separator line above the legend
+        lappend lines "<line x1=\"20\" y1=\"[format {%.2f} [expr {$h + 6}]]\" x2=\"[format {%.2f} [expr {$w - 20}]]\" y2=\"[format {%.2f} [expr {$h + 6}]]\" stroke=\"#888\" stroke-width=\"1\"/>"
+        set i 0
+        foreach entry $labeledList {
+            set pt   [dict get $entry pt]
+            set text [dict get $entry text]
+            set y [expr {$y0 + $i * $legendLineHeight}]
+            set row "$text = [::six::toString $pt]"
+            lappend lines "<text x=\"20\" y=\"[format {%.2f} $y]\" font-size=\"$legendFontSize\" fill=\"#333\">$row</text>"
+            incr i
+        }
     }
     lappend lines "</svg>"
     write_svg $outfile [join $lines "\n"]

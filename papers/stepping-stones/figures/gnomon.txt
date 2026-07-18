@@ -1,0 +1,17 @@
+# Acceptance test §6.5 — gnomon stencil.
+# Define the golden-gnomon macro (108°-36°-36° triangle, sides s, s, φs;
+# exterior turns 72°, 144°, 144°). One call traces the closed triangle.
+# Then stamp it after several turn sequences; each stamp must CLOSE at its
+# starting position (heading rotates through 360° = identity across the
+# three exterior turns of the gnomon).
+
+gnomon = { pendown; short; G 2; short; G 4; long; G 4; penup }
+
+# Stamp #1 — from home, on face A+.
+gsave; gnomon; grestore
+
+# Stamp #2 — rotate turtle at start vertex to face E+ via ACE, then stamp.
+gsave; ACE -1; gnomon; grestore
+
+# Stamp #3 — walk one edge, rotate, walk another, then stamp.
+gsave; short; G 2; short; G 4; gnomon; grestore

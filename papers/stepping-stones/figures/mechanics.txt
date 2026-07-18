@@ -1,0 +1,10 @@
+# Sanity check for pen/mark/goto/gsave/grestore/back.
+pendown
+short; short
+mark P
+long
+back; back; back
+gsave
+short
+grestore
+goto P

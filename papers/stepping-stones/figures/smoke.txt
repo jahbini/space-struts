@@ -1,0 +1,22 @@
+# Stage 0 smoke walk. Exercises every commanded stub, `repeat`, the G
+# query and G rotation, and confirms that dangerous commands are blocked.
+
+pendown
+short
+long
+back
+A 1
+repeat 3 { short; A 1 }
+mark p1
+penup
+goto p1
+pendown
+gsave
+G 2
+puts "floor is [G]"
+grestore
+home
+
+# The following should each raise an error in the safe interp; they are
+# commented out so the smoke walk completes. Uncomment individually to
+# verify: `exec ls`, `open /tmp/x`, `file exists /tmp`, `source /tmp/x`.

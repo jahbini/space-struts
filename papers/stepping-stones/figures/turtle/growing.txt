@@ -18,7 +18,7 @@ pendown
 above
 long label
 left 4
-long label
+long below label
 left 3
 short label
 left 4

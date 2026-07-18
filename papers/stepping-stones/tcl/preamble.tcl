@@ -19,10 +19,15 @@ namespace eval ::turtle {
     variable stack
     variable trace_lines
     variable segments      ;# list of {from_pos to_pos size} recorded when pen down
+    variable vertices      ;# dict pos_key -> {pt labeled side text step}
+    variable label_side    "above"  ;# side for future `label` calls
+    variable step_count    0        ;# incremented on each short/long/back
+    variable next_letter   0        ;# auto-letter index for label with no arg
     array set marks {}
     set stack {}
     set trace_lines {}
     set segments {}
+    set vertices [dict create]
 
     # Canonical start pose (see Stage 1 comments for derivation).
     variable home_pos [::six::mk \
@@ -89,14 +94,44 @@ proc pendown {} { set ::turtle::pen 1; ::turtle::_trace "pendown" }
 proc penup   {} { set ::turtle::pen 0; ::turtle::_trace "penup" }
 
 # ---- steps ---------------------------------------------------------------
+proc ::turtle::_pos_key {pt} {
+    set parts {}
+    foreach v $pt {
+        lassign $v p n d
+        lappend parts "$p,$n,$d"
+    }
+    join $parts ";"
+}
+
+# Ensure a vertex entry exists for pt. Refreshes label_side. Preserves any
+# existing `labeled` / `text` fields set by earlier `label` calls.
+proc ::turtle::_record_vertex {pt} {
+    variable vertices
+    variable label_side
+    variable step_count
+    set k [_pos_key $pt]
+    if {[dict exists $vertices $k]} {
+        set entry [dict get $vertices $k]
+        dict set entry side $label_side
+        dict set vertices $k $entry
+    } else {
+        dict set vertices $k [dict create \
+            pt $pt labeled 0 side $label_side text {} step $step_count]
+    }
+}
+
 proc ::turtle::_record_seg {from to size} {
     variable pen
     variable segments
+    _record_vertex $from
+    _record_vertex $to
     if {$pen} { lappend segments [list $from $to $size] }
 }
+
 proc short {} {
     set from $::turtle::pos
     set to [::six::add $from $::turtle::heading]
+    incr ::turtle::step_count
     ::turtle::_record_seg $from $to short
     set ::turtle::pos $to
     ::turtle::_trace "short"
@@ -104,6 +139,7 @@ proc short {} {
 proc long {} {
     set from $::turtle::pos
     set to [::six::add $from [::six::mulphi $::turtle::heading]]
+    incr ::turtle::step_count
     ::turtle::_record_seg $from $to long
     set ::turtle::pos $to
     ::turtle::_trace "long"
@@ -111,9 +147,71 @@ proc long {} {
 proc back {} {
     set from $::turtle::pos
     set to [::six::sub $from $::turtle::heading]
+    incr ::turtle::step_count
     ::turtle::_record_seg $from $to back
     set ::turtle::pos $to
     ::turtle::_trace "back"
+}
+
+# ---- label / above / below -----------------------------------------------
+# `label` marks the current vertex to receive text at render. With no args
+# the label defaults to the step number of the vertex's first visit. With
+# an argument, that string becomes the label.
+# `above` / `below` set the placement side for later labels AND retroactively
+# update the current vertex, so `short label above` and `short above label`
+# behave the same.
+proc ::turtle::_next_letter_name {} {
+    variable next_letter
+    set letters "abcdefghijklmnopqrstuvwxyz"
+    set n [string length $letters]
+    if {$next_letter < $n} {
+        set s [string index $letters $next_letter]
+    } else {
+        set first  [string index $letters [expr {$next_letter / $n - 1}]]
+        set second [string index $letters [expr {$next_letter % $n}]]
+        set s "$first$second"
+    }
+    incr next_letter
+    return $s
+}
+
+proc label {args} {
+    variable ::turtle::vertices
+    set k [::turtle::_pos_key $::turtle::pos]
+    if {![dict exists $::turtle::vertices $k]} {
+        ::turtle::_record_vertex $::turtle::pos
+    }
+    set entry [dict get $::turtle::vertices $k]
+    dict set entry labeled 1
+    if {[llength $args] > 0} {
+        dict set entry text [lindex $args 0]
+    } elseif {[dict get $entry text] eq ""} {
+        dict set entry text [::turtle::_next_letter_name]
+    }
+    dict set ::turtle::vertices $k $entry
+    ::turtle::_trace "label"
+}
+
+proc above {} {
+    set ::turtle::label_side "above"
+    set k [::turtle::_pos_key $::turtle::pos]
+    if {[dict exists $::turtle::vertices $k]} {
+        set entry [dict get $::turtle::vertices $k]
+        dict set entry side "above"
+        dict set ::turtle::vertices $k $entry
+    }
+    ::turtle::_trace "above"
+}
+
+proc below {} {
+    set ::turtle::label_side "below"
+    set k [::turtle::_pos_key $::turtle::pos]
+    if {[dict exists $::turtle::vertices $k]} {
+        set entry [dict get $::turtle::vertices $k]
+        dict set entry side "below"
+        dict set ::turtle::vertices $k $entry
+    }
+    ::turtle::_trace "below"
 }
 
 # ---- marks ---------------------------------------------------------------
@@ -141,7 +239,7 @@ proc home {} {
 proc gsave {} {
     lappend ::turtle::stack [list \
         $::turtle::pos $::turtle::heading $::turtle::pen \
-        $::turtle::floor_idx $::turtle::floor_sign]
+        $::turtle::floor_idx $::turtle::floor_sign $::turtle::label_side]
     ::turtle::_trace "gsave"
 }
 proc grestore {} {
@@ -150,7 +248,7 @@ proc grestore {} {
     set ::turtle::stack [lrange $::turtle::stack 0 end-1]
     lassign $top \
         ::turtle::pos ::turtle::heading ::turtle::pen \
-        ::turtle::floor_idx ::turtle::floor_sign
+        ::turtle::floor_idx ::turtle::floor_sign ::turtle::label_side
     ::turtle::_trace "grestore"
 }
 
@@ -275,3 +373,6 @@ proc report {} {
         puts "OPEN:   position differs from start."
     }
 }
+
+# ---- init: record the starting vertex so `label` before any step works ---
+::turtle::_record_vertex $::turtle::pos

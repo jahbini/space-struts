@@ -1,0 +1,3 @@
+# Verify the gnomon shape itself closes (independent of gsave/grestore).
+gnomon = { pendown; short; G 2; short; G 4; long; G 4; penup }
+gnomon

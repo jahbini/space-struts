@@ -201,14 +201,14 @@ render = (turtle) ->
   # Everything visual (text, offsets, arrow, dots, strokes) scales
   # by phi^growPHI so bumping `scalephi` keeps proportions right.
   s          = PHI_FLOAT ** growPHI
-  fontSize   = Math.round 15 * s
-  offAbove   = 2 * s
+  fontSize   = Math.round 30 * s
+  offAbove   = 4 * s
   offBelow   = fontSize
   offRight   = 2 * s
   arrowPx    = 19 * s
   arrowSW    = 1 * s
-  vertR      = 1.1 * s
-  strokeShort = 0.6 * s
+  vertR      = 3.5 * s
+  strokeShort = 1.2 * s
   footerSize = Math.round 8 * s
 
   svg = []

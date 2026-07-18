@@ -1,0 +1,19 @@
+# Acceptance test §6.3 — floor invariant assertion.
+# Mix face turns, triple turns, flips, and G rotations. If any of them
+# produced a heading with a nonzero component along the current floor,
+# `_assert_floor_perp` would error and terminate the walk. Runs to
+# completion iff every turn preserved heading·floor = 0.
+# G units are 36 deg. Even k stays on the group; odd k rides the negate
+# trick. Both must preserve heading . floor = 0.
+pendown
+repeat 4 { short; G 2 }
+ACE -1
+repeat 2 { short; G 2 }
+ADF 1
+short
+G 4
+ACE 1
+G 3
+ACE -1
+G -3
+short

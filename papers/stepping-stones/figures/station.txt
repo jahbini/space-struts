@@ -1,0 +1,25 @@
+# Acceptance test §6.6 — station macro.
+# `base1` should land at a fixed station regardless of the turtle's prior
+# state. Expected final position: home + one short step in the home heading,
+# i.e., Cartesian (1,1,1) + ((φ,0,1/φ) - (1,1,1)) = (φ,0,1/φ). In slot form:
+#   A: P(1,1) + P(0,0)   = P(1,1)
+#   B: P(1,-1) + P(0,2)  = P(1,1)
+#   C: P(1,1) + P(0,0)   = P(1,1)
+#   D: P(1,-1) + P(-2,2) = P(-1,1)
+#   E: P(1,1) + P(0,-2)  = P(1,-1)
+#   F: P(1,-1) + P(-2,2) = P(-1,1)
+
+base1 = { penup; home; short }
+
+# Wander for a bit — steps, turns, flips — then hit base1.
+pendown; short; G 1; short; ACE -1; long; AD
+base1
+mark station_after_wander
+
+# Do something else, then hit base1 again. Should land in the same place.
+long; G 2; back; BCF -1
+base1
+mark station_after_more
+
+# Verify: both marks are the fixed station point.
+goto station_after_wander
