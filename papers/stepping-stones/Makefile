@@ -42,6 +42,7 @@ STATIC_PDFS := $(STATIC_SVGS:.svg=.pdf)
 PDFS := $(COFFEE_PDFS) $(TCL_PDFS) $(HAF_PDFS) $(STATIC_PDFS)
 
 .PHONY: all figures verify clean cleanfigs
+.PHONY: preview-%
 .PRECIOUS: $(FIGDIR)/%.svg
 
 all: figures main.pdf
@@ -78,6 +79,15 @@ figures/%.pdf: figures/%.svg
 main.pdf: main.tex $(ALL_CHAPTER_TEXS) $(PDFS)
 	pdflatex -interaction=nonstopmode main.tex
 	pdflatex -interaction=nonstopmode main.tex
+
+# --- single-figure preview -------------------------------------------------
+# `make preview-<name>` builds just figures/turtle/<name>.pdf (from whichever
+# of *.txt / *.tcl / *.haf exists) and opens it in Preview.app. Keep the
+# Preview window open — it auto-refreshes when the PDF changes on disk, so
+# after the first invocation, subsequent `make figures/turtle/<name>.pdf`
+# (or another `make preview-<name>`) will show up in place without reopening.
+preview-%: $(FIGDIR)/%.pdf
+	open $<
 
 # --- verification: run TCL acceptance walks --------------------------------
 verify:
