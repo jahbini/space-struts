@@ -14,13 +14,15 @@ Some of the basic objects are shown at https://spacestruts.com/
 
 Usutally we think that math is six-seven-six-seven with a lot of handwaving.  Math becaomes simpler and interesting when we have a challenge that leads us to create the tools we need.
 
-I had started this effort during covid lock-down when I was teaching in Cambodia at the National Institute of Agriculture where I was to investigate the benefits of Bamboo Snow.  Unfortunately, no students, no travel but an Excellent Cafe with the best mocha.  That provided a lot of time to come up with an easy way to make these things by hand.  With popsicle sticks.
+I had started this effort during covid lock-down when I was teaching in Cambodia at the National Institute of Agriculture where I was to investigate the benefits of Bamboo Snow.  Unfortunately, no students, no travel but an Excellent Cafe with the best mocha.  That provided a lot of time to come up with an easy way to make these things by hand.
+
+With popsicle sticks. You can see many of those constructions at http://spacestruts.com/
 
 The underlying math that describes this construction is beyond the rules laid down by Plato and Pythagoras.  Development went very slowly as I tried to figure how to calculate exactly what triangle to place and where.  I had mastered the flips and flops to do some easy constructions, but the computer code had no fixed strategy.
 
 ## Claude and chatGPT to the Rescue
 
-This is where Claude and OpenAI came to the rescue.  Both were helpful, but not truly capable.  Until December 2025.  The subject was division.  We could multiply and make things bigger, but undoing a multiply was not doable.  Until DEcember, that is.  And the suggestion that I got was startling.  So startling that my initial reaction was to reject it.  So I put in on my brain's back burner and went to something more important. 
+This is where Claude and OpenAI came to the rescue.  Both were helpful, but not truly capable.  The subject was division.  We could multiply and make things bigger, but undoing a multiply was not doable.  Until December, that is.  And the suggestion that I got was startling.  So startling that my initial reaction was to reject it.  So I put in on my brain's back burner and went to something more important. 
 
 But three months later, I realized the suggestion actually worked.  That was the moment that PhiBase changed from a hack to a solid archetecture.
 
@@ -28,6 +30,6 @@ The result is PhiBase and it's close family: SixPhi for three dimensional comput
 
 Incidentally, and maybe with total spiritual karma, the creation of PhiBase is a fully functional numeric base system on the same footing as binary, base ten, classical floating point, but with some serious advantages.
 
-### And So, a Dedication ot Carl Smith:  Thank you for making me totally confused.
+### And So, a Dedication to Carl Smith:  Thank you for making me totally confused.
 
 This is the result of your challenge: PhiBase
